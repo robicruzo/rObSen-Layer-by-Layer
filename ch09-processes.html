@@ -1,0 +1,619 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Processes and the PCB - rObSen, Layer by Layer</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A companion to Alan Labouseur&#x27;s Operating Systems course (CMPT 424, Marist), told through one student&#x27;s browser-based OS written in TypeScript.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">Preface: How to Read This Book</a></li><li class="chapter-item expanded affix "><a href="map.html">The Map: rObSen at a Glance</a></li><li class="chapter-item expanded affix "><li class="part-title">Part I — Foundations</li><li class="chapter-item expanded "><a href="ch01-what-is-an-os.html"><strong aria-hidden="true">1.</strong> What Is an Operating System?</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch01a-ts-namespaces.html"><strong aria-hidden="true">1.1.</strong> TS Deep Dive: Namespaces and the Global Script World</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-structures.html"><strong aria-hidden="true">2.</strong> OS Structures and the Machine Inside the Browser</a></li><li class="chapter-item expanded affix "><li class="part-title">Part II — The Hardware Layer (source/host)</li><li class="chapter-item expanded "><a href="ch03-host.html"><strong aria-hidden="true">3.</strong> The Host: Clock, Buttons, and the Log</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch03a-ts-static-dom.html"><strong aria-hidden="true">3.1.</strong> TS Deep Dive: Static Members, Type Assertions, and the DOM</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-memory.html"><strong aria-hidden="true">4.</strong> Memory and the Memory Accessor</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch04a-ts-class-anatomy.html"><strong aria-hidden="true">4.1.</strong> TS Deep Dive: Anatomy of a Class</a></li></ol></li><li class="chapter-item expanded "><a href="ch05-cpu.html"><strong aria-hidden="true">5.</strong> The CPU: Fetch, Decode, Execute</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch05a-ts-bitwise.html"><strong aria-hidden="true">5.1.</strong> TS Deep Dive: Bits, Bytes, and Bitwise Operators</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part III — The Kernel Layer (source/os)</li><li class="chapter-item expanded "><a href="ch06-kernel.html"><strong aria-hidden="true">6.</strong> Booting, Interrupts, and the Mode Bit</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch06a-ts-unions-null.html"><strong aria-hidden="true">6.1.</strong> TS Deep Dive: Union Types, Null, and Optional Chaining</a></li></ol></li><li class="chapter-item expanded "><a href="ch07-drivers.html"><strong aria-hidden="true">7.</strong> Device Drivers: The Keyboard</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch07a-ts-inheritance-this.html"><strong aria-hidden="true">7.1.</strong> TS Deep Dive: Inheritance, super, and the Trouble with this</a></li></ol></li><li class="chapter-item expanded "><a href="ch08-shell.html"><strong aria-hidden="true">8.</strong> The Console and the Shell</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch08a-ts-functions-as-values.html"><strong aria-hidden="true">8.1.</strong> TS Deep Dive: Functions as Values</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part IV — Processes and Threads</li><li class="chapter-item expanded "><a href="ch09-processes.html" class="active"><strong aria-hidden="true">9.</strong> Processes and the PCB</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch09a-ts-literal-types.html"><strong aria-hidden="true">9.1.</strong> TS Deep Dive: Literal Types and Type Aliases</a></li></ol></li><li class="chapter-item expanded "><a href="ch10-threads.html"><strong aria-hidden="true">10.</strong> Threads, and the One Thread You Have</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch10a-ts-event-loop.html"><strong aria-hidden="true">10.1.</strong> TS Deep Dive: The Event Loop, Timers, and Callbacks</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part V — Main Memory</li><li class="chapter-item expanded "><a href="ch11-main-memory.html"><strong aria-hidden="true">11.</strong> Binding, Base/Limit, and Partitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch11a-ts-interfaces.html"><strong aria-hidden="true">11.1.</strong> TS Deep Dive: Interfaces and Object Shapes</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VI — CPU Scheduling</li><li class="chapter-item expanded "><a href="ch12-scheduling-theory.html"><strong aria-hidden="true">12.</strong> Scheduling Theory, by Hand and by Code</a></li><li class="chapter-item expanded "><a href="ch13-scheduling-robsen.html"><strong aria-hidden="true">13.</strong> Scheduling in rObSen: Timer, Dispatcher, Context Switch</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch13a-ts-generics.html"><strong aria-hidden="true">13.1.</strong> TS Deep Dive: Generics</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VII — Storage</li><li class="chapter-item expanded "><a href="ch14-fs-interface.html"><strong aria-hidden="true">14.</strong> The File-System Interface</a></li><li class="chapter-item expanded "><a href="ch15-fs-implementation.html"><strong aria-hidden="true">15.</strong> File-System Implementation: The TSB Disk</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch15a-ts-storage-strings.html"><strong aria-hidden="true">15.1.</strong> TS Deep Dive: Web Storage, JSON, and Hex Strings</a></li></ol></li><li class="chapter-item expanded "><a href="ch16-disks.html"><strong aria-hidden="true">16.</strong> Disk Systems and Disk Scheduling</a></li><li class="chapter-item expanded affix "><li class="part-title">Part VIII — Beyond Contiguous Memory</li><li class="chapter-item expanded "><a href="ch17-swapping.html"><strong aria-hidden="true">17.</strong> Swapping: Roll-Out and Roll-In</a></li><li class="chapter-item expanded "><a href="ch18-paging.html"><strong aria-hidden="true">18.</strong> Paging</a></li><li class="chapter-item expanded affix "><li class="part-title">Part IX — Concurrency</li><li class="chapter-item expanded "><a href="ch19-sync-deadlock.html"><strong aria-hidden="true">19.</strong> Synchronization and Deadlock</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch19a-ts-async.html"><strong aria-hidden="true">19.1.</strong> TS Deep Dive: Promises and async/await</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part X — Virtual Memory</li><li class="chapter-item expanded "><a href="ch20-virtual-memory.html"><strong aria-hidden="true">20.</strong> Demand Paging and Page Replacement</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch20a-ts-implements.html"><strong aria-hidden="true">20.1.</strong> TS Deep Dive: implements and the Strategy Pattern</a></li></ol></li><li class="chapter-item expanded "><li class="spacer"></li><li class="chapter-item expanded affix "><a href="appA-6502a.html">A. The 6502a Instruction Set</a></li><li class="chapter-item expanded affix "><a href="appB-commands.html">B. Shell Command Reference</a></li><li class="chapter-item expanded affix "><a href="appC-bugs.html">C. Bug Ledger</a></li><li class="chapter-item expanded affix "><a href="appD-glados.html">D. Testing with GLaDOS</a></li><li class="chapter-item expanded affix "><a href="appE-slide-index.html">E. Slide Index</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">rObSen, Layer by Layer</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="processes-and-the-pcb"><a class="header" href="#processes-and-the-pcb">Processes and the PCB</a></h1>
+<div class="stack"><span>Browser</span><span>Host: clock & devices</span><span>Host: memory</span><span>Host: CPU</span><span>Kernel</span><span>Drivers</span><span>Console & shell</span><span class="here">Processes</span><span>Memory manager</span><span>Scheduler</span><span>File system</span><span>Swapper</span></div>
+<p><em>Slides: Chapter 3, “Processes,” pp. 165–221. Project Part Two.</em></p>
+<p>With the machine and the console working, the OS can finally do the thing operating systems are for: run programs. This chapter is about the abstraction that makes that possible, the <strong>process</strong>, and the data structure that represents one, the <strong>process control block</strong>.</p>
+<h2 id="program-versus-process"><a class="header" href="#program-versus-process">Program versus process</a></h2>
+<p>“A program is a passive entity stored on disk (executable image); a process is active” (slide p. 168). The program is the recipe; the process is the cooking. One program can be several processes at once: load the same hex three times and you get three processes, PIDs 0, 1, and 2, each with its own memory, registers, and progress.</p>
+<p>A process in memory has four parts (slide p. 167): the <strong>text</strong> (code), the <strong>data</strong> section (globals), the <strong>heap</strong> (dynamically allocated memory), and the <strong>stack</strong> (function parameters, return addresses, locals).</p>
+<figure class="slide"><img src="img/slides/slide-169.jpg" alt="Process in memory"><figcaption>Slide p. 169: a process's address space, text at the bottom, stack at the top, heap and stack growing toward each other.</figcaption></figure>
+<p>A 6502a process in rObSen has only two of the four: <strong>text and data, mixed together</strong> in one 256-byte partition. The sample program in Chapter 5 keeps its variables at <code>$50</code>–<code>$61</code>, right after its code, and nothing distinguishes them from instructions except that the PC never goes there. There’s no stack because the 6502a subset has no push, pop, or subroutine call; there’s no heap because there’s no allocator. (A program that writes over its own code is perfectly legal, and occasionally done on purpose.)</p>
+<h2 id="process-states"><a class="header" href="#process-states">Process states</a></h2>
+<div class="slide-pair">
+<figure class="slide"><img src="img/slides/slide-172.jpg" alt="Diagram of process state"><figcaption>Slide p. 172: the textbook's five states. "This is close to how we'll handle this in our OS projects, but with a resident queue added and without a waiting queue."</figcaption></figure>
+<figure class="slide"><img src="img/slides/slide-187.jpg" alt="Our process states"><figcaption>Slide p. 187: "Our Process States," the course's version, with RESIDENT between NEW and READY.</figcaption></figure>
+</div>
+<p>The course’s state machine (slide p. 187) is:</p>
+<ul>
+<li><strong>NEW</strong>: op codes are in the host (the input box). No PCB yet.</li>
+<li><code>load</code> creates the PCB → <strong>RESIDENT</strong>: op codes loaded into a memory segment “but dormant.”</li>
+<li><code>run &lt;pid&gt;</code> → <strong>READY</strong>: in memory, waiting for the CPU.</li>
+<li>scheduler dispatch → <strong>RUNNING</strong>; an interrupt sends it back to <strong>READY</strong>.</li>
+<li>BRK, halt, or kill → <strong>TERMINATED</strong>: “memory available for reuse.”</li>
+</ul>
+<p>There’s no <strong>waiting</strong> state, because 6502a programs never wait for I/O: system calls complete instantly.</p>
+<p>rObSen’s PCB declares the states it actually uses:</p>
+<pre><code class="language-typescript">  export type ProcessState = "New" | "Ready" | "Running" | "Terminated";
+
+  export type ProcessLocation = "Memory" | "Disk";
+</code></pre>
+<p>There is no <code>"Resident"</code>. A loaded process goes straight to <code>Ready</code> and onto the ready queue, so the ready queue doubles as the resident list. The project spec allows this (“These can be combined if you label it carefully”). <code>"New"</code> exists but is held only for the instant between <code>new PCB(…)</code> and <code>markReady()</code>. Chapter 9a explains the <code>type … = "New" | "Ready" | …</code> syntax.</p>
+<h2 id="the-process-control-block"><a class="header" href="#the-process-control-block">The process control block</a></h2>
+<p>“Data associated with each process” (slide p. 175): process state, process ID, program counter, CPU registers, CPU-scheduling information, memory-management information (including protection), accounting information, and I/O status information. Here is rObSen’s:</p>
+<pre><code class="language-typescript">  export class PCB {
+    public pc: number;
+    public ir: number;
+    public acc: number;
+    public xReg: number;
+    public yReg: number;
+    public zFlag: number;
+    public state: ProcessState;
+    public priority: number;
+    public quantumRemaining: number;
+    public segment: number;
+    public arrivalCycle: number;
+    public firstRunCycle: number | null;
+    public completionCycle: number | null;
+    public waitCycles: number;
+    public turnaroundCycles: number;
+    public lastStateChangeCycle: number;
+    public location: ProcessLocation;
+    public swapKey: string | null;
+
+    constructor(
+      public readonly pid: number,
+      public base: number,
+      public limit: number,
+      public readonly size: number,
+      segment: number,
+      priority: number = 0,
+    ) {
+      this.state = "New";
+      this.pc = 0;
+      this.ir = 0;
+      this.acc = 0;
+      this.xReg = 0;
+      this.yReg = 0;
+      this.zFlag = 0;
+      this.priority = priority;
+      this.quantumRemaining = this.defaultQuantum();
+      this.segment = segment;
+      this.arrivalCycle = _CpuCycleCount;
+      this.firstRunCycle = null;
+      this.completionCycle = null;
+      this.waitCycles = 0;
+      this.turnaroundCycles = 0;
+      this.lastStateChangeCycle = _CpuCycleCount;
+      this.location = "Memory";
+      this.swapKey = null;
+    }
+</code></pre>
+<p>Grouped by the slide’s categories:</p>
+<div class="table-wrapper"><table><thead><tr><th>Slide category</th><th>rObSen fields</th></tr></thead><tbody>
+<tr><td>Process state</td><td><code>state</code></td></tr>
+<tr><td>Process ID</td><td><code>pid</code> (readonly)</td></tr>
+<tr><td>Program counter, CPU registers</td><td><code>pc</code>, <code>ir</code>, <code>acc</code>, <code>xReg</code>, <code>yReg</code>, <code>zFlag</code></td></tr>
+<tr><td>CPU scheduling information</td><td><code>priority</code>, <code>quantumRemaining</code></td></tr>
+<tr><td>Memory management (and protection)</td><td><code>base</code>, <code>limit</code>, <code>segment</code>, <code>size</code>; <code>location</code> and <code>swapKey</code> for swapping</td></tr>
+<tr><td>Accounting</td><td><code>arrivalCycle</code>, <code>firstRunCycle</code>, <code>completionCycle</code>, <code>waitCycles</code>, <code>turnaroundCycles</code>, <code>lastStateChangeCycle</code></td></tr>
+<tr><td>I/O status</td><td>none (rObSen processes do no I/O beyond printing)</td></tr>
+</tbody></table>
+</div>
+<p>The state-change methods keep the accounting honest:</p>
+<pre><code class="language-typescript">    public markReady(): void {
+      if (this.state === "Running") {
+        this.quantumRemaining = this.defaultQuantum();
+      }
+      this.state = "Ready";
+      this.lastStateChangeCycle = _CpuCycleCount;
+    }
+
+    public markRunning(): void {
+      if (this.state === "Ready") {
+        this.waitCycles += _CpuCycleCount - this.lastStateChangeCycle;
+      }
+      this.state = "Running";
+      this.quantumRemaining = this.defaultQuantum();
+      if (this.firstRunCycle === null) {
+        this.firstRunCycle = _CpuCycleCount;
+      }
+      this.lastStateChangeCycle = _CpuCycleCount;
+    }
+
+    public markTerminated(): void {
+      if (this.state === "Ready") {
+        this.waitCycles += _CpuCycleCount - this.lastStateChangeCycle;
+      }
+      this.state = "Terminated";
+      this.quantumRemaining = 0;
+      this.completionCycle = _CpuCycleCount;
+      this.updateTurnaround();
+      this.lastStateChangeCycle = _CpuCycleCount;
+    }
+</code></pre>
+<p>Every transition stamps <code>lastStateChangeCycle</code> with the current CPU cycle count. When a process leaves <code>Ready</code> (to run, or to die), the time it spent there is added to <code>waitCycles</code>. When it terminates, <code>turnaroundCycles</code> becomes <code>completionCycle − arrivalCycle</code>. That’s exactly the slide definitions (Chapter 5, p. 284): <strong>turnaround</strong> is “the interval from process submission to process completion,” and <strong>waiting time</strong> is “total amount of time a process spent waiting in the ready queue.” Project Part Three requires both, measured in CPU cycles, and the panels and <code>ps</code> display them live.</p>
+<figure class="slide"><img src="img/slides/slide-177.jpg" alt="CPU switch from process to process"><figcaption>Slide p. 177: on a switch, save state into PCB<sub>0</sub>, reload state from PCB<sub>1</sub>. Chapter 13 shows rObSen's version.</figcaption></figure>
+<h2 id="creating-a-process-load"><a class="header" href="#creating-a-process-load">Creating a process: <code>load</code></a></h2>
+<p>In rObSen a process is born when you type <code>load</code>:</p>
+<pre><code class="language-typescript">    public shellLoad(args: string[]): void {
+      const textArea = document.getElementById(
+        "taProgramInput",
+      ) as HTMLTextAreaElement | null;
+
+      if (!textArea) {
+        _StdOut.putText("Error: program input area not found.");
+        return;
+      }
+
+      if (_CPU.isExecuting) {
+        _StdOut.putText(
+          "Error: cannot load new code while the CPU is executing.",
+        );
+        return;
+      }
+
+      if (!_MemoryManager) {
+        _StdOut.putText("Error: memory manager is not initialized.");
+        return;
+      }
+
+      const rawInput = textArea.value ?? "";
+      const trimmedInput = rawInput.trim();
+
+      if (trimmedInput.length === 0) {
+        _StdOut.putText("Error: no input to load.");
+        return;
+      }
+
+      const hexAndSpaceOnly = /^[0-9A-Fa-f\s]+$/;
+      if (!hexAndSpaceOnly.test(trimmedInput)) {
+        _StdOut.putText(
+          "Error: invalid character(s). Only hexadecimal bytes separated by whitespace are allowed.",
+        );
+        return;
+      }
+
+      const tokens = trimmedInput.split(/\s+/).filter(Boolean);
+      const bytes: number[] = [];
+
+      for (const token of tokens) {
+        if (token.length !== 2) {
+          _StdOut.putText(
+            "Error: each byte must be exactly two hexadecimal characters.",
+          );
+          return;
+        }
+
+        const value = parseInt(token, 16);
+        if (Number.isNaN(value)) {
+          _StdOut.putText(`Error: unable to parse byte '${token}'.`);
+          return;
+        }
+
+        bytes.push(value &amp; 0xff);
+      }
+
+      if (bytes.length === 0) {
+        _StdOut.putText("Error: no executable bytes were provided.");
+        return;
+      }
+
+      if (bytes.length &gt; _Memory.size()) {
+        const availableBytes = _Memory.size();
+        _StdOut.putText(
+          `Error: program is too large. Available memory supports ${availableBytes} bytes.`,
+        );
+        return;
+      }
+
+      this.collectTerminatedProcesses();
+
+      const prospectivePid = _PidCounter;
+      let allocation = _MemoryManager.allocate(prospectivePid, bytes.length);
+      if (!allocation) {
+        const victim = this.findSwappableProcess();
+        if (victim &amp;&amp; _Swapper?.rollOut(victim)) {
+          allocation = _MemoryManager.allocate(prospectivePid, bytes.length);
+        }
+      }
+      if (!allocation) {
+        _StdOut.putText("Error: insufficient memory (swap failed).");
+        return;
+      }
+
+      _MemoryManager.load(allocation, bytes);
+
+      const pid = _PidCounter++;
+      const pcb = new PCB(
+        pid,
+        allocation.base,
+        allocation.limit,
+        allocation.size,
+        allocation.partition,
+      );
+      pcb.markReady();
+      pcb.placeInMemory();
+      _ProcessTable.set(pid, pcb);
+      if (_ReadyQueue) {
+        _ReadyQueue.enqueue(pcb);
+        pcb.noteEnqueued();
+      }
+      _CurrentProcess = null;
+
+      const hexBase = allocation.base.toString(16).padStart(4, "0");
+      _StdOut.putText(
+        `Process ${pid} loaded at 0x${hexBase} (${bytes.length} byte${bytes.length === 1 ? "" : "s"}).`,
+      );
+
+      Control.hostUpdateDisplays();
+    }
+</code></pre>
+<p>Step by step:</p>
+<ol>
+<li><strong>Find the input</strong> and refuse if the CPU is busy. Loading while executing would race with the running process’s memory accesses (and the accessor would translate the loader’s addresses; see Chapter 4).</li>
+<li><strong>Validate</strong> (Project Part One): the text must be only hex digits and whitespace, every token must be exactly two characters, and the program must fit in memory. (It checks against all 768 bytes, not one 256-byte partition. A 300-byte program passes this check and then fails to find a partition, so the error message is “insufficient memory” rather than “too large.” Worse, see the callout below.)</li>
+<li><strong>Reap dead processes</strong>: <code>collectTerminatedProcesses</code> frees memory still held by any terminated process.</li>
+<li><strong>Allocate a partition</strong> from the memory manager. If none is free, <strong>swap</strong> a process out to disk to make room (Chapter 17).</li>
+<li><strong>Copy the bytes in</strong> (<code>MemoryManager.load</code> also zero-fills the rest of the partition).</li>
+<li><strong>Assign a PID.</strong> <code>_PidCounter++</code> means PIDs only ever increase and are never reused, as the spec requires: “Do not reset PIDs as they are used. The PID value should always increase.”</li>
+<li><strong>Build the PCB</strong>, mark it ready, record that it’s in memory, add it to the process table (<code>_ProcessTable</code>, a <code>Map</code> from PID to PCB), and enqueue it on the ready queue.</li>
+<li>Report the PID and load address.</li>
+</ol>
+<div class="callout bug"><span class="label">In the code</span>
+<strong>An oversized program swaps out an innocent process.</strong> Load two small programs, then try to load 300 bytes. <code>allocate</code> fails (no partition holds 300 bytes), so step 4 assumes memory is full and rolls PID 0 out to disk, then tries again, fails again, and reports "insufficient memory (swap failed)." PID 0 is now on disk for no reason, even though partition 2 was free the whole time. The size check in step 2 should compare against the partition size (256), so the swap is only attempted when it could help.
+</div>
+<div class="callout"><span class="label">Process creation in real systems</span>
+UNIX splits creation into two system calls (slides pp. 188–197): <code>fork()</code> copies the calling process, and <code>exec()</code> replaces the copy's memory with a new program. Windows does both in one call, <code>CreateProcess()</code>. Every UNIX process except the first has a parent, which can <code>wait()</code> for it. rObSen's <code>load</code> is closest to <code>exec</code> without the <code>fork</code>: the shell (which isn't a process) loads a program image into fresh memory. There are no parent/child relationships, and therefore no process tree.
+</div>
+<h2 id="running-a-process-run-pid"><a class="header" href="#running-a-process-run-pid">Running a process: <code>run &lt;pid&gt;</code></a></h2>
+<pre><code class="language-typescript">    public shellRun(args: string[]): void {
+      if (!args || args.length === 0) {
+        _StdOut.putText("Usage: run &lt;pid&gt;");
+        return;
+      }
+
+      const pid = parseInt(args[0], 10);
+      if (Number.isNaN(pid)) {
+        _StdOut.putText("Error: PID must be a decimal number.");
+        return;
+      }
+
+      if (_CPU.isExecuting) {
+        _StdOut.putText("Error: the CPU is already executing a process.");
+        return;
+      }
+
+      _RunAllMode = false;
+
+      const runResult = _Kernel.krnRunProcessByPid(pid);
+      if (!runResult.success) {
+        _StdOut.putText(runResult.message);
+        return;
+      }
+
+      _StdOut.putText(`Process ${pid} is now running.`);
+      Control.hostUpdateDisplays();
+    }
+</code></pre>
+<p>The shell validates the PID, makes sure the CPU isn’t busy, and asks the kernel:</p>
+<pre><code class="language-typescript">    public krnRunProcessByPid(
+      pid: number,
+    ): { success: boolean; message?: string } {
+      const pcb = _ProcessTable.get(pid);
+      if (!pcb) {
+        return { success: false, message: `Error: PID ${pid} was not found.` };
+      }
+
+      if (pcb.state === "Terminated") {
+        return {
+          success: false,
+          message: `Error: PID ${pid} is not resident in memory.`,
+        };
+      }
+
+      pcb.resetCpuState();
+      pcb.markReady();
+      this.enterKernelMode("Run PID");
+      this.dispatchProcess(pcb);
+      return { success: true };
+    }
+</code></pre>
+<p>The kernel resets the PCB’s saved registers to zero (so a process always starts at logical address 0), marks it ready, and <strong>dispatches</strong> it: the dispatcher copies the PCB’s registers into the CPU and sets <code>isExecuting</code>. Chapter 13 reads <code>dispatchProcess</code> closely. From that moment, each clock tick runs one of its instructions.</p>
+<h2 id="ending-a-process"><a class="header" href="#ending-a-process">Ending a process</a></h2>
+<p>A process ends in one of three ways: it executes <code>BRK</code> (<code>00</code>); someone kills it (<code>kill &lt;pid&gt;</code>, <code>killall</code>, Ctrl-C); or it crashes (an invalid opcode, a missing operand). The normal path is <code>krnCompleteCurrentProcess</code>, called by the CPU’s BRK handler:</p>
+<pre><code class="language-typescript">    public krnCompleteCurrentProcess(accValue: number): void {
+      if (!_CurrentProcess) {
+        return;
+      }
+
+      const completedProcess = _CurrentProcess;
+      const pid = completedProcess.pid;
+
+      this.terminateProcess(completedProcess);
+
+      _StdOut.advanceLine();
+      _StdOut.putText(`Process ${pid} completed.`);
+      _StdOut.advanceLine();
+      _StdOut.putText(`ACC = ${(accValue &amp; 0xff).toString(10)}`);
+      _StdOut.advanceLine();
+
+      Control.hostUpdateDisplays();
+
+      if (_RunAllMode &amp;&amp; _ReadyQueue &amp;&amp; _ReadyQueue.getSize() &gt; 0) {
+        const nextResult = this.krnRunAll();
+        if (!nextResult.success) {
+          _RunAllMode = false;
+          _OsShell.putPrompt();
+        }
+        return;
+      }
+
+      _RunAllMode = false;
+      _OsShell.putPrompt();
+    }
+</code></pre>
+<p>and every path that ends a process cleanly goes through <code>terminateProcess</code>:</p>
+<pre><code class="language-typescript">    private terminateProcess(pcb: TSOS.PCB): void {
+      const pid = pcb.pid;
+      pcb.markTerminated();
+      if (pcb.location === "Memory") {
+        _MemoryManager?.releaseByPid(pid);
+      } else {
+        _krnDiskDriver?.releaseSwapImage(pcb.swapKey);
+      }
+      _ReadyQueue?.remove((queued: TSOS.PCB) =&gt; queued.pid === pid);
+      _ProcessTable.delete(pid);
+
+      if (_CurrentProcess &amp;&amp; _CurrentProcess.pid === pid) {
+        _CurrentProcess = null;
+      }
+
+      if (!_CurrentProcess) {
+        _SchedulerCounter = _SchedulerQuantum;
+        this.exitToUserMode();
+      }
+    }
+</code></pre>
+<p>Mark it terminated (stamping the accounting fields), release its memory (or its swap image, if it’s on disk), take it off the ready queue, <strong>delete it from the process table</strong>, and if it was the running process, clear <code>_CurrentProcess</code>.</p>
+<h3 id="zombies"><a class="header" href="#zombies">Zombies</a></h3>
+<p>“A zombie process is a process that has completed execution… but still has an entry in the process table” (slide p. 194). In UNIX, a child’s entry lingers after exit so that its parent can collect the exit status with <code>wait()</code>; once collected, the zombie is “reaped.” The project spec warns that killing the running process “should not create a zombie.”</p>
+<p>rObSen avoids zombies by deleting the PCB from the process table at once. The cost is that the exit status (the final accumulator) survives only as the line printed on the console; <code>ps</code> can never show a finished process. A UNIX-faithful design would keep terminated PCBs until something reads their status.</p>
+<p>One path does <em>not</em> go through <code>terminateProcess</code>: an invalid opcode calls <code>markTerminated</code> directly and then traps. That leaves a PCB in the table with its partition still allocated, which is a zombie. It’s mostly academic, since the trap shuts the OS down, but it’s why <code>shellLoad</code> begins by reaping: <code>collectTerminatedProcesses</code> releases anything in the <code>Terminated</code> state.</p>
+<h2 id="queues-and-schedulers"><a class="header" href="#queues-and-schedulers">Queues and schedulers</a></h2>
+<p>“Processes migrate among the various queues” (slide p. 181): the <strong>job (resident) queue</strong> of everything in the system, the <strong>ready queue</strong> of processes in memory and ready to run, and <strong>device queues</strong> of processes waiting on I/O. <figure class="slide"><img src="img/slides/slide-183.jpg" alt="Representation of process scheduling"><figcaption>Slide p. 183: processes cycle between the ready queue, the CPU, and I/O queues.</figcaption></figure></p>
+<p>rObSen has a process table (<code>_ProcessTable</code>) playing the role of the job queue and a ready queue (<code>_ReadyQueue</code>); it needs no device queues.</p>
+<p>The <strong>long-term scheduler</strong> decides which jobs to admit into memory, controlling the degree of multiprogramming; the <strong>short-term scheduler</strong> picks which ready process runs next (slides pp. 184–185). In rObSen, you are the long-term scheduler: you decide what to <code>load</code>. The swapper (Chapter 17) adds a <strong>medium-term</strong> scheduler, which the textbook describes as removing processes from memory to reduce the degree of multiprogramming and bringing them back later.</p>
+<h2 id="interprocess-communication"><a class="header" href="#interprocess-communication">Interprocess communication</a></h2>
+<p>The rest of Chapter 3 covers how cooperating processes communicate (slides pp. 206–220): <strong>shared memory</strong> versus <strong>message passing</strong>; direct communication (naming the other process) versus indirect (mailboxes, ports); Mach’s message-based kernel; Windows’ local procedure calls; sockets; and remote procedure calls with their client and server stubs.</p>
+<p>rObSen processes can’t communicate at all: each one is sealed inside its 256 bytes, and the memory accessor folds every address back into its own partition (Chapter 4). That’s perfect isolation, and no cooperation. Adding a shared-memory segment would be an interesting extension. You’d map, say, logical <code>$F0</code>–<code>$FF</code> of <em>every</em> process to one shared physical region. And as soon as you did, two processes could both read, add, and write the same byte, which is exactly the race condition Chapter 19 opens with.</p>
+<h2 id="check-yourself"><a class="header" href="#check-yourself">Check yourself</a></h2>
+<ol>
+<li>Load the same program three times, then <code>run 1</code>. Which partition’s code runs, and what are processes 0 and 2 doing meanwhile?</li>
+<li>Why does <code>krnRunProcessByPid</code> call <code>pcb.resetCpuState()</code>? What would go wrong without it?</li>
+<li>A process is loaded at cycle 100, first runs at cycle 130, waits in the ready queue for another 40 cycles in total while others run, and completes at cycle 200. What are its turnaround and waiting times?</li>
+</ol>
+<details>
+<summary>Answers</summary>
+<ol>
+<li>Partition 1’s (base <code>$0100</code>). Processes 0 and 2 sit in the ready queue in state <code>Ready</code>. <code>run</code> dispatches only the one process, and outside <code>runall</code> mode the timer ISR doesn’t switch away from it, so they stay ready until you run them.</li>
+<li>A process that had been partly run (for example, interrupted by Ctrl-C during an earlier <code>runall</code>, if it survived) would resume mid-program with stale registers. Resetting makes <code>run</code> mean “start from the beginning.” It’s also why the saved PC must be <em>logical</em> (Chapter 4): zero means the start of the process’s own partition.</li>
+<li>Turnaround = 200 − 100 = 100 cycles. Waiting = 30 (before first run) + 40 = 70 cycles.</li>
+</ol>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch08a-ts-functions-as-values.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="ch09a-ts-literal-types.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch08a-ts-functions-as-values.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="ch09a-ts-literal-types.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,550 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>File-System Implementation: The TSB Disk - rObSen, Layer by Layer</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A companion to Alan Labouseur&#x27;s Operating Systems course (CMPT 424, Marist), told through one student&#x27;s browser-based OS written in TypeScript.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">Preface: How to Read This Book</a></li><li class="chapter-item expanded affix "><a href="map.html">The Map: rObSen at a Glance</a></li><li class="chapter-item expanded affix "><li class="part-title">Part I — Foundations</li><li class="chapter-item expanded "><a href="ch01-what-is-an-os.html"><strong aria-hidden="true">1.</strong> What Is an Operating System?</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch01a-ts-namespaces.html"><strong aria-hidden="true">1.1.</strong> TS Deep Dive: Namespaces and the Global Script World</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-structures.html"><strong aria-hidden="true">2.</strong> OS Structures and the Machine Inside the Browser</a></li><li class="chapter-item expanded affix "><li class="part-title">Part II — The Hardware Layer (source/host)</li><li class="chapter-item expanded "><a href="ch03-host.html"><strong aria-hidden="true">3.</strong> The Host: Clock, Buttons, and the Log</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch03a-ts-static-dom.html"><strong aria-hidden="true">3.1.</strong> TS Deep Dive: Static Members, Type Assertions, and the DOM</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-memory.html"><strong aria-hidden="true">4.</strong> Memory and the Memory Accessor</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch04a-ts-class-anatomy.html"><strong aria-hidden="true">4.1.</strong> TS Deep Dive: Anatomy of a Class</a></li></ol></li><li class="chapter-item expanded "><a href="ch05-cpu.html"><strong aria-hidden="true">5.</strong> The CPU: Fetch, Decode, Execute</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch05a-ts-bitwise.html"><strong aria-hidden="true">5.1.</strong> TS Deep Dive: Bits, Bytes, and Bitwise Operators</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part III — The Kernel Layer (source/os)</li><li class="chapter-item expanded "><a href="ch06-kernel.html"><strong aria-hidden="true">6.</strong> Booting, Interrupts, and the Mode Bit</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch06a-ts-unions-null.html"><strong aria-hidden="true">6.1.</strong> TS Deep Dive: Union Types, Null, and Optional Chaining</a></li></ol></li><li class="chapter-item expanded "><a href="ch07-drivers.html"><strong aria-hidden="true">7.</strong> Device Drivers: The Keyboard</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch07a-ts-inheritance-this.html"><strong aria-hidden="true">7.1.</strong> TS Deep Dive: Inheritance, super, and the Trouble with this</a></li></ol></li><li class="chapter-item expanded "><a href="ch08-shell.html"><strong aria-hidden="true">8.</strong> The Console and the Shell</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch08a-ts-functions-as-values.html"><strong aria-hidden="true">8.1.</strong> TS Deep Dive: Functions as Values</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part IV — Processes and Threads</li><li class="chapter-item expanded "><a href="ch09-processes.html"><strong aria-hidden="true">9.</strong> Processes and the PCB</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch09a-ts-literal-types.html"><strong aria-hidden="true">9.1.</strong> TS Deep Dive: Literal Types and Type Aliases</a></li></ol></li><li class="chapter-item expanded "><a href="ch10-threads.html"><strong aria-hidden="true">10.</strong> Threads, and the One Thread You Have</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch10a-ts-event-loop.html"><strong aria-hidden="true">10.1.</strong> TS Deep Dive: The Event Loop, Timers, and Callbacks</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part V — Main Memory</li><li class="chapter-item expanded "><a href="ch11-main-memory.html"><strong aria-hidden="true">11.</strong> Binding, Base/Limit, and Partitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch11a-ts-interfaces.html"><strong aria-hidden="true">11.1.</strong> TS Deep Dive: Interfaces and Object Shapes</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VI — CPU Scheduling</li><li class="chapter-item expanded "><a href="ch12-scheduling-theory.html"><strong aria-hidden="true">12.</strong> Scheduling Theory, by Hand and by Code</a></li><li class="chapter-item expanded "><a href="ch13-scheduling-robsen.html"><strong aria-hidden="true">13.</strong> Scheduling in rObSen: Timer, Dispatcher, Context Switch</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch13a-ts-generics.html"><strong aria-hidden="true">13.1.</strong> TS Deep Dive: Generics</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VII — Storage</li><li class="chapter-item expanded "><a href="ch14-fs-interface.html"><strong aria-hidden="true">14.</strong> The File-System Interface</a></li><li class="chapter-item expanded "><a href="ch15-fs-implementation.html" class="active"><strong aria-hidden="true">15.</strong> File-System Implementation: The TSB Disk</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch15a-ts-storage-strings.html"><strong aria-hidden="true">15.1.</strong> TS Deep Dive: Web Storage, JSON, and Hex Strings</a></li></ol></li><li class="chapter-item expanded "><a href="ch16-disks.html"><strong aria-hidden="true">16.</strong> Disk Systems and Disk Scheduling</a></li><li class="chapter-item expanded affix "><li class="part-title">Part VIII — Beyond Contiguous Memory</li><li class="chapter-item expanded "><a href="ch17-swapping.html"><strong aria-hidden="true">17.</strong> Swapping: Roll-Out and Roll-In</a></li><li class="chapter-item expanded "><a href="ch18-paging.html"><strong aria-hidden="true">18.</strong> Paging</a></li><li class="chapter-item expanded affix "><li class="part-title">Part IX — Concurrency</li><li class="chapter-item expanded "><a href="ch19-sync-deadlock.html"><strong aria-hidden="true">19.</strong> Synchronization and Deadlock</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch19a-ts-async.html"><strong aria-hidden="true">19.1.</strong> TS Deep Dive: Promises and async/await</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part X — Virtual Memory</li><li class="chapter-item expanded "><a href="ch20-virtual-memory.html"><strong aria-hidden="true">20.</strong> Demand Paging and Page Replacement</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch20a-ts-implements.html"><strong aria-hidden="true">20.1.</strong> TS Deep Dive: implements and the Strategy Pattern</a></li></ol></li><li class="chapter-item expanded "><li class="spacer"></li><li class="chapter-item expanded affix "><a href="appA-6502a.html">A. The 6502a Instruction Set</a></li><li class="chapter-item expanded affix "><a href="appB-commands.html">B. Shell Command Reference</a></li><li class="chapter-item expanded affix "><a href="appC-bugs.html">C. Bug Ledger</a></li><li class="chapter-item expanded affix "><a href="appD-glados.html">D. Testing with GLaDOS</a></li><li class="chapter-item expanded affix "><a href="appE-slide-index.html">E. Slide Index</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">rObSen, Layer by Layer</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="file-system-implementation-the-tsb-disk"><a class="header" href="#file-system-implementation-the-tsb-disk">File-System Implementation: The TSB Disk</a></h1>
+<div class="stack"><span>Browser</span><span>Host: clock & devices</span><span>Host: memory</span><span>Host: CPU</span><span>Kernel</span><span class="here">Drivers</span><span>Console & shell</span><span>Processes</span><span>Memory manager</span><span>Scheduler</span><span class="here">File system</span><span>Swapper</span></div>
+<p><em>Slides: Chapter 11, “File System Implementation,” pp. 753–785. Project Part Four; Lab 100.</em></p>
+<p>“What IS a file system? A set of on-disk and in-memory structures… used to describe an Applications Interface (API) [and] physical layout conventions” (slide p. 755). It has “two main faces”: the <strong>logical design</strong>, how it looks to users (Chapter 14), and the <strong>physical design</strong>, how the OS implements that efficiently (p. 756). This chapter is the physical design of rObSen’s file system, which lives entirely in one 670-line file, <code>deviceDriverDisk.ts</code>.</p>
+<p>It’s the most ambitious file in the project, and the one where reading carefully pays off most. It mostly works. It also has the most consequential bug in rObSen.</p>
+<h2 id="where-the-disk-is"><a class="header" href="#where-the-disk-is">Where the “disk” is</a></h2>
+<p>Lab 100 puts it plainly: “We need to simulate physical storage in the browser. You could use HTML5 Session Storage for this.” Chapter 2’s slides asked the same question (“How are we going to do that in TypeScript/JavaScript? A: HTML5 Storage”). <code>sessionStorage</code> is a key-value store of strings that the browser keeps per tab: it survives reloads but not closing the tab. rObSen stores the entire disk under one key, <code>"tsos-disk"</code>, as a JSON array of 256 strings, one per block. Chapter 15a covers the Web Storage API and JSON.</p>
+<h2 id="geometry-tracks-sectors-blocks"><a class="header" href="#geometry-tracks-sectors-blocks">Geometry: tracks, sectors, blocks</a></h2>
+<pre><code class="language-typescript">  export class DeviceDriverDisk extends DeviceDriver {
+    private readonly storageKey = "tsos-disk";
+    private readonly tracks = 4;
+    private readonly sectors = 8;
+    private readonly blocks = 8;
+    private readonly blockSize = 64;
+    private readonly pointerLength = 3; // TSA triple
+    private readonly sizeLength = 4; // hex string length
+    private readonly dateLength = 12; // YYYYMMDDHHMM
+    private readonly metaLength = 1 + 1 + this.pointerLength + this.sizeLength + this.dateLength;
+    private readonly dataHeaderLength = 1 + this.pointerLength;
+    private readonly dirTrack = 0;
+    private readonly dirSector = 0;
+</code></pre>
+<p>The disk has 4 <strong>tracks</strong>, each with 8 <strong>sectors</strong>, each with 8 <strong>blocks</strong>: 4 × 8 × 8 = 256 blocks. A block is addressed by a <strong>TSB</strong> triple (track, sector, block), the scheme Alan’s classes have used for years, borrowed from the Apple II’s DOS 3.3, which addressed its floppy by track and sector. (The slides quote <em>Beneath Apple DOS</em> (1982) several times in this chapter.) To find a block in the flat array, <code>toIndex</code> computes</p>
+<pre><code class="language-text">index = track · 64 + sector · 8 + block
+</code></pre>
+<p>Each block is a string of <strong>64 hexadecimal digits</strong>. Since two hex digits make one byte, a block holds <strong>32 bytes</strong>, even though the code calls <code>blockSize</code> 64. Keep that distinction in mind: in this driver, “length” always means hex digits.</p>
+<div class="table-wrapper"><table><thead><tr><th>Region</th><th>Blocks</th><th>Used for</th></tr></thead><tbody>
+<tr><td>Track 0, sector 0, blocks 0–7</td><td>8</td><td>the directory: one entry per block</td></tr>
+<tr><td>Track 0, sectors 1–7</td><td>56</td><td>nothing (never read or written after format)</td></tr>
+<tr><td>Tracks 1–3</td><td>192</td><td>file data</td></tr>
+</tbody></table>
+</div>
+<p>That explains Chapter 14’s limit of 8 files: the directory is one sector.</p>
+<h2 id="the-two-block-formats"><a class="header" href="#the-two-block-formats">The two block formats</a></h2>
+<p>Every block starts with an <strong>in-use flag</strong>: the hex digit <code>1</code> if the block is in use, <code>0</code> if free. After that, the format depends on the block’s role.</p>
+<p><strong>A directory entry</strong> (built by <code>buildDirectoryEntry</code>):</p>
+<pre><code class="language-text">digit:  0    1    2  3  4    5 6 7 8    9 … 20         21 … 63
+       [1]  [0]  [1][0][0]  [0 0 0 B]  [202610182221] [68 65 6C 6C 6F 00 …]
+       use  hid   T  S  B    size(hex)  created        name, hex-encoded
+</code></pre>
+<ul>
+<li>in-use (1 digit) and hidden (1 digit);</li>
+<li>a pointer to the file’s data block: <strong>one hex digit each</strong> for track, sector, and block, which works only because the geometry never exceeds 16 of anything;</li>
+<li>the size, as 4 hex digits (so at most 65 535);</li>
+<li>the creation time as 12 <em>decimal</em> digits, <code>YYYYMMDDHHMM</code>;</li>
+<li>the name, each character as two hex digits, padded with zeros.</li>
+</ul>
+<p><strong>A data block</strong> (built by <code>buildHeader</code> plus the data):</p>
+<pre><code class="language-text">digit:  0    1  2  3    4 … 63
+       [1]  [1][0][0]  [68 65 6C 6C 6F 00 …]
+       use   T  S  B    data, hex-encoded
+</code></pre>
+<p>Here is a real directory block from a run, a file named <code>c</code> of 2 bytes:</p>
+<pre><code class="language-text">1010100022026101822216300000000000000000000000000000000000000000
+
+split into fields:
+1 0 101 0002 202610182221 63 0000…
+│ │ │   │    │            └─ name: 63 = "c", then zero padding
+│ │ │   │    └─ created 2026-10-18 22:21
+│ │ │   └─ size: 0002
+│ │ └─ data at T1 S0 B1
+│ └─ not hidden
+└─ in use
+</code></pre>
+<figure class="slide"><img src="img/slides/slide-761.jpg" alt="File control block from Beneath Apple DOS"><figcaption>Slide p. 761: the "File Control Block" from <em>Beneath Apple DOS</em>, the same idea in 1982: a byte-by-byte layout of a file's catalog entry.</figcaption></figure>
+<p>The slides’ term for this is the <strong>file control block (FCB)</strong>, “storage structure consisting of information about a file,” called an inode in UNIX (p. 757). rObSen’s directory entry <em>is</em> its FCB: name and metadata together in one record. That’s simpler than UNIX, which keeps names in directories and metadata in inodes, and it’s the root of the stale-size-after-link problem in Chapter 14.</p>
+<h2 id="the-layered-file-system"><a class="header" href="#the-layered-file-system">The layered file system</a></h2>
+<figure class="slide"><img src="img/slides/slide-758.jpg" alt="Layered file system"><figcaption>Slide p. 758: application programs → logical file system (metadata, FCBs) → file-organization module (logical → physical blocks) → basic file system (generic commands to the device driver) → I/O control → devices.</figcaption></figure>
+<p>rObSen’s driver collapses these layers into one class, but you can still see them:</p>
+<div class="table-wrapper"><table><thead><tr><th>Layer (slide p. 758)</th><th>In <code>DeviceDriverDisk</code></th></tr></thead><tbody>
+<tr><td>Logical file system: metadata, FCBs</td><td><code>createFile</code>, <code>readFile</code>, <code>writeFile</code>, <code>deleteFile</code>, <code>link</code>, <code>listDirectory</code>, <code>parseDirectoryEntry</code>, <code>buildDirectoryEntry</code></td></tr>
+<tr><td>File-organization module: logical → physical blocks, free space</td><td><code>findFreeDirectorySlot</code>, <code>findFreeDataBlock</code>, the TSB pointers</td></tr>
+<tr><td>Basic file system</td><td><code>readBlock</code>, <code>writeBlock</code>, <code>toIndex</code></td></tr>
+<tr><td>I/O control and devices</td><td><code>loadImage</code>, and <code>sessionStorage</code> itself</td></tr>
+</tbody></table>
+</div>
+<p>The shell only ever calls the top layer, by file name. That’s the point the project spec makes when it asks the driver to “insulate and encapsulate the implementation of the kernel-level I/O operations.”</p>
+<h2 id="creating-writing-reading"><a class="header" href="#creating-writing-reading">Creating, writing, reading</a></h2>
+<pre><code class="language-typescript">    public createFile(name: string): boolean {
+      if (name.length === 0 || name.length &gt; 30) {
+        return false;
+      }
+      if (this.findDirectoryEntry(name)) {
+        return false;
+      }
+
+      const dirSlot = this.findFreeDirectorySlot();
+      if (!dirSlot) {
+        return false;
+      }
+
+      const dataSlot = this.findFreeDataBlock();
+      if (!dataSlot) {
+        return false;
+      }
+
+      const createdAt = this.currentTimestamp();
+      const dirRaw = this.buildDirectoryEntry(name, dataSlot.track, dataSlot.sector, dataSlot.block, 0, createdAt);
+      this.writeBlock(dirSlot.track, dirSlot.sector, dirSlot.block, dirRaw);
+
+      const emptyData = this.createEmptyBlock();
+      this.writeBlock(dataSlot.track, dataSlot.sector, dataSlot.block, emptyData);
+      return true;
+    }
+
+    public readFile(name: string): string | null {
+      const entry = this.findDirectoryEntry(name);
+      if (!entry) {
+        return null;
+      }
+      const raw = this.readBlock(entry.dataTrack, entry.dataSector, entry.dataBlock);
+      return this.extractData(raw);
+    }
+
+    public writeFile(name: string, data: string): boolean {
+      const entry = this.findDirectoryEntry(name);
+      if (!entry) {
+        return false;
+      }
+
+      const encoded = this.stringToHex(data);
+      const header = this.buildHeader(entry.dataTrack, entry.dataSector, entry.dataBlock);
+      const maxDataLength = this.blockSize - header.length;
+      const trimmed = encoded.slice(0, maxDataLength);
+      const padded = `${header}${trimmed}`.padEnd(this.blockSize, "0");
+      this.writeBlock(entry.dataTrack, entry.dataSector, entry.dataBlock, padded);
+      this.updateDirectoryEntry(entry, { size: data.length });
+      return true;
+    }
+</code></pre>
+<p><code>createFile</code> checks the name, makes sure it isn’t already taken, finds a free directory slot and a free data block, writes the directory entry, and writes an empty data block. <code>readFile</code> looks up the entry, reads the data block it points to, and decodes the hex. <code>writeFile</code> encodes the string as hex, prepends the header, truncates to what fits, pads with zeros, writes the block, and updates the size in the directory entry.</p>
+<p>Free blocks are found by linear search for the first block whose in-use digit is <code>0</code>:</p>
+<pre><code class="language-typescript">    private findFreeDataBlock(): { track: number; sector: number; block: number } | null {
+      for (let track = 1; track &lt; this.tracks; track++) {
+        for (let sector = 0; sector &lt; this.sectors; sector++) {
+          for (let block = 0; block &lt; this.blocks; block++) {
+            const raw = this.readBlock(track, sector, block);
+            if (!this.isActive(raw)) {
+              return { track, sector, block };
+            }
+          }
+        }
+      }
+      return null;
+    }
+</code></pre>
+<h3 id="the-bug-two-files-one-block"><a class="header" href="#the-bug-two-files-one-block">The bug: two files, one block</a></h3>
+<p>Look at what <code>createFile</code> writes into the new file’s data block: <code>this.createEmptyBlock()</code>, which is 64 zeros. Its in-use digit is <code>0</code>. So the data block is allocated in the directory’s opinion but <strong>free</strong> in the free-space search’s opinion. The next <code>createFile</code> call finds the <em>same</em> block and points the second file at it:</p>
+<pre><code class="language-text">&gt;format
+&gt;create a
+Created a
+&gt;create b
+Created b
+&gt;write a "hello"
+Wrote a
+&gt;read b
+hello
+</code></pre>
+<p>Both <code>a</code> and <code>b</code> point at T1 S0 B0. Writing either one changes the other. (Reproduced by running rObSen’s compiled code.) It only happens when files are created back to back without writing in between; once a file is written, <code>writeFile</code>’s header marks its block in use, and the next <code>create</code> moves on. That’s why casual testing (create, write, create, write) never catches it.</p>
+<div class="callout bug"><span class="label">In the code</span>
+<strong>Fix:</strong> mark the data block in use when it's allocated. In <code>createFile</code>, replace <code>const emptyData = this.createEmptyBlock();</code> with <code>const emptyData = this.buildHeader(dataSlot.track, dataSlot.sector, dataSlot.block).padEnd(this.blockSize, "0");</code>. Any free-space scheme has this invariant: <em>a block must be marked allocated in the same step that hands it out</em>. Allocation and marking are a critical section, even in a single-threaded system, because other code paths (here, the next <code>create</code>) consult the free map between them.
+</div>
+<h3 id="no-chaining-30-character-files"><a class="header" href="#no-chaining-30-character-files">No chaining: 30-character files</a></h3>
+<p>Look again at the data block format: the TSB after the in-use digit is the block’s <em>own</em> address (<code>buildHeader(entry.dataTrack, entry.dataSector, entry.dataBlock)</code>), not the address of a <em>next</em> block. Every file is exactly one block. After the 4-digit header, 60 hex digits remain: <strong>30 characters</strong> per file. <code>writeFile</code> silently truncates anything longer, then records the <em>untruncated</em> length as the size:</p>
+<pre><code class="language-text">&gt;write notes "abcdefghijklmnopqrstuvwxyz0123456789"
+Wrote notes
+&gt;read notes
+abcdefghijklmnopqrstuvwxyz0123
+&gt;ls -a
+notes  36 bytes  …
+</code></pre>
+<p>Lab 100’s test sequence ends with <code>write alan "1234567890…"</code>, a 70-character string, and the textbook’s whole discussion of allocation methods is about files bigger than a block. This is the largest gap between rObSen and the Part Four spec.</p>
+<div class="callout bug"><span class="label">In the code</span>
+<strong>File names longer than 21 characters are lost.</strong> <code>createFile</code> accepts names up to 30 characters, but after 21 digits of metadata a directory block has only 43 hex digits left, enough for 21 characters. <code>create abcdefghijklmnopqrstuvwxy</code> (25 characters) reports success, <code>ls</code> shows <code>abcdefghijklmnopqrstu</code>, and the file can never be opened again, because every lookup compares the full name you type against the truncated one on disk. The length check should be <code>name.length &gt; Math.floor((this.blockSize - this.metaLength) / 2)</code>.
+</div>
+<h2 id="allocation-methods"><a class="header" href="#allocation-methods">Allocation methods</a></h2>
+<p>“An allocation method refers to how disk blocks are assigned to files” (slide p. 769). There are three classic ones, and seeing them side by side makes it obvious how rObSen should grow.</p>
+<div class="slide-pair">
+<figure class="slide"><img src="img/slides/slide-771.jpg" alt="Contiguous allocation"><figcaption>Slide p. 771: contiguous allocation. The directory stores start and length.</figcaption></figure>
+<figure class="slide"><img src="img/slides/slide-773.jpg" alt="Linked allocation"><figcaption>Slide p. 773: linked allocation. Each block points to the next.</figcaption></figure>
+</div>
+<p><strong>Contiguous</strong> (pp. 770–771): each file occupies consecutive blocks; the directory records the start and length. Random access is trivial (block <em>i</em> is at start + <em>i</em>), but it has the same dynamic-storage-allocation problem as memory (first, best, worst fit; external fragmentation; compaction), and files can’t grow.</p>
+<p><strong>Linked</strong> (pp. 772–773): each block holds a pointer to the next; the directory records the first (and maybe last). No external fragmentation, files grow freely, but there’s no random access (you must follow the chain), pointers cost space, and one corrupted pointer loses the rest of the file. <strong>FAT</strong> (pp. 774–775) moves all the next-pointers into one table at the start of the disk, which makes following the chain a table lookup instead of a disk read.</p>
+<div class="slide-pair">
+<figure class="slide"><img src="img/slides/slide-775.jpg" alt="File allocation table"><figcaption>Slide p. 775: FAT. Block 217 → 618 → 339 → end.</figcaption></figure>
+<figure class="slide"><img src="img/slides/slide-777.jpg" alt="Indexed allocation"><figcaption>Slide p. 777: indexed allocation. One index block lists all of a file's blocks.</figcaption></figure>
+</div>
+<p><strong>Indexed</strong> (pp. 776–779): each file has an <strong>index block</strong> listing all its data blocks; the directory points to the index block. Direct access without external fragmentation, at the cost of an index block per file. Large files need linked index blocks or multiple levels of index; UNIX combines them, with 12 direct pointers in the inode, then single, double, and triple indirect blocks.</p>
+<figure class="slide"><img src="img/slides/slide-779.jpg" alt="Combined scheme: UNIX"><figcaption>Slide p. 779: the UNIX inode's combined scheme.</figcaption></figure>
+<p>rObSen’s data blocks <em>already</em> have room for a linked scheme: the TSB in each data block’s header is the obvious place for a next pointer. Since T0 S0 B0 can never be a data block, <code>000</code> can mean “end of file.” A sketch of the write side:</p>
+<pre><code class="language-typescript">public writeFile(name: string, data: string): boolean {
+  const entry = this.findDirectoryEntry(name);
+  if (!entry) return false;
+
+  const hex = this.stringToHex(data);
+  const perBlock = this.blockSize - this.dataHeaderLength;   // 60 hex digits = 30 chars
+
+  this.freeChainAfter(entry.dataTrack, entry.dataSector, entry.dataBlock); // release the old tail
+
+  let current = { track: entry.dataTrack, sector: entry.dataSector, block: entry.dataBlock };
+  for (let offset = 0; offset &lt; Math.max(hex.length, 1); offset += perBlock) {
+    const chunk = hex.slice(offset, offset + perBlock);
+    const isLast = offset + perBlock &gt;= hex.length;
+    // Reserve the next block *before* writing this one, so findFreeDataBlock can't return `current`.
+    const next = isLast ? null : this.reserveDataBlock();   // returns null if the disk is full
+    if (!isLast &amp;&amp; !next) return false;
+    const pointer = next ? this.toPointer(next.track, next.sector, next.block) : "000";
+    this.writeBlock(current.track, current.sector, current.block, `1${pointer}${chunk}`);
+    if (next) current = next;
+  }
+  this.updateDirectoryEntry(entry, { size: data.length });
+  return true;
+}
+</code></pre>
+<p>Reading follows the pointers until <code>000</code>, concatenating chunks. Delete walks the chain to free every block. With 192 data blocks, a file could then be up to 5,760 characters. (<code>reserveDataBlock</code> and <code>freeChainAfter</code> are small helpers left as the exercise; <code>reserveDataBlock</code> is <code>findFreeDataBlock</code> plus immediately writing a <code>1000…</code> header so the block is marked in use, which is the fix from the bug above, generalized.)</p>
+<h2 id="free-space-management"><a class="header" href="#free-space-management">Free-space management</a></h2>
+<p>How does the OS know which blocks are free (slides pp. 780–782)?</p>
+<ul>
+<li><strong>Bit vector</strong>: one bit per block, 1 for in use (or 0, depending on convention). Fast, and easy to find runs of free blocks, <em>if</em> the bitmap is in memory. A 1 GB disk with 4 KB blocks needs 2¹⁸ bits = 32 KB of bitmap.</li>
+<li><strong>Linked free list</strong>: each free block points to the next free block. No wasted space, but finding contiguous space is hard.</li>
+<li><strong>Counting</strong>: record (start, length) runs of free blocks, since space tends to be allocated and freed in runs.</li>
+</ul>
+<figure class="slide"><img src="img/slides/slide-782.jpg" alt="Linked free-space list on disk"><figcaption>Slide p. 782: a linked free-space list threaded through the free blocks.</figcaption></figure>
+<p>rObSen’s scheme is a bit vector <strong>scattered across the blocks themselves</strong>: the in-use digit at the start of each block. Finding a free block means reading blocks one by one until one has a <code>0</code>, and each <code>readBlock</code> re-parses the whole disk image from JSON (Chapter 15a). A real bitmap, 256 bits in one place, would make every allocation a single in-memory scan. (And keeping it in memory would raise the next question the slides ask: what happens to consistency if the system crashes between updating the bitmap and writing the block? That’s what <code>chkdsk</code> exists for.)</p>
+<h2 id="directory-implementation"><a class="header" href="#directory-implementation">Directory implementation</a></h2>
+<p>A directory can be a <strong>linear list</strong> of names with pointers (simple; linear-time search), a <strong>sorted list</strong> (binary search, but keeping it sorted costs), a <strong>B+ tree</strong> (“I think this is a good idea”), or a <strong>hash table</strong> (fast, but collisions need chaining or probing) (slide p. 767). rObSen’s directory is a linear list of eight entries. Every lookup by name (<code>findDirectoryEntry</code>) reads and parses up to eight blocks, and <code>create</code> does that twice (once to check the name is free, once to find an empty slot).</p>
+<h2 id="deleting"><a class="header" href="#deleting">Deleting</a></h2>
+<pre><code class="language-typescript">    public deleteFile(name: string): boolean {
+      const entry = this.findDirectoryEntry(name);
+      if (!entry) {
+        return false;
+      }
+
+      this.writeBlock(entry.track, entry.sector, entry.block, this.createEmptyBlock());
+      const stillUsed = this.listDirectory().some((other) =&gt; {
+        return (
+          other.name !== entry.name &amp;&amp;
+          other.dataTrack === entry.dataTrack &amp;&amp;
+          other.dataSector === entry.dataSector &amp;&amp;
+          other.dataBlock === entry.dataBlock
+        );
+      });
+
+      if (!stillUsed) {
+        this.writeBlock(entry.dataTrack, entry.dataSector, entry.dataBlock, this.createEmptyBlock());
+      }
+      return true;
+    }
+</code></pre>
+<p>Delete zeroes the directory entry, then frees the data block unless another directory entry (a link) still points at it. Zeroing is thorough, and it has a consequence for the next section.</p>
+<h2 id="formatting-and-chkdsk"><a class="header" href="#formatting-and-chkdsk">Formatting and chkdsk</a></h2>
+<pre><code class="language-typescript">    public runCheck(options?: { recover?: boolean; reclaim?: boolean; defrag?: boolean }): DiskCheckReport {
+      const recover = options?.recover ?? true;
+      const reclaim = options?.reclaim ?? true;
+      const defrag = options?.defrag ?? true;
+
+      let recovered = 0;
+      let reclaimed = 0;
+      let defragmented = 0;
+
+      if (recover) {
+        recovered = this.recoverDeletedEntries();
+      }
+
+      const entries = this.listDirectory();
+      const referenced = new Set(entries.map((entry) =&gt; this.tsbKey(entry.dataTrack, entry.dataSector, entry.dataBlock)));
+
+      if (reclaim) {
+        reclaimed = this.reclaimOrphanedBlocks(referenced);
+      }
+
+      if (defrag) {
+        defragmented = this.defragmentData(entries);
+      }
+
+      return { recovered, reclaimed, defragmented };
+    }
+
+    public format(options?: { quick?: boolean }): void {
+      const quick = options?.quick ?? false;
+
+      if (quick) {
+        const image = this.loadImage(true).map((block) =&gt; this.clearMetadata(block));
+        sessionStorage.setItem(this.storageKey, JSON.stringify(image));
+      } else {
+        const totalBlocks = this.tracks * this.sectors * this.blocks;
+        const image: string[] = [];
+        for (let i = 0; i &lt; totalBlocks; i++) {
+          image.push(this.createEmptyBlock());
+        }
+        sessionStorage.setItem(this.storageKey, JSON.stringify(image));
+      }
+      this.status = "formatted";
+    }
+</code></pre>
+<p><strong><code>format</code></strong> writes 256 blocks of zeros. <strong><code>format -quick</code></strong> keeps each block but zeroes its first 21 digits (<code>metaLength</code>). The spec says a quick format should “initialize just the first four bytes of every directory and data block,” the idea being that clearing the in-use flags and pointers makes the disk <em>look</em> empty while leaving the data recoverable. rObSen’s version clears 21 digits of every block, which wipes all of a directory entry’s metadata (including its data pointer) and the first 8½ characters of every data block. So nothing survives a quick format in a recoverable form.</p>
+<p><strong><code>chkdsk</code></strong> runs up to three repairs, each of which is a classic file-system maintenance task:</p>
+<ol>
+<li><strong>Recover deleted files</strong>: for each <em>inactive</em> directory entry that still holds a valid data pointer whose block isn’t empty, revive it under the name <code>RECOVERED_TSB</code>.</li>
+<li><strong>Reclaim orphaned blocks</strong>: any non-empty data block that no directory entry references is zeroed. (A block can be orphaned by a crash between writing data and writing its directory entry, or by the name-truncation bug above.)</li>
+<li><strong>Defragment</strong>: move every file’s data block, in TSB order, down to the lowest free blocks starting at T1 S0 B0, updating each directory entry’s pointer. With one block per file, “fragmentation” just means gaps between files; with chained files, defragmenting would also mean making each file’s blocks consecutive.</li>
+</ol>
+<div class="callout bug"><span class="label">In the code</span>
+<strong>Recovery can never succeed.</strong> It looks for inactive directory entries whose data pointers are intact. But <code>deleteFile</code> writes 64 zeros over the directory entry, pointer included, and <code>format -quick</code> zeroes the pointer too. After either one, the pointer reads as T0 S0 B0, which <code>isValidDataPointer</code> rejects, so <code>chkdsk</code> always reports "recovered 0 file(s)." (Checked: <code>create notes</code>, <code>write</code>, <code>delete notes</code>, <code>chkdsk</code>: 0 recovered.) For recovery to be possible, delete must do what real file systems do: clear only the in-use digit in the directory entry (and, for a non-linked file, in the data block), leaving pointer, metadata, and data in place until something reuses the blocks. That's also why "undelete" utilities on real systems work only until the space is reused.
+</div>
+<h2 id="virtual-file-systems"><a class="header" href="#virtual-file-systems">Virtual file systems</a></h2>
+<p>The chapter’s last big idea: a modern OS supports many file systems (FAT, NTFS, ext4, APFS, ISO 9660, NFS, FUSE) behind <strong>one</strong> system-call interface. “Do we know anything about OOP? Encapsulation and polymorphism sound like good tools for this” (slide p. 764). A <strong>virtual file system (VFS)</strong> defines an abstract interface (open, read, write, close, readdir), and each concrete file system implements it; the kernel calls the interface and polymorphism picks the implementation (p. 765).</p>
+<p>In TypeScript that’s an interface with several implementing classes, which Chapter 20a shows for page-replacement policies. For rObSen, a <code>FileSystem</code> interface with <code>create</code>, <code>read</code>, <code>write</code>, <code>delete</code>, <code>list</code>, implemented by today’s <code>DeviceDriverDisk</code> and perhaps an <code>IndexedDBDisk</code> or an in-memory <code>RamDisk</code>, would let the shell stay unchanged while the storage underneath varies.</p>
+<h2 id="check-yourself"><a class="header" href="#check-yourself">Check yourself</a></h2>
+<ol>
+<li>How many hex digits does a directory entry spend on metadata? How many characters of name fit after it?</li>
+<li>After the createFile fix, why is it still worth keeping <code>deleteFile</code>’s “is another entry still using this block?” scan?</li>
+<li>Using the chained design, how many blocks does a 100-character file need? What does its last block’s pointer say?</li>
+</ol>
+<details>
+<summary>Answers</summary>
+<ol>
+<li>1 + 1 + 3 + 4 + 12 = 21 digits. 64 − 21 = 43 digits remain, enough for 21 two-digit characters (with one digit left over).</li>
+<li>Because of <code>link</code>: two directory entries can legitimately share a data block, and deleting one name mustn’t free data the other still uses.</li>
+<li>100 characters = 200 hex digits; 60 per block, so ⌈200/60⌉ = 4 blocks. The last block’s pointer is <code>000</code>, end of chain.</li>
+</ol>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch14-fs-interface.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="ch15a-ts-storage-strings.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch14-fs-interface.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="ch15a-ts-storage-strings.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

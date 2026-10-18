@@ -1,0 +1,419 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>The Map: rObSen at a Glance - rObSen, Layer by Layer</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A companion to Alan Labouseur&#x27;s Operating Systems course (CMPT 424, Marist), told through one student&#x27;s browser-based OS written in TypeScript.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">Preface: How to Read This Book</a></li><li class="chapter-item expanded affix "><a href="map.html" class="active">The Map: rObSen at a Glance</a></li><li class="chapter-item expanded affix "><li class="part-title">Part I — Foundations</li><li class="chapter-item expanded "><a href="ch01-what-is-an-os.html"><strong aria-hidden="true">1.</strong> What Is an Operating System?</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch01a-ts-namespaces.html"><strong aria-hidden="true">1.1.</strong> TS Deep Dive: Namespaces and the Global Script World</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-structures.html"><strong aria-hidden="true">2.</strong> OS Structures and the Machine Inside the Browser</a></li><li class="chapter-item expanded affix "><li class="part-title">Part II — The Hardware Layer (source/host)</li><li class="chapter-item expanded "><a href="ch03-host.html"><strong aria-hidden="true">3.</strong> The Host: Clock, Buttons, and the Log</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch03a-ts-static-dom.html"><strong aria-hidden="true">3.1.</strong> TS Deep Dive: Static Members, Type Assertions, and the DOM</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-memory.html"><strong aria-hidden="true">4.</strong> Memory and the Memory Accessor</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch04a-ts-class-anatomy.html"><strong aria-hidden="true">4.1.</strong> TS Deep Dive: Anatomy of a Class</a></li></ol></li><li class="chapter-item expanded "><a href="ch05-cpu.html"><strong aria-hidden="true">5.</strong> The CPU: Fetch, Decode, Execute</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch05a-ts-bitwise.html"><strong aria-hidden="true">5.1.</strong> TS Deep Dive: Bits, Bytes, and Bitwise Operators</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part III — The Kernel Layer (source/os)</li><li class="chapter-item expanded "><a href="ch06-kernel.html"><strong aria-hidden="true">6.</strong> Booting, Interrupts, and the Mode Bit</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch06a-ts-unions-null.html"><strong aria-hidden="true">6.1.</strong> TS Deep Dive: Union Types, Null, and Optional Chaining</a></li></ol></li><li class="chapter-item expanded "><a href="ch07-drivers.html"><strong aria-hidden="true">7.</strong> Device Drivers: The Keyboard</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch07a-ts-inheritance-this.html"><strong aria-hidden="true">7.1.</strong> TS Deep Dive: Inheritance, super, and the Trouble with this</a></li></ol></li><li class="chapter-item expanded "><a href="ch08-shell.html"><strong aria-hidden="true">8.</strong> The Console and the Shell</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch08a-ts-functions-as-values.html"><strong aria-hidden="true">8.1.</strong> TS Deep Dive: Functions as Values</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part IV — Processes and Threads</li><li class="chapter-item expanded "><a href="ch09-processes.html"><strong aria-hidden="true">9.</strong> Processes and the PCB</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch09a-ts-literal-types.html"><strong aria-hidden="true">9.1.</strong> TS Deep Dive: Literal Types and Type Aliases</a></li></ol></li><li class="chapter-item expanded "><a href="ch10-threads.html"><strong aria-hidden="true">10.</strong> Threads, and the One Thread You Have</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch10a-ts-event-loop.html"><strong aria-hidden="true">10.1.</strong> TS Deep Dive: The Event Loop, Timers, and Callbacks</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part V — Main Memory</li><li class="chapter-item expanded "><a href="ch11-main-memory.html"><strong aria-hidden="true">11.</strong> Binding, Base/Limit, and Partitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch11a-ts-interfaces.html"><strong aria-hidden="true">11.1.</strong> TS Deep Dive: Interfaces and Object Shapes</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VI — CPU Scheduling</li><li class="chapter-item expanded "><a href="ch12-scheduling-theory.html"><strong aria-hidden="true">12.</strong> Scheduling Theory, by Hand and by Code</a></li><li class="chapter-item expanded "><a href="ch13-scheduling-robsen.html"><strong aria-hidden="true">13.</strong> Scheduling in rObSen: Timer, Dispatcher, Context Switch</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch13a-ts-generics.html"><strong aria-hidden="true">13.1.</strong> TS Deep Dive: Generics</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VII — Storage</li><li class="chapter-item expanded "><a href="ch14-fs-interface.html"><strong aria-hidden="true">14.</strong> The File-System Interface</a></li><li class="chapter-item expanded "><a href="ch15-fs-implementation.html"><strong aria-hidden="true">15.</strong> File-System Implementation: The TSB Disk</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch15a-ts-storage-strings.html"><strong aria-hidden="true">15.1.</strong> TS Deep Dive: Web Storage, JSON, and Hex Strings</a></li></ol></li><li class="chapter-item expanded "><a href="ch16-disks.html"><strong aria-hidden="true">16.</strong> Disk Systems and Disk Scheduling</a></li><li class="chapter-item expanded affix "><li class="part-title">Part VIII — Beyond Contiguous Memory</li><li class="chapter-item expanded "><a href="ch17-swapping.html"><strong aria-hidden="true">17.</strong> Swapping: Roll-Out and Roll-In</a></li><li class="chapter-item expanded "><a href="ch18-paging.html"><strong aria-hidden="true">18.</strong> Paging</a></li><li class="chapter-item expanded affix "><li class="part-title">Part IX — Concurrency</li><li class="chapter-item expanded "><a href="ch19-sync-deadlock.html"><strong aria-hidden="true">19.</strong> Synchronization and Deadlock</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch19a-ts-async.html"><strong aria-hidden="true">19.1.</strong> TS Deep Dive: Promises and async/await</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part X — Virtual Memory</li><li class="chapter-item expanded "><a href="ch20-virtual-memory.html"><strong aria-hidden="true">20.</strong> Demand Paging and Page Replacement</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch20a-ts-implements.html"><strong aria-hidden="true">20.1.</strong> TS Deep Dive: implements and the Strategy Pattern</a></li></ol></li><li class="chapter-item expanded "><li class="spacer"></li><li class="chapter-item expanded affix "><a href="appA-6502a.html">A. The 6502a Instruction Set</a></li><li class="chapter-item expanded affix "><a href="appB-commands.html">B. Shell Command Reference</a></li><li class="chapter-item expanded affix "><a href="appC-bugs.html">C. Bug Ledger</a></li><li class="chapter-item expanded affix "><a href="appD-glados.html">D. Testing with GLaDOS</a></li><li class="chapter-item expanded affix "><a href="appE-slide-index.html">E. Slide Index</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">rObSen, Layer by Layer</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="the-map-robsen-at-a-glance"><a class="header" href="#the-map-robsen-at-a-glance">The Map: rObSen at a Glance</a></h1>
+<p>Before climbing the layers one at a time, it helps to see the whole building from across the street.</p>
+<h2 id="two-programs-pretending-to-be-one-machine"><a class="header" href="#two-programs-pretending-to-be-one-machine">Two programs pretending to be one machine</a></h2>
+<p>rObSen is really two programs sharing one browser tab.</p>
+<ul>
+<li>The <strong>host</strong> (<code>source/host/</code>) pretends to be hardware. It has a clock that ticks every 100 ms, a 768-byte memory, a memory accessor that sits between the CPU and memory, a 6502a-flavoured CPU, and a keyboard that raises interrupts. It is the only code allowed to touch the web page directly (the DOM), and it paints the panels you see beside the console.</li>
+<li>The <strong>client OS</strong> (<code>source/os/</code>) is the operating system proper. It has a kernel with an interrupt handler, device drivers for the keyboard and the disk, a console and a shell, process control blocks, a memory manager, a scheduler, and a swapper.</li>
+</ul>
+<p>The browser is the bare metal underneath both. Alan’s comment at the top of <code>control.ts</code> puts it this way: the browser’s document environment is “the ‘bare metal’ (so to speak) for which we write code that hosts our client OS,” which makes the host “A LITTLE BIT like a hypervisor.” Chapter 2 picks this analogy apart.</p>
+<figure class="diagram">
+<svg viewBox="0 0 640 470" width="640" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="rObSen layer diagram">
+  <defs>
+    <style>
+      .box { fill: none; stroke: currentColor; stroke-width: 1.2; }
+      .os  { fill: #3178c6; fill-opacity: 0.10; stroke: #3178c6; stroke-width: 1.2; }
+      .hw  { fill: #b9770e; fill-opacity: 0.10; stroke: #b9770e; stroke-width: 1.2; }
+      .br  { fill: currentColor; fill-opacity: 0.06; stroke: currentColor; stroke-width: 1.2; }
+      .t   { font-size: 13px; }
+      .s   { font-size: 11px; opacity: 0.75; }
+      .h   { font-size: 12px; font-weight: bold; letter-spacing: 1px; }
+    </style>
+  </defs>
+  <!-- Client OS -->
+  <text x="20" y="22" class="h" fill="#3178c6">CLIENT OS — source/os/</text>
+  <rect x="20" y="32" width="600" height="44" rx="4" class="os"/>
+  <text x="34" y="52" class="t">Shell (shell.ts) · Console (console.ts, canvastext.ts)</text>
+  <text x="34" y="68" class="s">CLI: parse → look up command → call it. Prompt, history, tab completion, aliases.</text>
+  <rect x="20" y="84" width="295" height="56" rx="4" class="os"/>
+  <text x="34" y="104" class="t">Processes (pcb.ts)</text>
+  <text x="34" y="120" class="s">PCB per program; states New/Ready/</text>
+  <text x="34" y="133" class="s">Running/Terminated</text>
+  <rect x="325" y="84" width="295" height="56" rx="4" class="os"/>
+  <text x="339" y="104" class="t">Memory manager (memoryManager.ts)</text>
+  <text x="339" y="120" class="s">3 fixed partitions of 256 bytes;</text>
+  <text x="339" y="133" class="s">allocate, load, release</text>
+  <rect x="20" y="148" width="295" height="56" rx="4" class="os"/>
+  <text x="34" y="168" class="t">Scheduler + dispatcher (kernel.ts)</text>
+  <text x="34" y="184" class="s">RR / FCFS / PRIORITY; timer ISR;</text>
+  <text x="34" y="197" class="s">context switch via PCB save/restore</text>
+  <rect x="325" y="148" width="295" height="56" rx="4" class="os"/>
+  <text x="339" y="168" class="t">Swapper (swapper.ts)</text>
+  <text x="339" y="184" class="s">roll-out / roll-in when the three</text>
+  <text x="339" y="197" class="s">partitions are full</text>
+  <rect x="20" y="212" width="600" height="56" rx="4" class="os"/>
+  <text x="34" y="232" class="t">Kernel core (kernel.ts) · Drivers (deviceDriverKeyboard.ts, deviceDriverDisk.ts)</text>
+  <text x="34" y="248" class="s">bootstrap · interrupt queue · interrupt handler (switch on IRQ) · mode bit · trap/BSOD</text>
+  <text x="34" y="261" class="s">keyboard ISR → input queue · disk driver: track/sector/block file system in sessionStorage</text>
+  <!-- Host -->
+  <text x="20" y="296" class="h" fill="#b9770e">HOST "HARDWARE" — source/host/</text>
+  <rect x="20" y="306" width="190" height="64" rx="4" class="hw"/>
+  <text x="32" y="326" class="t">Clock & devices</text>
+  <text x="32" y="342" class="s">setInterval → 100 ms</text>
+  <text x="32" y="355" class="s">keydown → KEYBOARD_IRQ</text>
+  <rect x="225" y="306" width="190" height="64" rx="4" class="hw"/>
+  <text x="237" y="326" class="t">CPU (cpu.ts)</text>
+  <text x="237" y="342" class="s">PC, IR, Acc, X, Y, Z</text>
+  <text x="237" y="355" class="s">fetch → decode → execute</text>
+  <rect x="430" y="306" width="190" height="64" rx="4" class="hw"/>
+  <text x="442" y="326" class="t">Memory + accessor</text>
+  <text x="442" y="342" class="s">Uint8Array(0x300), MAR/MDR</text>
+  <text x="442" y="355" class="s">logical → base + offset</text>
+  <rect x="20" y="378" width="600" height="30" rx="4" class="hw"/>
+  <text x="34" y="398" class="t">Control (control.ts): Start/Halt/Pause/Step/Reset · host log · live panels</text>
+  <!-- Browser -->
+  <rect x="20" y="420" width="600" height="38" rx="4" class="br"/>
+  <text x="34" y="444" class="t">The browser: JavaScript engine, event loop, DOM, canvas, sessionStorage — the "bare metal"</text>
+</svg>
+<figcaption>rObSen's layers. Blue is the operating system you wrote; amber is the simulated machine it runs on; grey is the real machine underneath both.</figcaption>
+</figure>
+<p>Compare it with the slide Alan drew of the same thing:</p>
+<figure class="slide">
+<img src="img/slides/slide-163.jpg" alt="Slide: Your OS Architecture">
+<figcaption>Slide p. 163, "Your OS Architecture" (Chapter 2). The iP1/iP2/iP3 flags mark which project iteration builds which piece.</figcaption>
+</figure>
+<h2 id="the-files-by-layer"><a class="header" href="#the-files-by-layer">The files, by layer</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Layer</th><th>File</th><th style="text-align: right">Lines</th><th>What it is</th></tr></thead><tbody>
+<tr><td>Globals</td><td><code>globals.ts</code></td><td style="text-align: right">88</td><td>Constants (clock interval, IRQ numbers, mode bits) and every <code>_Global</code> variable both halves share</td></tr>
+<tr><td>Host</td><td><code>host/control.ts</code></td><td style="text-align: right">426</td><td>Button handlers, host log, the live panels (CPU, PCB table, memory dump, disk)</td></tr>
+<tr><td>Host</td><td><code>host/devices.ts</code></td><td style="text-align: right">65</td><td>The clock pulse and the keyboard interrupt source</td></tr>
+<tr><td>Host</td><td><code>host/memory.ts</code></td><td style="text-align: right">46</td><td>768 bytes of RAM in a <code>Uint8Array</code>, with MAR and MDR</td></tr>
+<tr><td>Host</td><td><code>host/memoryAccessor.ts</code></td><td style="text-align: right">73</td><td>Logical-to-physical translation and bounds checks</td></tr>
+<tr><td>Host</td><td><code>host/cpu.ts</code></td><td style="text-align: right">296</td><td>The 6502a CPU: 14 opcodes, one instruction per cycle</td></tr>
+<tr><td>Kernel</td><td><code>os/kernel.ts</code></td><td style="text-align: right">646</td><td>Bootstrap, shutdown, interrupt handler, timer ISR, dispatcher, kill, swap decisions</td></tr>
+<tr><td>Kernel</td><td><code>os/interrupt.ts</code></td><td style="text-align: right">10</td><td>An interrupt is an IRQ number plus parameters</td></tr>
+<tr><td>Kernel</td><td><code>os/queue.ts</code></td><td style="text-align: right">53</td><td>A FIFO queue on top of an array</td></tr>
+<tr><td>Drivers</td><td><code>os/deviceDriver.ts</code></td><td style="text-align: right">22</td><td>Base class for drivers</td></tr>
+<tr><td>Drivers</td><td><code>os/deviceDriverKeyboard.ts</code></td><td style="text-align: right">94</td><td>Key codes → characters on the kernel input queue</td></tr>
+<tr><td>Drivers</td><td><code>os/deviceDriverDisk.ts</code></td><td style="text-align: right">670</td><td>The disk: geometry, blocks, directory, files, chkdsk, swap images</td></tr>
+<tr><td>Console</td><td><code>os/console.ts</code></td><td style="text-align: right">313</td><td>Text output on the canvas, scrolling, backspace, history recall</td></tr>
+<tr><td>Console</td><td><code>os/canvastext.ts</code></td><td style="text-align: right">205</td><td>Jim Studt’s 2007 vector font, drawn stroke by stroke</td></tr>
+<tr><td>Shell</td><td><code>os/shell.ts</code></td><td style="text-align: right">1223</td><td>Every command, from <code>ver</code> to <code>setschedule</code></td></tr>
+<tr><td>Shell</td><td><code>os/shellCommand.ts</code>, <code>os/userCommand.ts</code></td><td style="text-align: right">16</td><td>Two little record classes</td></tr>
+<tr><td>Processes</td><td><code>os/pcb.ts</code></td><td style="text-align: right">122</td><td>The process control block</td></tr>
+<tr><td>Memory</td><td><code>os/memoryManager.ts</code></td><td style="text-align: right">162</td><td>Partition table: allocate, load, release</td></tr>
+<tr><td>Swapping</td><td><code>os/swapper.ts</code></td><td style="text-align: right">38</td><td>Roll-out and roll-in</td></tr>
+<tr><td>Utilities</td><td><code>utils.ts</code></td><td style="text-align: right">47</td><td><code>trim</code> and <code>rot13</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="three-journeys-through-the-system"><a class="header" href="#three-journeys-through-the-system">Three journeys through the system</a></h2>
+<p>Most of the book is about these three paths. Keep them in mind; every chapter adds detail to one of them.</p>
+<p><strong>A keystroke.</strong> You press <code>v</code>. The browser fires a <code>keydown</code> event. <code>Devices.hostOnKeypress</code> (host) wraps the key code in an <code>Interrupt(KEYBOARD_IRQ, …)</code> and puts it on the kernel interrupt queue. On the next clock pulse, <code>Kernel.krnOnCPUClockPulse</code> sees a pending interrupt and calls <code>krnInterruptHandler</code>, which switches to kernel mode and calls the keyboard driver’s ISR. The driver turns key code 86 into the character <code>"v"</code> and puts it on the kernel input queue. <code>Console.handleInput</code> drains that queue, draws the <code>v</code> on the canvas, and appends it to its line buffer. When you press Enter, the console hands the buffer to <code>Shell.handleInput</code>. (Chapters 3, 6, 7, 8.)</p>
+<p><strong>A program.</strong> You paste hex into the <em>User Program Input</em> box and type <code>load</code>. The shell validates the hex, asks the memory manager for a free 256-byte partition, copies the bytes in, builds a PCB, and puts it on the ready queue. <code>run 0</code> (or <code>runall</code>) asks the kernel to dispatch it: the PCB’s saved registers are copied into the CPU and <code>isExecuting</code> flips to <code>true</code>. From then on, each clock pulse with no pending interrupt runs exactly one instruction. When the instruction is <code>00</code> (BRK), the kernel retires the process and frees its partition. (Chapters 4, 5, 9, 11.)</p>
+<p><strong>A context switch.</strong> With several programs loaded and <code>runall</code> running, the CPU counts down a quantum (6 cycles by default). At zero it enqueues a <code>TIMER_IRQ</code>. The timer ISR puts the current PCB at the back of the ready queue, picks the next one, swaps it in from “disk” if it isn’t in memory, and dispatches it. (Chapters 12, 13, 17.)</p>
+<h2 id="building-and-running-robsen"><a class="header" href="#building-and-running-robsen">Building and running rObSen</a></h2>
+<div class="callout lab"><span class="label">Lab 000</span>
+Lab 000 asks you to put the project in a private GitHub repository, add Alan as a collaborator, record the Part One requirements as GitHub Issues, and set up your development environment. What follows is the environment part.
+</div>
+<p>rObSen has no bundler. The TypeScript compiler turns each <code>.ts</code> file in <code>source/</code> into a <code>.js</code> file in <code>distrib/</code>, and <code>index.html</code> loads those files with plain <code>&lt;script&gt;</code> tags. The configuration is all in <code>tsconfig.json</code>:</p>
+<pre><code class="language-json">{
+    "compilerOptions": {
+      "target"              : "ES2023",
+      "rootDir"             : "source",
+      "outDir"              : "distrib",
+      "sourceMap"           : true,
+      "extendedDiagnostics" : true
+    },
+
+    "include": [
+        "source/**/*"
+    ],
+}
+</code></pre>
+<p>So the whole build is:</p>
+<pre><code class="language-console">$ cd OS-Fall2025
+$ tsc            # reads tsconfig.json, writes distrib/**/*.js and .js.map
+</code></pre>
+<p>Then open <code>index.html</code> in a browser and click <strong>Start</strong>.</p>
+<div class="callout"><span class="label">Which TypeScript?</span>
+rObSen was built with TypeScript 5, and <code>tsc</code> 5.9 compiles it with zero errors. TypeScript 6 and the native TypeScript 7 compiler change two defaults (strict mode on; the old <code>module</code> keyword for namespaces is an error), so with a current compiler the same command reports 147 errors. It still writes the JavaScript, and the OS still runs, but the noise hides real problems. Either install TypeScript 5 for this project (<code>npm install --save-dev typescript@5</code> and run <code>npx tsc</code>), or make the two small changes in Appendix C.
+</div> (`package.json` lists `gulp` as a dependency, a leftover from the original template. You don't need it.)
+<p>Two things about this setup matter later. First, the order of the <code>&lt;script&gt;</code> tags in <code>index.html</code> is load-bearing: <code>globals.js</code> must come first, and <code>kernel.js</code> is deliberately last among the OS files. Second, because nothing is imported or exported between files in the module sense, every file shares one global scope. The first deep dive explains why that works, and what it costs.</p>
+<pre><code class="language-html">        &lt;!-- Globals CONSTANTS and _Variables. Must be included first. --&gt;
+        &lt;script type="text/javascript" src="distrib/globals.js"&gt;&lt;/script&gt;
+
+        &lt;!-- Host (Virtual Machine / Hardware Simulation) Routines --&gt;
+        &lt;script type="text/javascript" src="distrib/host/control.js"&gt;&lt;/script&gt;
+        &lt;script type="text/javascript" src="distrib/host/devices.js"&gt;&lt;/script&gt;
+        &lt;script type="text/javascript" src="distrib/host/memory.js"&gt;&lt;/script&gt;
+        &lt;script
+            type="text/javascript"
+            src="distrib/host/memoryAccessor.js"
+        &gt;&lt;/script&gt;
+        &lt;script type="text/javascript" src="distrib/host/cpu.js"&gt;&lt;/script&gt;
+
+        &lt;!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. --&gt;
+        &lt;script type="text/javascript" src="distrib/os/interrupt.js"&gt;&lt;/script&gt;
+        &lt;script type="text/javascript" src="distrib/os/canvastext.js"&gt;&lt;/script&gt;
+        &lt;script type="text/javascript" src="distrib/os/console.js"&gt;&lt;/script&gt;
+        &lt;script
+            type="text/javascript"
+            src="distrib/os/memoryManager.js"
+        &gt;&lt;/script&gt;
+        &lt;script
+            type="text/javascript"
+            src="distrib/os/deviceDriver.js"
+        &gt;&lt;/script&gt;
+        &lt;script
+            type="text/javascript"
+            src="distrib/os/deviceDriverDisk.js"
+        &gt;&lt;/script&gt;
+        &lt;script
+            type="text/javascript"
+            src="distrib/os/deviceDriverKeyboard.js"
+        &gt;&lt;/script&gt;
+        &lt;script type="text/javascript" src="distrib/os/swapper.js"&gt;&lt;/script&gt;
+        &lt;script type="text/javascript" src="distrib/os/pcb.js"&gt;&lt;/script&gt;
+        &lt;script type="text/javascript" src="distrib/os/queue.js"&gt;&lt;/script&gt;
+        &lt;script type="text/javascript" src="distrib/os/shell.js"&gt;&lt;/script&gt;
+        &lt;script
+            type="text/javascript"
+            src="distrib/os/shellCommand.js"
+        &gt;&lt;/script&gt;
+        &lt;script type="text/javascript" src="distrib/os/userCommand.js"&gt;&lt;/script&gt;
+        &lt;script type="text/javascript" src="distrib/os/kernel.js"&gt;&lt;/script&gt;
+
+        &lt;!-- Other Routines --&gt;
+        &lt;script type="text/javascript" src="distrib/utils.js"&gt;&lt;/script&gt;
+        &lt;!-- Uncomment the line below to enable GLaDOS testing. --&gt;
+        &lt;script src="test/glados-ip4x.js"&gt;&lt;/script&gt;
+</code></pre>
+<p>Note the last <code>&lt;script&gt;</code> line: <code>glados-ip4x.js</code> is enabled, so every time you load the page, GLaDOS (Alan’s automated tester) starts typing commands at your OS. Appendix D explains what she does.</p>
+<h2 id="how-the-project-grew"><a class="header" href="#how-the-project-grew">How the project grew</a></h2>
+<p>The semester project has four parts, all due at the end, but meant to be built in order. Here is how rObSen’s commit history lines up with them:</p>
+<div class="table-wrapper"><table><thead><tr><th>Part</th><th>Requirement (paraphrased from the project spec)</th><th>Where in rObSen</th><th>Commits</th></tr></thead><tbody>
+<tr><td>One</td><td>Shell and console: <code>ver</code>, <code>date</code>, <code>whereami</code>, a creative command, taskbar with <code>status</code>, scrolling, punctuation, backspace, tab completion, history, BSOD on trap, <code>load</code> validates hex</td><td><code>shell.ts</code>, <code>console.ts</code>, <code>deviceDriverKeyboard.ts</code>, <code>index.html</code></td><td>Sept 6 – Sept 30, 2025</td></tr>
+<tr><td>Two</td><td>Load one program into memory at $0000, PCB, <code>run &lt;pid&gt;</code>, CPU synced to the clock, live CPU/PCB/memory display, single-step, Ctrl-C</td><td><code>cpu.ts</code>, <code>memory.ts</code>, <code>memoryAccessor.ts</code>, <code>pcb.ts</code>, <code>memoryManager.ts</code></td><td>Sept 15 – Oct 4</td></tr>
+<tr><td>Three</td><td>Three programs at once in separate partitions, <code>clearmem</code>, <code>runall</code>, <code>ps</code>, <code>kill</code>, <code>killall</code>, <code>q</code>, round-robin scheduler, base/limit protection, turnaround and wait times</td><td><code>kernel.ts</code> (dispatcher, timer ISR), <code>memoryManager.ts</code>, <code>control.ts</code> panels</td><td>Oct – Nov 9</td></tr>
+<tr><td>Four</td><td>Disk device driver with <code>format</code>, <code>create</code>, <code>read</code>, <code>write</code>, <code>delete</code>, <code>copy</code>, <code>rename</code>, <code>ls</code>, <code>link</code>, <code>alias</code>, hidden files, chkdsk; FCFS and priority scheduling; swapping to run four or more processes</td><td><code>deviceDriverDisk.ts</code>, <code>swapper.ts</code>, <code>kernel.ts</code></td><td>Nov 16 – Dec 11</td></tr>
+</tbody></table>
+</div>
+<p>The scheduling simulator in <code>sim/</code> (<code>sched_start.cpp</code>, a C++ permutation evaluator) was a separate assignment from mid-October; Chapter 12 uses it.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="preface.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="ch01-what-is-an-os.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="preface.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="ch01-what-is-an-os.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

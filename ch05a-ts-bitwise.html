@@ -1,0 +1,326 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>TS Deep Dive: Bits, Bytes, and Bitwise Operators - rObSen, Layer by Layer</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A companion to Alan Labouseur&#x27;s Operating Systems course (CMPT 424, Marist), told through one student&#x27;s browser-based OS written in TypeScript.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">Preface: How to Read This Book</a></li><li class="chapter-item expanded affix "><a href="map.html">The Map: rObSen at a Glance</a></li><li class="chapter-item expanded affix "><li class="part-title">Part I — Foundations</li><li class="chapter-item expanded "><a href="ch01-what-is-an-os.html"><strong aria-hidden="true">1.</strong> What Is an Operating System?</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch01a-ts-namespaces.html"><strong aria-hidden="true">1.1.</strong> TS Deep Dive: Namespaces and the Global Script World</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-structures.html"><strong aria-hidden="true">2.</strong> OS Structures and the Machine Inside the Browser</a></li><li class="chapter-item expanded affix "><li class="part-title">Part II — The Hardware Layer (source/host)</li><li class="chapter-item expanded "><a href="ch03-host.html"><strong aria-hidden="true">3.</strong> The Host: Clock, Buttons, and the Log</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch03a-ts-static-dom.html"><strong aria-hidden="true">3.1.</strong> TS Deep Dive: Static Members, Type Assertions, and the DOM</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-memory.html"><strong aria-hidden="true">4.</strong> Memory and the Memory Accessor</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch04a-ts-class-anatomy.html"><strong aria-hidden="true">4.1.</strong> TS Deep Dive: Anatomy of a Class</a></li></ol></li><li class="chapter-item expanded "><a href="ch05-cpu.html"><strong aria-hidden="true">5.</strong> The CPU: Fetch, Decode, Execute</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ch05a-ts-bitwise.html" class="active"><strong aria-hidden="true">5.1.</strong> TS Deep Dive: Bits, Bytes, and Bitwise Operators</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part III — The Kernel Layer (source/os)</li><li class="chapter-item expanded "><a href="ch06-kernel.html"><strong aria-hidden="true">6.</strong> Booting, Interrupts, and the Mode Bit</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch06a-ts-unions-null.html"><strong aria-hidden="true">6.1.</strong> TS Deep Dive: Union Types, Null, and Optional Chaining</a></li></ol></li><li class="chapter-item expanded "><a href="ch07-drivers.html"><strong aria-hidden="true">7.</strong> Device Drivers: The Keyboard</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch07a-ts-inheritance-this.html"><strong aria-hidden="true">7.1.</strong> TS Deep Dive: Inheritance, super, and the Trouble with this</a></li></ol></li><li class="chapter-item expanded "><a href="ch08-shell.html"><strong aria-hidden="true">8.</strong> The Console and the Shell</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch08a-ts-functions-as-values.html"><strong aria-hidden="true">8.1.</strong> TS Deep Dive: Functions as Values</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part IV — Processes and Threads</li><li class="chapter-item expanded "><a href="ch09-processes.html"><strong aria-hidden="true">9.</strong> Processes and the PCB</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch09a-ts-literal-types.html"><strong aria-hidden="true">9.1.</strong> TS Deep Dive: Literal Types and Type Aliases</a></li></ol></li><li class="chapter-item expanded "><a href="ch10-threads.html"><strong aria-hidden="true">10.</strong> Threads, and the One Thread You Have</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch10a-ts-event-loop.html"><strong aria-hidden="true">10.1.</strong> TS Deep Dive: The Event Loop, Timers, and Callbacks</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part V — Main Memory</li><li class="chapter-item expanded "><a href="ch11-main-memory.html"><strong aria-hidden="true">11.</strong> Binding, Base/Limit, and Partitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch11a-ts-interfaces.html"><strong aria-hidden="true">11.1.</strong> TS Deep Dive: Interfaces and Object Shapes</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VI — CPU Scheduling</li><li class="chapter-item expanded "><a href="ch12-scheduling-theory.html"><strong aria-hidden="true">12.</strong> Scheduling Theory, by Hand and by Code</a></li><li class="chapter-item expanded "><a href="ch13-scheduling-robsen.html"><strong aria-hidden="true">13.</strong> Scheduling in rObSen: Timer, Dispatcher, Context Switch</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch13a-ts-generics.html"><strong aria-hidden="true">13.1.</strong> TS Deep Dive: Generics</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VII — Storage</li><li class="chapter-item expanded "><a href="ch14-fs-interface.html"><strong aria-hidden="true">14.</strong> The File-System Interface</a></li><li class="chapter-item expanded "><a href="ch15-fs-implementation.html"><strong aria-hidden="true">15.</strong> File-System Implementation: The TSB Disk</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch15a-ts-storage-strings.html"><strong aria-hidden="true">15.1.</strong> TS Deep Dive: Web Storage, JSON, and Hex Strings</a></li></ol></li><li class="chapter-item expanded "><a href="ch16-disks.html"><strong aria-hidden="true">16.</strong> Disk Systems and Disk Scheduling</a></li><li class="chapter-item expanded affix "><li class="part-title">Part VIII — Beyond Contiguous Memory</li><li class="chapter-item expanded "><a href="ch17-swapping.html"><strong aria-hidden="true">17.</strong> Swapping: Roll-Out and Roll-In</a></li><li class="chapter-item expanded "><a href="ch18-paging.html"><strong aria-hidden="true">18.</strong> Paging</a></li><li class="chapter-item expanded affix "><li class="part-title">Part IX — Concurrency</li><li class="chapter-item expanded "><a href="ch19-sync-deadlock.html"><strong aria-hidden="true">19.</strong> Synchronization and Deadlock</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch19a-ts-async.html"><strong aria-hidden="true">19.1.</strong> TS Deep Dive: Promises and async/await</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part X — Virtual Memory</li><li class="chapter-item expanded "><a href="ch20-virtual-memory.html"><strong aria-hidden="true">20.</strong> Demand Paging and Page Replacement</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch20a-ts-implements.html"><strong aria-hidden="true">20.1.</strong> TS Deep Dive: implements and the Strategy Pattern</a></li></ol></li><li class="chapter-item expanded "><li class="spacer"></li><li class="chapter-item expanded affix "><a href="appA-6502a.html">A. The 6502a Instruction Set</a></li><li class="chapter-item expanded affix "><a href="appB-commands.html">B. Shell Command Reference</a></li><li class="chapter-item expanded affix "><a href="appC-bugs.html">C. Bug Ledger</a></li><li class="chapter-item expanded affix "><a href="appD-glados.html">D. Testing with GLaDOS</a></li><li class="chapter-item expanded affix "><a href="appE-slide-index.html">E. Slide Index</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">rObSen, Layer by Layer</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="ts-deep-dive-bits-bytes-and-bitwise-operators"><a class="header" href="#ts-deep-dive-bits-bytes-and-bitwise-operators">TS Deep Dive: Bits, Bytes, and Bitwise Operators</a></h1>
+<p><span class="deep-dive-badge">TypeScript deep dive</span></p>
+<p>The CPU and memory code is sprinkled with <code>&amp; 0xff</code>, <code>&lt;&lt; 8</code>, <code>| low</code>, and <code>offset - 0x100</code>. None of that is TypeScript-specific (it’s JavaScript, and before that it’s C), but it’s the most “systems” code in the project, and it’s worth understanding exactly, because a wrong mask is a silent bug.</p>
+<h2 id="numbers-in-javascript-are-not-bytes"><a class="header" href="#numbers-in-javascript-are-not-bytes">Numbers in JavaScript are not bytes</a></h2>
+<p>TypeScript has one numeric type, <code>number</code>, which is a 64-bit IEEE-754 floating-point value. It can hold integers exactly up to 2⁵³, so it’s perfectly happy to hold 256, or 70 000, or −3. A 6502 register can’t: it holds 8 bits, 0 to 255. So every time rObSen computes a register value, it has to <em>force</em> the result back into 8 bits. That’s what <code>&amp; 0xff</code> is for.</p>
+<p>(There’s also <code>bigint</code> for arbitrarily large integers, and typed arrays like <code>Uint8Array</code> that store actual bytes. Memory uses a <code>Uint8Array</code>; the registers are plain <code>number</code>s.)</p>
+<h2 id="hex-literals"><a class="header" href="#hex-literals">Hex literals</a></h2>
+<p><code>0xff</code>, <code>0x300</code>, <code>0xa9</code> are just numbers written in base 16. <code>0xff</code> is 255, <code>0x100</code> is 256, <code>0x300</code> is 768. Hex is used because each hex digit is exactly 4 bits, so a byte is always two hex digits, which makes bit patterns visible:</p>
+<div class="table-wrapper"><table><thead><tr><th>Hex</th><th>Binary</th><th>Decimal</th></tr></thead><tbody>
+<tr><td><code>0x0f</code></td><td><code>0000 1111</code></td><td>15</td></tr>
+<tr><td><code>0xf0</code></td><td><code>1111 0000</code></td><td>240</td></tr>
+<tr><td><code>0xff</code></td><td><code>1111 1111</code></td><td>255</td></tr>
+<tr><td><code>0x80</code></td><td><code>1000 0000</code></td><td>128</td></tr>
+<tr><td><code>0x100</code></td><td><code>1 0000 0000</code></td><td>256</td></tr>
+</tbody></table>
+</div>
+<p>You can also write binary literals (<code>0b1111_0000</code>) and use <code>_</code> as a digit separator in any numeric literal.</p>
+<h2 id="the-bitwise-operators"><a class="header" href="#the-bitwise-operators">The bitwise operators</a></h2>
+<p>JavaScript’s bitwise operators convert their operands to <strong>32-bit signed integers</strong>, operate bit by bit, and give back a 32-bit signed integer.</p>
+<div class="table-wrapper"><table><thead><tr><th>Operator</th><th>Name</th><th>Example</th><th>Result</th></tr></thead><tbody>
+<tr><td><code>a &amp; b</code></td><td>AND: 1 where both are 1</td><td><code>0x1234 &amp; 0xff</code></td><td><code>0x34</code></td></tr>
+<tr><td><code>a | b</code></td><td>OR: 1 where either is 1</td><td><code>0x12 &lt;&lt; 8 | 0x34</code></td><td><code>0x1234</code></td></tr>
+<tr><td><code>a ^ b</code></td><td>XOR: 1 where they differ</td><td><code>0b1100 ^ 0b1010</code></td><td><code>0b0110</code></td></tr>
+<tr><td><code>~a</code></td><td>NOT: flip every bit</td><td><code>~0</code></td><td><code>-1</code></td></tr>
+<tr><td><code>a &lt;&lt; n</code></td><td>shift left, fill with 0</td><td><code>1 &lt;&lt; 8</code></td><td><code>256</code></td></tr>
+<tr><td><code>a &gt;&gt; n</code></td><td>shift right, copy the sign bit</td><td><code>-16 &gt;&gt; 2</code></td><td><code>-4</code></td></tr>
+<tr><td><code>a &gt;&gt;&gt; n</code></td><td>shift right, fill with 0 (unsigned)</td><td><code>-1 &gt;&gt;&gt; 28</code></td><td><code>15</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="idiom-1-masking-to-a-byte"><a class="header" href="#idiom-1-masking-to-a-byte">Idiom 1: masking to a byte</a></h2>
+<pre><code class="language-typescript">this.PC = (this.PC + 1) &amp; 0xff;
+</code></pre>
+<p><code>0xff</code> is eight 1-bits. ANDing with it keeps the low 8 bits of a number and zeroes everything above. So <code>0xff + 1 = 0x100</code>, and <code>0x100 &amp; 0xff = 0x00</code>: the PC wraps from 255 to 0, exactly like an 8-bit register overflowing. The same mask appears in <code>Memory.write</code> (<code>value &amp; 0xff</code>), <code>opAddWithCarry</code> (<code>(this.Acc + value) &amp; 0xff</code>), and <code>opIncrementAbsolute</code>.</p>
+<p><code>Control.hex</code> picks its mask by width:</p>
+<pre><code class="language-typescript">    private static hex(value: number, width: number = 2): string {
+      const mask = width &gt; 2 ? 0xffff : 0xff;
+      const normalized = (value ?? 0) &amp; mask;
+      return normalized.toString(16).toUpperCase().padStart(width, "0");
+    }
+</code></pre>
+<p>Two hex digits get <code>0xff</code> (one byte); four get <code>0xffff</code> (two bytes). The <code>?? 0</code> turns <code>undefined</code> or <code>null</code> into 0 first (Chapter 6a).</p>
+<h2 id="idiom-2-building-a-word-from-two-bytes"><a class="header" href="#idiom-2-building-a-word-from-two-bytes">Idiom 2: building a word from two bytes</a></h2>
+<pre><code class="language-typescript">    private fetchWord(): number {
+      this.ensureOperandAvailable(2);
+      const low = _MemoryAccessor.read(this.PC &amp; 0xff);
+      const high = _MemoryAccessor.read((this.PC + 1) &amp; 0xff);
+      this.PC = (this.PC + 2) &amp; 0xff;
+      return ((high &lt;&lt; 8) | low) &amp; 0xffff;
+    }
+</code></pre>
+<p>Suppose memory holds <code>50 01</code> at the PC. Then <code>low = 0x50</code>, <code>high = 0x01</code>, and:</p>
+<pre><code class="language-text">high &lt;&lt; 8      = 0x0100   (0000 0001 0000 0000)
+         | low = 0x0150   (0000 0001 0101 0000)
+</code></pre>
+<p>The shift moves the high byte up into bits 8–15, and OR drops the low byte into bits 0–7, which are known to be empty. The trailing <code>&amp; 0xffff</code> is defensive: it guarantees a 16-bit result. Going the other way (splitting a word into bytes) is <code>word &amp; 0xff</code> for the low byte and <code>(word &gt;&gt; 8) &amp; 0xff</code> for the high byte.</p>
+<p>Because the low byte comes <em>first</em> in memory, this byte order is called <strong>little-endian</strong>. The RPC slide in Chapter 3 (p. 219) mentions “big-endian and little-endian” as one of the representation problems remote procedure calls have to solve.</p>
+<h2 id="idiom-3-twos-complement-by-hand"><a class="header" href="#idiom-3-twos-complement-by-hand">Idiom 3: two’s complement, by hand</a></h2>
+<p>A branch offset is one byte, but it has to mean “forward or backward.” The convention is <strong>two’s complement</strong>: a byte whose top bit is 0 (<code>0x00</code>–<code>0x7f</code>) is 0 to 127; a byte whose top bit is 1 (<code>0x80</code>–<code>0xff</code>) is the value minus 256, so −128 to −1.</p>
+<pre><code class="language-typescript">    private opBranchNotEqual(): void {
+      const offset = this.fetchByte();
+      if (this.Zflag !== 0) {
+        return;
+      }
+      const signedOffset = offset &lt; 0x80 ? offset : offset - 0x100;
+      this.PC = (this.PC + signedOffset) &amp; 0xff;
+    }
+</code></pre>
+<p><code>offset &lt; 0x80 ? offset : offset - 0x100</code> is that rule, spelled out. <code>0xEF</code> (239) becomes 239 − 256 = −17.</p>
+<p>A more compact (and more cryptic) way to sign-extend a byte uses the fact that bitwise operators work on 32-bit signed values:</p>
+<pre><code class="language-typescript">const signed = (offset &lt;&lt; 24) &gt;&gt; 24;   // move bit 7 into bit 31, then arithmetic-shift back
+</code></pre>
+<p>The rObSen version is clearer. Alan’s comment on <code>rot13</code> applies: “There’s a lot to be said for obvious code.”</p>
+<p>Then <code>(this.PC + signedOffset) &amp; 0xff</code> adds the offset and wraps. Branching backwards past 0 wraps to the top of the 256-byte space, as it would on 8-bit hardware.</p>
+<h2 id="idiom-4-hex-strings-and-back"><a class="header" href="#idiom-4-hex-strings-and-back">Idiom 4: hex strings and back</a></h2>
+<p>Converting between numbers and hex text happens in the loader, the panels, and the disk driver:</p>
+<pre><code class="language-typescript">(165).toString(16)                    // "a5"
+(165).toString(16).toUpperCase()      // "A5"
+(5).toString(16).padStart(2, "0")     // "05"
+parseInt("A5", 16)                    // 165
+parseInt("ZZ", 16)                    // NaN — always check with Number.isNaN
+</code></pre>
+<p><code>Shell.shellLoad</code> validates with a regular expression first (<code>/^[0-9A-Fa-f\s]+$/</code>), then insists each token is exactly two characters, then calls <code>parseInt(token, 16)</code>. <code>Number.isNaN</code> would catch anything that slipped past, which by then nothing can.</p>
+<h2 id="typed-arrays-wrap-for-free"><a class="header" href="#typed-arrays-wrap-for-free">Typed arrays wrap for free</a></h2>
+<pre><code class="language-typescript">const mem = new Uint8Array(4);
+mem[0] = 256;   // stored as 0
+mem[1] = -1;    // stored as 255
+mem[2] = 3.9;   // stored as 3
+</code></pre>
+<p>A <code>Uint8Array</code> converts whatever you store into an unsigned byte (modulo 256, truncating fractions). That’s why <code>Memory</code> can’t hold an out-of-range value even if someone forgot to mask. It’s also why bugs involving typed arrays are quiet: nothing throws.</p>
+<h2 id="summary"><a class="header" href="#summary">Summary</a></h2>
+<ul>
+<li><code>number</code> is a double; registers must be forced into 8 bits with <code>&amp; 0xff</code>.</li>
+<li><code>(high &lt;&lt; 8) | low</code> builds a little-endian word; <code>&amp; 0xff</code> and <code>&gt;&gt; 8</code> take it apart.</li>
+<li>A byte ≥ <code>0x80</code> is negative in two’s complement: subtract <code>0x100</code>.</li>
+<li><code>toString(16)</code>, <code>padStart</code>, and <code>parseInt(…, 16)</code> move between numbers and hex text.</li>
+</ul>
+<h2 id="exercise"><a class="header" href="#exercise">Exercise</a></h2>
+<p><code>Cpu.opAddWithCarry</code> drops the carry. Add a <code>Cflag</code> register that is set when <code>Acc + value &gt; 0xff</code>, and make ADC add it in, like a real 6502. Which test programs, if any, would behave differently? (None of the 6502a programs depend on carry, since the subset has no instruction that reads it. That’s exactly why it was left out.)</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch05-cpu.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="ch06-kernel.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch05-cpu.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="ch06-kernel.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

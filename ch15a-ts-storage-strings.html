@@ -1,0 +1,377 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>TS Deep Dive: Web Storage, JSON, and Hex Strings - rObSen, Layer by Layer</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A companion to Alan Labouseur&#x27;s Operating Systems course (CMPT 424, Marist), told through one student&#x27;s browser-based OS written in TypeScript.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">Preface: How to Read This Book</a></li><li class="chapter-item expanded affix "><a href="map.html">The Map: rObSen at a Glance</a></li><li class="chapter-item expanded affix "><li class="part-title">Part I — Foundations</li><li class="chapter-item expanded "><a href="ch01-what-is-an-os.html"><strong aria-hidden="true">1.</strong> What Is an Operating System?</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch01a-ts-namespaces.html"><strong aria-hidden="true">1.1.</strong> TS Deep Dive: Namespaces and the Global Script World</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-structures.html"><strong aria-hidden="true">2.</strong> OS Structures and the Machine Inside the Browser</a></li><li class="chapter-item expanded affix "><li class="part-title">Part II — The Hardware Layer (source/host)</li><li class="chapter-item expanded "><a href="ch03-host.html"><strong aria-hidden="true">3.</strong> The Host: Clock, Buttons, and the Log</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch03a-ts-static-dom.html"><strong aria-hidden="true">3.1.</strong> TS Deep Dive: Static Members, Type Assertions, and the DOM</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-memory.html"><strong aria-hidden="true">4.</strong> Memory and the Memory Accessor</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch04a-ts-class-anatomy.html"><strong aria-hidden="true">4.1.</strong> TS Deep Dive: Anatomy of a Class</a></li></ol></li><li class="chapter-item expanded "><a href="ch05-cpu.html"><strong aria-hidden="true">5.</strong> The CPU: Fetch, Decode, Execute</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch05a-ts-bitwise.html"><strong aria-hidden="true">5.1.</strong> TS Deep Dive: Bits, Bytes, and Bitwise Operators</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part III — The Kernel Layer (source/os)</li><li class="chapter-item expanded "><a href="ch06-kernel.html"><strong aria-hidden="true">6.</strong> Booting, Interrupts, and the Mode Bit</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch06a-ts-unions-null.html"><strong aria-hidden="true">6.1.</strong> TS Deep Dive: Union Types, Null, and Optional Chaining</a></li></ol></li><li class="chapter-item expanded "><a href="ch07-drivers.html"><strong aria-hidden="true">7.</strong> Device Drivers: The Keyboard</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch07a-ts-inheritance-this.html"><strong aria-hidden="true">7.1.</strong> TS Deep Dive: Inheritance, super, and the Trouble with this</a></li></ol></li><li class="chapter-item expanded "><a href="ch08-shell.html"><strong aria-hidden="true">8.</strong> The Console and the Shell</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch08a-ts-functions-as-values.html"><strong aria-hidden="true">8.1.</strong> TS Deep Dive: Functions as Values</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part IV — Processes and Threads</li><li class="chapter-item expanded "><a href="ch09-processes.html"><strong aria-hidden="true">9.</strong> Processes and the PCB</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch09a-ts-literal-types.html"><strong aria-hidden="true">9.1.</strong> TS Deep Dive: Literal Types and Type Aliases</a></li></ol></li><li class="chapter-item expanded "><a href="ch10-threads.html"><strong aria-hidden="true">10.</strong> Threads, and the One Thread You Have</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch10a-ts-event-loop.html"><strong aria-hidden="true">10.1.</strong> TS Deep Dive: The Event Loop, Timers, and Callbacks</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part V — Main Memory</li><li class="chapter-item expanded "><a href="ch11-main-memory.html"><strong aria-hidden="true">11.</strong> Binding, Base/Limit, and Partitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch11a-ts-interfaces.html"><strong aria-hidden="true">11.1.</strong> TS Deep Dive: Interfaces and Object Shapes</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VI — CPU Scheduling</li><li class="chapter-item expanded "><a href="ch12-scheduling-theory.html"><strong aria-hidden="true">12.</strong> Scheduling Theory, by Hand and by Code</a></li><li class="chapter-item expanded "><a href="ch13-scheduling-robsen.html"><strong aria-hidden="true">13.</strong> Scheduling in rObSen: Timer, Dispatcher, Context Switch</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch13a-ts-generics.html"><strong aria-hidden="true">13.1.</strong> TS Deep Dive: Generics</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VII — Storage</li><li class="chapter-item expanded "><a href="ch14-fs-interface.html"><strong aria-hidden="true">14.</strong> The File-System Interface</a></li><li class="chapter-item expanded "><a href="ch15-fs-implementation.html"><strong aria-hidden="true">15.</strong> File-System Implementation: The TSB Disk</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ch15a-ts-storage-strings.html" class="active"><strong aria-hidden="true">15.1.</strong> TS Deep Dive: Web Storage, JSON, and Hex Strings</a></li></ol></li><li class="chapter-item expanded "><a href="ch16-disks.html"><strong aria-hidden="true">16.</strong> Disk Systems and Disk Scheduling</a></li><li class="chapter-item expanded affix "><li class="part-title">Part VIII — Beyond Contiguous Memory</li><li class="chapter-item expanded "><a href="ch17-swapping.html"><strong aria-hidden="true">17.</strong> Swapping: Roll-Out and Roll-In</a></li><li class="chapter-item expanded "><a href="ch18-paging.html"><strong aria-hidden="true">18.</strong> Paging</a></li><li class="chapter-item expanded affix "><li class="part-title">Part IX — Concurrency</li><li class="chapter-item expanded "><a href="ch19-sync-deadlock.html"><strong aria-hidden="true">19.</strong> Synchronization and Deadlock</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch19a-ts-async.html"><strong aria-hidden="true">19.1.</strong> TS Deep Dive: Promises and async/await</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part X — Virtual Memory</li><li class="chapter-item expanded "><a href="ch20-virtual-memory.html"><strong aria-hidden="true">20.</strong> Demand Paging and Page Replacement</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch20a-ts-implements.html"><strong aria-hidden="true">20.1.</strong> TS Deep Dive: implements and the Strategy Pattern</a></li></ol></li><li class="chapter-item expanded "><li class="spacer"></li><li class="chapter-item expanded affix "><a href="appA-6502a.html">A. The 6502a Instruction Set</a></li><li class="chapter-item expanded affix "><a href="appB-commands.html">B. Shell Command Reference</a></li><li class="chapter-item expanded affix "><a href="appC-bugs.html">C. Bug Ledger</a></li><li class="chapter-item expanded affix "><a href="appD-glados.html">D. Testing with GLaDOS</a></li><li class="chapter-item expanded affix "><a href="appE-slide-index.html">E. Slide Index</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">rObSen, Layer by Layer</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="ts-deep-dive-web-storage-json-and-hex-strings"><a class="header" href="#ts-deep-dive-web-storage-json-and-hex-strings">TS Deep Dive: Web Storage, JSON, and Hex Strings</a></h1>
+<p><span class="deep-dive-badge">TypeScript deep dive</span></p>
+<p>The disk driver is mostly string manipulation on top of one browser API. This chapter covers both: the <strong>Web Storage API</strong> that plays the role of the disk hardware, <strong>JSON</strong> for turning the disk image into a string and back, and the string methods that build and parse blocks.</p>
+<h2 id="web-storage-sessionstorage-and-localstorage"><a class="header" href="#web-storage-sessionstorage-and-localstorage">Web Storage: <code>sessionStorage</code> and <code>localStorage</code></a></h2>
+<p>Browsers give every page two simple key-value stores:</p>
+<div class="table-wrapper"><table><thead><tr><th></th><th><code>sessionStorage</code></th><th><code>localStorage</code></th></tr></thead><tbody>
+<tr><td>Lifetime</td><td>until the tab is closed (survives reloads)</td><td>until explicitly cleared</td></tr>
+<tr><td>Scope</td><td>this tab, this site</td><td>every tab of this site</td></tr>
+<tr><td>Typical quota</td><td>about 5 MB per site</td><td>about 5 MB per site</td></tr>
+</tbody></table>
+</div>
+<p>Both have the same small interface, and every key and value is a <strong>string</strong>:</p>
+<pre><code class="language-typescript">sessionStorage.setItem("tsos-disk", text);     // store (overwrites)
+const text = sessionStorage.getItem("tsos-disk"); // string | null if absent
+sessionStorage.removeItem("tsos-disk");
+sessionStorage.clear();                         // everything for this site and tab
+</code></pre>
+<p><code>getItem</code> returns <code>null</code> for a missing key, and TypeScript’s DOM types say so (<code>string | null</code>), which is why <code>loadImage</code> starts with <code>if (!serialized)</code>. rObSen chose <code>sessionStorage</code>, so the disk survives the Reset button (a reload) but not closing the tab. Switching to <code>localStorage</code> would make the disk persist across browser restarts, which is closer to a real disk, but also means stale disk images from old versions of your OS would linger.</p>
+<p>Both APIs are <strong>synchronous</strong>: <code>getItem</code> blocks until it has the value. For a few kilobytes that’s instant. For large data, browsers offer <strong>IndexedDB</strong>, which is asynchronous (Chapter 19a), structured, and much bigger.</p>
+<h2 id="json-the-disk-image-as-text"><a class="header" href="#json-the-disk-image-as-text">JSON: the disk image as text</a></h2>
+<p>The disk is an array of 256 strings. Storage only holds strings. <code>JSON</code> bridges the gap:</p>
+<pre><code class="language-typescript">const image: string[] = ["1100…", "0000…", /* … */];
+const text = JSON.stringify(image);          // '["1100…","0000…",…]'
+const back = JSON.parse(text) as string[];   // a new array, equal to image
+</code></pre>
+<p><code>JSON.stringify</code> turns arrays, objects, strings, numbers, booleans, and <code>null</code> into text; <code>JSON.parse</code> turns the text back. Two TypeScript-specific points:</p>
+<ul>
+<li><code>JSON.parse</code> returns <code>any</code>, because the compiler can’t know what’s in the string. <code>as string[]</code> is an <em>assertion</em> (Chapter 3a), not a check. If the stored text were an object instead of an array, the assertion would happily lie, and the failure would come later.</li>
+<li><code>JSON.parse</code> <em>throws</em> on malformed text. <code>loadImage</code> catches that and reformats the disk, which is the right instinct for a corrupted disk image:</li>
+</ul>
+<pre><code class="language-typescript">    private loadImage(allowEmpty: boolean = false): string[] {
+      const serialized = sessionStorage.getItem(this.storageKey);
+      if (!serialized) {
+        if (allowEmpty) {
+          const totalBlocks = this.tracks * this.sectors * this.blocks;
+          return new Array(totalBlocks).fill(this.createEmptyBlock());
+        }
+        this.format();
+        return this.loadImage();
+      }
+      try {
+        return JSON.parse(serialized) as string[];
+      } catch (err) {
+        this.format();
+        return this.loadImage();
+      }
+    }
+</code></pre>
+<h3 id="the-cost-of-re-parsing"><a class="header" href="#the-cost-of-re-parsing">The cost of re-parsing</a></h3>
+<p>Every <code>readBlock</code> calls <code>loadImage</code>, and every <code>writeBlock</code> calls <code>loadImage</code> and then <code>JSON.stringify</code>s and stores the whole image again:</p>
+<pre><code class="language-typescript">    public readBlock(track: number, sector: number, block: number): string {
+      const index = this.toIndex(track, sector, block);
+      const image = this.loadImage();
+      if (index &lt; 0 || index &gt;= image.length) {
+        throw new Error(`Disk read out of range: t${track}s${sector}b${block}`);
+      }
+      return image[index];
+    }
+
+    public writeBlock(track: number, sector: number, block: number, data: string): void {
+      const index = this.toIndex(track, sector, block);
+      const image = this.loadImage();
+      if (index &lt; 0 || index &gt;= image.length) {
+        throw new Error(`Disk write out of range: t${track}s${sector}b${block}`);
+      }
+      const normalized = data.padEnd(this.blockSize, "0").slice(0, this.blockSize);
+      image[index] = normalized;
+      sessionStorage.setItem(this.storageKey, JSON.stringify(image));
+    }
+</code></pre>
+<p>So reading one 64-digit block parses roughly 17 KB of JSON, and the disk panel reads all 256 blocks ten times a second (Chapter 3). The standard fix is a <strong>cache</strong>: parse once, keep the array in memory, and write it back to storage after changes (immediately, or in batches). That’s exactly the slides’ “disk cache: separate section of main memory for frequently used blocks” (p. 783), and it raises the classic trade-off: the longer you wait to write back, the faster you go and the more you lose in a crash.</p>
+<pre><code class="language-typescript">private image: string[] | null = null;
+
+private loadImage(): string[] {
+  if (!this.image) {
+    const serialized = sessionStorage.getItem(this.storageKey);
+    this.image = serialized ? (JSON.parse(serialized) as string[]) : this.freshImage();
+  }
+  return this.image;
+}
+
+public writeBlock(t: number, s: number, b: number, data: string): void {
+  const image = this.loadImage();
+  image[this.toIndex(t, s, b)] = data.padEnd(this.blockSize, "0").slice(0, this.blockSize);
+  sessionStorage.setItem(this.storageKey, JSON.stringify(image)); // write-through
+}
+</code></pre>
+<h2 id="hex-encoding-a-string"><a class="header" href="#hex-encoding-a-string">Hex encoding a string</a></h2>
+<p>Blocks are hex digits, so text must be converted:</p>
+<pre><code class="language-typescript">    private stringToHex(input: string): string {
+      return Array.from(input)
+        .map((ch) =&gt; ch.charCodeAt(0).toString(16).toUpperCase().padStart(2, "0"))
+        .join("");
+    }
+</code></pre>
+<p><code>Array.from(input)</code> splits the string into characters; <code>charCodeAt(0)</code> gives each one’s numeric code; <code>toString(16)</code> writes it in hex; <code>padStart(2, "0")</code> ensures two digits; <code>join("")</code> glues them together. <code>"hi"</code> becomes <code>"6869"</code>.</p>
+<p>Decoding goes the other way:</p>
+<pre><code class="language-typescript">    private extractData(rawBlock: string): string {
+      const dataHex = rawBlock.slice(this.dataHeaderLength, this.blockSize);
+      const bytes: number[] = [];
+      for (let i = 0; i &lt; dataHex.length; i += 2) {
+        const byte = parseInt(dataHex.slice(i, i + 2), 16);
+        if (byte === 0 || Number.isNaN(byte)) {
+          break;
+        }
+        bytes.push(byte);
+      }
+      return String.fromCharCode(...bytes);
+    }
+</code></pre>
+<p>Take two digits at a time, <code>parseInt(…, 16)</code>, stop at the first <code>00</code> (the terminator, just like a C string or the 6502a’s print-string system call), and turn the codes back into characters with <code>String.fromCharCode(...bytes)</code>. The <code>...</code> is <strong>spread</strong> in a function call: it passes the array’s elements as separate arguments, <code>String.fromCharCode(104, 105)</code>.</p>
+<div class="callout"><span class="label">A Unicode footnote</span>
+This encoding assumes every character code fits in two hex digits (0–255). JavaScript strings are UTF-16, so a character like <code>€</code> (code 8364, hex <code>20AC</code>) would produce four digits and shift every following character out of alignment, and an emoji is two UTF-16 code units. rObSen's keyboard driver can't type such characters, so it never arises. The robust approach is to encode text to bytes first, with <code>new TextEncoder().encode(text)</code> (UTF-8), and hex-encode the bytes.
+</div>
+<h2 id="the-string-toolkit"><a class="header" href="#the-string-toolkit">The string toolkit</a></h2>
+<p>The driver uses most of the standard string methods. A reference, with rObSen examples:</p>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Does</th><th>Example</th></tr></thead><tbody>
+<tr><td><code>s.padStart(n, c)</code></td><td>left-pad to length <em>n</em></td><td><code>pad(now.getMonth() + 1)</code> → <code>"03"</code></td></tr>
+<tr><td><code>s.padEnd(n, c)</code></td><td>right-pad to length <em>n</em></td><td>a block padded with <code>"0"</code> to 64 digits</td></tr>
+<tr><td><code>s.slice(a, b)</code></td><td>characters <em>a</em> up to (not including) <em>b</em></td><td><code>rawBlock.slice(2, 5)</code>, the TSB pointer</td></tr>
+<tr><td><code>c.repeat(n)</code></td><td><em>n</em> copies</td><td><code>"0".repeat(64)</code>, an empty block</td></tr>
+<tr><td><code>s.split(sep)</code></td><td>break into an array</td><td><code>pointerHex.split("")</code> → <code>["1","0","3"]</code></td></tr>
+<tr><td><code>a.join(sep)</code></td><td>glue an array into a string</td><td><code>[t, s, b].map(…).join("")</code></td></tr>
+<tr><td><code>s.startsWith(p)</code></td><td>prefix test</td><td><code>name.startsWith(".")</code>, hidden files</td></tr>
+<tr><td><code>s.match(re)</code></td><td>regular-expression match</td><td>the quoted data in <code>write</code></td></tr>
+<tr><td><code>`${x}`</code></td><td>template literal: embed expressions</td><td><code>`${header}${trimmed}`</code></td></tr>
+</tbody></table>
+</div>
+<p>The <code>write</code> command’s argument parsing is a neat use of a regular expression with a capture group:</p>
+<pre><code class="language-typescript">const dataArg = args.slice(1).join(" ");
+const match = dataArg.match(/^"([\s\S]*)"$/);
+const data = match[1];
+</code></pre>
+<p><code>^"</code> and <code>"$</code> require the argument to start and end with a quote; <code>([\s\S]*)</code> captures everything in between, including spaces (<code>[\s\S]</code> means “any whitespace or non-whitespace character,” i.e., anything at all, even newlines). <code>match[1]</code> is the captured text. (One quirk: the shell split the line on spaces first and lower-cased it, so <code>join(" ")</code> reassembles it, minus any double spaces and minus capital letters; see Chapter 8.)</p>
+<h2 id="building-a-timestamp"><a class="header" href="#building-a-timestamp">Building a timestamp</a></h2>
+<pre><code class="language-typescript">    private currentTimestamp(): string {
+      const now = new Date();
+      const pad = (value: number, length: number = 2) =&gt; value.toString().padStart(length, "0");
+      return `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}`;
+    }
+</code></pre>
+<p><code>pad</code> is a small arrow function with a default parameter, defined inside the method because nothing else needs it. <code>getMonth()</code> is zero-based (January is 0), hence the <code>+ 1</code>, a perennial source of off-by-one bugs.</p>
+<h2 id="summary"><a class="header" href="#summary">Summary</a></h2>
+<ul>
+<li><code>sessionStorage</code> and <code>localStorage</code> are synchronous string-to-string stores; <code>getItem</code> returns <code>string | null</code>.</li>
+<li><code>JSON.stringify</code>/<code>JSON.parse</code> convert structured data to text and back; <code>parse</code> returns <code>any</code> and can throw.</li>
+<li>Parsing the whole disk on every block access is the main inefficiency; an in-memory cache with write-through fixes it.</li>
+<li>Hex encoding is <code>charCodeAt</code> + <code>toString(16)</code> + <code>padStart</code>; decoding is <code>parseInt(…, 16)</code> + <code>String.fromCharCode</code>.</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch15-fs-implementation.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="ch16-disks.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch15-fs-implementation.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="ch16-disks.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

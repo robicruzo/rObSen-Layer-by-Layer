@@ -1,0 +1,350 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>TS Deep Dive: Promises and async/await - rObSen, Layer by Layer</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A companion to Alan Labouseur&#x27;s Operating Systems course (CMPT 424, Marist), told through one student&#x27;s browser-based OS written in TypeScript.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">Preface: How to Read This Book</a></li><li class="chapter-item expanded affix "><a href="map.html">The Map: rObSen at a Glance</a></li><li class="chapter-item expanded affix "><li class="part-title">Part I — Foundations</li><li class="chapter-item expanded "><a href="ch01-what-is-an-os.html"><strong aria-hidden="true">1.</strong> What Is an Operating System?</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch01a-ts-namespaces.html"><strong aria-hidden="true">1.1.</strong> TS Deep Dive: Namespaces and the Global Script World</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-structures.html"><strong aria-hidden="true">2.</strong> OS Structures and the Machine Inside the Browser</a></li><li class="chapter-item expanded affix "><li class="part-title">Part II — The Hardware Layer (source/host)</li><li class="chapter-item expanded "><a href="ch03-host.html"><strong aria-hidden="true">3.</strong> The Host: Clock, Buttons, and the Log</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch03a-ts-static-dom.html"><strong aria-hidden="true">3.1.</strong> TS Deep Dive: Static Members, Type Assertions, and the DOM</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-memory.html"><strong aria-hidden="true">4.</strong> Memory and the Memory Accessor</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch04a-ts-class-anatomy.html"><strong aria-hidden="true">4.1.</strong> TS Deep Dive: Anatomy of a Class</a></li></ol></li><li class="chapter-item expanded "><a href="ch05-cpu.html"><strong aria-hidden="true">5.</strong> The CPU: Fetch, Decode, Execute</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch05a-ts-bitwise.html"><strong aria-hidden="true">5.1.</strong> TS Deep Dive: Bits, Bytes, and Bitwise Operators</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part III — The Kernel Layer (source/os)</li><li class="chapter-item expanded "><a href="ch06-kernel.html"><strong aria-hidden="true">6.</strong> Booting, Interrupts, and the Mode Bit</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch06a-ts-unions-null.html"><strong aria-hidden="true">6.1.</strong> TS Deep Dive: Union Types, Null, and Optional Chaining</a></li></ol></li><li class="chapter-item expanded "><a href="ch07-drivers.html"><strong aria-hidden="true">7.</strong> Device Drivers: The Keyboard</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch07a-ts-inheritance-this.html"><strong aria-hidden="true">7.1.</strong> TS Deep Dive: Inheritance, super, and the Trouble with this</a></li></ol></li><li class="chapter-item expanded "><a href="ch08-shell.html"><strong aria-hidden="true">8.</strong> The Console and the Shell</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch08a-ts-functions-as-values.html"><strong aria-hidden="true">8.1.</strong> TS Deep Dive: Functions as Values</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part IV — Processes and Threads</li><li class="chapter-item expanded "><a href="ch09-processes.html"><strong aria-hidden="true">9.</strong> Processes and the PCB</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch09a-ts-literal-types.html"><strong aria-hidden="true">9.1.</strong> TS Deep Dive: Literal Types and Type Aliases</a></li></ol></li><li class="chapter-item expanded "><a href="ch10-threads.html"><strong aria-hidden="true">10.</strong> Threads, and the One Thread You Have</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch10a-ts-event-loop.html"><strong aria-hidden="true">10.1.</strong> TS Deep Dive: The Event Loop, Timers, and Callbacks</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part V — Main Memory</li><li class="chapter-item expanded "><a href="ch11-main-memory.html"><strong aria-hidden="true">11.</strong> Binding, Base/Limit, and Partitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch11a-ts-interfaces.html"><strong aria-hidden="true">11.1.</strong> TS Deep Dive: Interfaces and Object Shapes</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VI — CPU Scheduling</li><li class="chapter-item expanded "><a href="ch12-scheduling-theory.html"><strong aria-hidden="true">12.</strong> Scheduling Theory, by Hand and by Code</a></li><li class="chapter-item expanded "><a href="ch13-scheduling-robsen.html"><strong aria-hidden="true">13.</strong> Scheduling in rObSen: Timer, Dispatcher, Context Switch</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch13a-ts-generics.html"><strong aria-hidden="true">13.1.</strong> TS Deep Dive: Generics</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VII — Storage</li><li class="chapter-item expanded "><a href="ch14-fs-interface.html"><strong aria-hidden="true">14.</strong> The File-System Interface</a></li><li class="chapter-item expanded "><a href="ch15-fs-implementation.html"><strong aria-hidden="true">15.</strong> File-System Implementation: The TSB Disk</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch15a-ts-storage-strings.html"><strong aria-hidden="true">15.1.</strong> TS Deep Dive: Web Storage, JSON, and Hex Strings</a></li></ol></li><li class="chapter-item expanded "><a href="ch16-disks.html"><strong aria-hidden="true">16.</strong> Disk Systems and Disk Scheduling</a></li><li class="chapter-item expanded affix "><li class="part-title">Part VIII — Beyond Contiguous Memory</li><li class="chapter-item expanded "><a href="ch17-swapping.html"><strong aria-hidden="true">17.</strong> Swapping: Roll-Out and Roll-In</a></li><li class="chapter-item expanded "><a href="ch18-paging.html"><strong aria-hidden="true">18.</strong> Paging</a></li><li class="chapter-item expanded affix "><li class="part-title">Part IX — Concurrency</li><li class="chapter-item expanded "><a href="ch19-sync-deadlock.html"><strong aria-hidden="true">19.</strong> Synchronization and Deadlock</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ch19a-ts-async.html" class="active"><strong aria-hidden="true">19.1.</strong> TS Deep Dive: Promises and async/await</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part X — Virtual Memory</li><li class="chapter-item expanded "><a href="ch20-virtual-memory.html"><strong aria-hidden="true">20.</strong> Demand Paging and Page Replacement</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch20a-ts-implements.html"><strong aria-hidden="true">20.1.</strong> TS Deep Dive: implements and the Strategy Pattern</a></li></ol></li><li class="chapter-item expanded "><li class="spacer"></li><li class="chapter-item expanded affix "><a href="appA-6502a.html">A. The 6502a Instruction Set</a></li><li class="chapter-item expanded affix "><a href="appB-commands.html">B. Shell Command Reference</a></li><li class="chapter-item expanded affix "><a href="appC-bugs.html">C. Bug Ledger</a></li><li class="chapter-item expanded affix "><a href="appD-glados.html">D. Testing with GLaDOS</a></li><li class="chapter-item expanded affix "><a href="appE-slide-index.html">E. Slide Index</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">rObSen, Layer by Layer</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="ts-deep-dive-promises-and-asyncawait"><a class="header" href="#ts-deep-dive-promises-and-asyncawait">TS Deep Dive: Promises and async/await</a></h1>
+<p><span class="deep-dive-badge">TypeScript deep dive</span></p>
+<p>rObSen doesn’t use promises at all. Every operation in it is synchronous, even the disk. But the moment you want a process to <em>wait</em> for something (a semaphore, a slow disk, a network), you need a way to say “continue this later, when X happens” without blocking the single JavaScript thread. That’s what promises and <code>async</code>/<code>await</code> are for. And they bring a surprise that ties directly to Chapter 19: single-threaded code can still have race conditions.</p>
+<h2 id="promises"><a class="header" href="#promises">Promises</a></h2>
+<p>A <strong>promise</strong> is an object representing a value that isn’t available yet. It’s in one of three states: <strong>pending</strong>, <strong>fulfilled</strong> (with a value), or <strong>rejected</strong> (with an error). Once settled, it never changes.</p>
+<pre><code class="language-typescript">const p: Promise&lt;number&gt; = new Promise((resolve, reject) =&gt; {
+  setTimeout(() =&gt; resolve(42), 1000);   // fulfil with 42 after a second
+});
+
+p.then((value) =&gt; console.log(value));   // runs later, with 42
+</code></pre>
+<p>The function passed to <code>new Promise</code> (the “executor”) runs immediately and receives two functions: call <code>resolve(value)</code> to fulfil, or <code>reject(error)</code> to reject. <code>.then(f)</code> registers a callback for when the promise is fulfilled. <code>Promise&lt;number&gt;</code> is a generic type (Chapter 13a): a promise of a number.</p>
+<h2 id="async-and-await"><a class="header" href="#async-and-await"><code>async</code> and <code>await</code></a></h2>
+<p>Chains of <code>.then</code> get hard to read. An <strong><code>async</code> function</strong> lets you write the same thing as straight-line code:</p>
+<pre><code class="language-typescript">async function loadAndRun(): Promise&lt;void&gt; {
+  const bytes = await readProgramFromDisk("counter");   // pause here until it's ready
+  const pid = await loadIntoMemory(bytes);
+  console.log(`loaded as PID ${pid}`);
+}
+</code></pre>
+<p><code>await p</code> pauses <em>this function</em> until <code>p</code> settles, then continues with its value (or throws its error). Crucially, it doesn’t block the thread: while <code>loadAndRun</code> is paused, the event loop runs other callbacks (clock ticks, keystrokes). An <code>async</code> function always returns a promise, so callers can <code>await</code> it in turn.</p>
+<p>Under the hood, the part of the function after an <code>await</code> becomes a callback, queued as a <strong>microtask</strong> when the awaited promise settles. Microtasks run after the current task finishes and before the next task (Chapter 10a’s event-loop sketch).</p>
+<h2 id="a-semaphore-that-blocks-without-busy-waiting"><a class="header" href="#a-semaphore-that-blocks-without-busy-waiting">A semaphore that blocks without busy-waiting</a></h2>
+<p>Chapter 19’s semaphore used a busy-wait loop, <code>while (S &lt;= 0);</code>, which on a single thread would spin forever: nothing else could ever run to signal it. With promises, waiting means “give me a promise that will be resolved when it’s my turn”:</p>
+<pre><code class="language-typescript">class Semaphore {
+  private waiting: (() =&gt; void)[] = [];   // resolvers of blocked wait() calls, FIFO
+  constructor(private value: number) {}
+
+  /** P(): take a unit, or block (asynchronously) until one is available. */
+  wait(): Promise&lt;void&gt; {
+    if (this.value &gt; 0) {
+      this.value--;
+      return Promise.resolve();
+    }
+    return new Promise&lt;void&gt;((resolve) =&gt; this.waiting.push(resolve));
+  }
+
+  /** V(): give a unit back, waking the longest waiter if there is one. */
+  signal(): void {
+    const next = this.waiting.shift();
+    if (next) next();          // hand the unit straight to the waiter
+    else this.value++;
+  }
+}
+</code></pre>
+<ul>
+<li><code>wait()</code> with a unit available: take it, return an already-resolved promise.</li>
+<li><code>wait()</code> with none: create a pending promise and keep its <code>resolve</code> function in the <code>waiting</code> queue. The caller <code>await</code>s that promise and is suspended, consuming no CPU.</li>
+<li><code>signal()</code>: if someone is waiting, call their <code>resolve</code> (handing the unit straight to them, FIFO, so no one starves); otherwise increment the count.</li>
+</ul>
+<p>This is the structure the slides describe for a real kernel semaphore: a value plus a queue of blocked processes, with <code>signal</code> waking one. The <code>waiting</code> array <em>is</em> the semaphore’s device queue.</p>
+<h2 id="races-on-a-single-thread"><a class="header" href="#races-on-a-single-thread">Races on a single thread</a></h2>
+<p>Here’s the surprise. JavaScript runs one callback at a time, so ordinary synchronous code can’t race. But <strong>every <code>await</code> is a point where other code can run</strong>. If you check a condition, <code>await</code> something, and then act on the condition, the condition may no longer be true:</p>
+<pre><code class="language-typescript">const pause = () =&gt; new Promise&lt;void&gt;((r) =&gt; setTimeout(r, 0)); // yield to the event loop
+
+// --- 1. Check-then-act across an await: a race, even on one thread -----------------
+let tickets = 1;
+async function buyTicket(who: string, log: string[]) {
+  if (tickets &gt; 0) {          // check …
+    await pause();            // … something asynchronous happens (a payment, a disk write) …
+    tickets--;                // … act
+    log.push(`${who} got a ticket (tickets now ${tickets})`);
+  }
+}
+</code></pre>
+<p>Two buyers, one ticket:</p>
+<pre><code class="language-text">unsafe: Ana got a ticket (tickets now 0); Ben got a ticket (tickets now -1)
+</code></pre>
+<p>Both checked <code>tickets &gt; 0</code> before either decremented, because each <code>await</code> let the other run. It’s the slides’ concert-ticket example (p. 495), and structurally it’s also the DAO hack: check the balance, call out (which lets the other side run), then update the balance. The fix is a critical section around the check <em>and</em> the act:</p>
+<pre><code class="language-typescript">async function buyTicketSafely(who: string, lock: Semaphore, log: string[]) {
+  await lock.wait();          // critical section begins
+  try {
+    if (tickets &gt; 0) {
+      await pause();
+      tickets--;
+      log.push(`${who} got a ticket (tickets now ${tickets})`);
+    } else {
+      log.push(`${who}: sold out`);
+    }
+  } finally {
+    lock.signal();            // critical section ends, even if something threw
+  }
+}
+</code></pre>
+<pre><code class="language-text">safe:   Ana got a ticket (tickets now 0); Ben: sold out
+</code></pre>
+<p>The <code>try … finally</code> guarantees the lock is released even if the code inside throws, which is the same discipline as releasing locks on every exit path in C.</p>
+<p>The lesson generalizes: in single-threaded asynchronous code, <strong>the critical sections are the stretches that contain an <code>await</code></strong>. Code without an <code>await</code> is atomic for free (that’s why rObSen’s kernel needs no locks); code with one is not.</p>
+<h2 id="deadlock-reproduced"><a class="header" href="#deadlock-reproduced">Deadlock, reproduced</a></h2>
+<p>The dining philosophers, with <code>Promise.all</code> to start all five and <code>Promise.race</code> to give up after 200 ms:</p>
+<pre><code class="language-typescript">async function dine(n: number, ordered: boolean): Promise&lt;string&gt; {
+  const chopsticks = Array.from({ length: n }, () =&gt; new Semaphore(1));
+  let meals = 0;
+  const philosopher = async (i: number) =&gt; {
+    let first = i, second = (i + 1) % n;
+    if (ordered &amp;&amp; second &lt; first) [first, second] = [second, first]; // always lower number first
+    await chopsticks[first].wait();
+    await pause();                       // everyone grabs their first chopstick "at once"
+    await chopsticks[second].wait();
+    meals++;
+    chopsticks[second].signal();
+    chopsticks[first].signal();
+  };
+  const all = Promise.all(Array.from({ length: n }, (_, i) =&gt; philosopher(i)));
+  const timeout = new Promise&lt;string&gt;((r) =&gt; setTimeout(() =&gt; r("DEADLOCK: nobody can eat"), 200));
+  return Promise.race([all.then(() =&gt; `all ${meals} philosophers ate`), timeout]);
+}
+</code></pre>
+<p><code>Promise.all([...])</code> waits for every promise in the array; <code>Promise.race([...])</code> settles as soon as the first one does. With <code>ordered = false</code>, each philosopher takes chopstick <em>i</em>, yields (so everyone gets their first chopstick), then waits forever for chopstick <em>i</em> + 1:</p>
+<pre><code class="language-text">naive philosophers:   DEADLOCK: nobody can eat
+ordered philosophers: all 5 philosophers ate
+</code></pre>
+<p>With <code>ordered = true</code>, philosopher 4 reaches for chopstick 0 before chopstick 4, so the circular wait can’t form. That’s deadlock prevention by resource ordering (slide p. 549), in two lines.</p>
+<p>Note that the deadlocked program doesn’t hang Node.js or freeze a browser: the five suspended functions just sit there as pending promises that will never settle. A deadlock in asynchronous code is silent. That’s why the timeout is needed to <em>detect</em> it.</p>
+<h2 id="summary"><a class="header" href="#summary">Summary</a></h2>
+<ul>
+<li>A <code>Promise&lt;T&gt;</code> is a future value: pending, then fulfilled or rejected.</li>
+<li><code>async</code> functions return promises; <code>await</code> suspends the function (not the thread) until a promise settles.</li>
+<li>A semaphore is a counter plus a queue of <code>resolve</code> functions; <code>signal</code> resolves the oldest.</li>
+<li>Single-threaded async code can race wherever there’s an <code>await</code> between a check and an act. Hold a lock across it.</li>
+<li><code>Promise.all</code> waits for all; <code>Promise.race</code> for the first. A timeout race is a simple deadlock detector.</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch19-sync-deadlock.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="ch20-virtual-memory.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch19-sync-deadlock.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="ch20-virtual-memory.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

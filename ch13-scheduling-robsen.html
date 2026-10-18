@@ -1,0 +1,519 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Scheduling in rObSen: Timer, Dispatcher, Context Switch - rObSen, Layer by Layer</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A companion to Alan Labouseur&#x27;s Operating Systems course (CMPT 424, Marist), told through one student&#x27;s browser-based OS written in TypeScript.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">Preface: How to Read This Book</a></li><li class="chapter-item expanded affix "><a href="map.html">The Map: rObSen at a Glance</a></li><li class="chapter-item expanded affix "><li class="part-title">Part I — Foundations</li><li class="chapter-item expanded "><a href="ch01-what-is-an-os.html"><strong aria-hidden="true">1.</strong> What Is an Operating System?</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch01a-ts-namespaces.html"><strong aria-hidden="true">1.1.</strong> TS Deep Dive: Namespaces and the Global Script World</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-structures.html"><strong aria-hidden="true">2.</strong> OS Structures and the Machine Inside the Browser</a></li><li class="chapter-item expanded affix "><li class="part-title">Part II — The Hardware Layer (source/host)</li><li class="chapter-item expanded "><a href="ch03-host.html"><strong aria-hidden="true">3.</strong> The Host: Clock, Buttons, and the Log</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch03a-ts-static-dom.html"><strong aria-hidden="true">3.1.</strong> TS Deep Dive: Static Members, Type Assertions, and the DOM</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-memory.html"><strong aria-hidden="true">4.</strong> Memory and the Memory Accessor</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch04a-ts-class-anatomy.html"><strong aria-hidden="true">4.1.</strong> TS Deep Dive: Anatomy of a Class</a></li></ol></li><li class="chapter-item expanded "><a href="ch05-cpu.html"><strong aria-hidden="true">5.</strong> The CPU: Fetch, Decode, Execute</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch05a-ts-bitwise.html"><strong aria-hidden="true">5.1.</strong> TS Deep Dive: Bits, Bytes, and Bitwise Operators</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part III — The Kernel Layer (source/os)</li><li class="chapter-item expanded "><a href="ch06-kernel.html"><strong aria-hidden="true">6.</strong> Booting, Interrupts, and the Mode Bit</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch06a-ts-unions-null.html"><strong aria-hidden="true">6.1.</strong> TS Deep Dive: Union Types, Null, and Optional Chaining</a></li></ol></li><li class="chapter-item expanded "><a href="ch07-drivers.html"><strong aria-hidden="true">7.</strong> Device Drivers: The Keyboard</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch07a-ts-inheritance-this.html"><strong aria-hidden="true">7.1.</strong> TS Deep Dive: Inheritance, super, and the Trouble with this</a></li></ol></li><li class="chapter-item expanded "><a href="ch08-shell.html"><strong aria-hidden="true">8.</strong> The Console and the Shell</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch08a-ts-functions-as-values.html"><strong aria-hidden="true">8.1.</strong> TS Deep Dive: Functions as Values</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part IV — Processes and Threads</li><li class="chapter-item expanded "><a href="ch09-processes.html"><strong aria-hidden="true">9.</strong> Processes and the PCB</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch09a-ts-literal-types.html"><strong aria-hidden="true">9.1.</strong> TS Deep Dive: Literal Types and Type Aliases</a></li></ol></li><li class="chapter-item expanded "><a href="ch10-threads.html"><strong aria-hidden="true">10.</strong> Threads, and the One Thread You Have</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch10a-ts-event-loop.html"><strong aria-hidden="true">10.1.</strong> TS Deep Dive: The Event Loop, Timers, and Callbacks</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part V — Main Memory</li><li class="chapter-item expanded "><a href="ch11-main-memory.html"><strong aria-hidden="true">11.</strong> Binding, Base/Limit, and Partitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch11a-ts-interfaces.html"><strong aria-hidden="true">11.1.</strong> TS Deep Dive: Interfaces and Object Shapes</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VI — CPU Scheduling</li><li class="chapter-item expanded "><a href="ch12-scheduling-theory.html"><strong aria-hidden="true">12.</strong> Scheduling Theory, by Hand and by Code</a></li><li class="chapter-item expanded "><a href="ch13-scheduling-robsen.html" class="active"><strong aria-hidden="true">13.</strong> Scheduling in rObSen: Timer, Dispatcher, Context Switch</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch13a-ts-generics.html"><strong aria-hidden="true">13.1.</strong> TS Deep Dive: Generics</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VII — Storage</li><li class="chapter-item expanded "><a href="ch14-fs-interface.html"><strong aria-hidden="true">14.</strong> The File-System Interface</a></li><li class="chapter-item expanded "><a href="ch15-fs-implementation.html"><strong aria-hidden="true">15.</strong> File-System Implementation: The TSB Disk</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch15a-ts-storage-strings.html"><strong aria-hidden="true">15.1.</strong> TS Deep Dive: Web Storage, JSON, and Hex Strings</a></li></ol></li><li class="chapter-item expanded "><a href="ch16-disks.html"><strong aria-hidden="true">16.</strong> Disk Systems and Disk Scheduling</a></li><li class="chapter-item expanded affix "><li class="part-title">Part VIII — Beyond Contiguous Memory</li><li class="chapter-item expanded "><a href="ch17-swapping.html"><strong aria-hidden="true">17.</strong> Swapping: Roll-Out and Roll-In</a></li><li class="chapter-item expanded "><a href="ch18-paging.html"><strong aria-hidden="true">18.</strong> Paging</a></li><li class="chapter-item expanded affix "><li class="part-title">Part IX — Concurrency</li><li class="chapter-item expanded "><a href="ch19-sync-deadlock.html"><strong aria-hidden="true">19.</strong> Synchronization and Deadlock</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch19a-ts-async.html"><strong aria-hidden="true">19.1.</strong> TS Deep Dive: Promises and async/await</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part X — Virtual Memory</li><li class="chapter-item expanded "><a href="ch20-virtual-memory.html"><strong aria-hidden="true">20.</strong> Demand Paging and Page Replacement</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch20a-ts-implements.html"><strong aria-hidden="true">20.1.</strong> TS Deep Dive: implements and the Strategy Pattern</a></li></ol></li><li class="chapter-item expanded "><li class="spacer"></li><li class="chapter-item expanded affix "><a href="appA-6502a.html">A. The 6502a Instruction Set</a></li><li class="chapter-item expanded affix "><a href="appB-commands.html">B. Shell Command Reference</a></li><li class="chapter-item expanded affix "><a href="appC-bugs.html">C. Bug Ledger</a></li><li class="chapter-item expanded affix "><a href="appD-glados.html">D. Testing with GLaDOS</a></li><li class="chapter-item expanded affix "><a href="appE-slide-index.html">E. Slide Index</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">rObSen, Layer by Layer</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="scheduling-in-robsen-timer-dispatcher-context-switch"><a class="header" href="#scheduling-in-robsen-timer-dispatcher-context-switch">Scheduling in rObSen: Timer, Dispatcher, Context Switch</a></h1>
+<div class="stack"><span>Browser</span><span>Host: clock & devices</span><span>Host: memory</span><span>Host: CPU</span><span>Kernel</span><span>Drivers</span><span>Console & shell</span><span>Processes</span><span>Memory manager</span><span class="here">Scheduler</span><span>File system</span><span>Swapper</span></div>
+<p><em>Slides: Chapter 5, pp. 274–277 and 421–478; Chapter 3, pp. 177 and 186 (context switching). Project Parts Three and Four; Lab 010.</em></p>
+<p>Chapter 12 was theory. This chapter is the machinery: how rObSen actually takes the CPU away from one process and gives it to another. Three pieces cooperate: a <strong>timer</strong> in the CPU that counts down the quantum, a <strong>timer interrupt service routine</strong> in the kernel that decides whether to switch, and a <strong>dispatcher</strong> that performs the switch. Then we’ll check whether the three scheduling policies rObSen offers behave as advertised. (Two of them don’t.)</p>
+<div class="callout lab"><span class="label">Lab 010</span>
+"Remember that context switches are software interrupts and as such are treated as systems calls." That sentence is the design: the scheduler doesn't switch processes directly from wherever it happens to be. It raises an interrupt, and the switch happens in the interrupt handler, in kernel mode, between instructions.
+</div>
+<h2 id="piece-1-the-timer"><a class="header" href="#piece-1-the-timer">Piece 1: the timer</a></h2>
+<p>At the end of every instruction, <code>Cpu.cycle</code> does this:</p>
+<pre><code class="language-typescript">      if (_CurrentProcess) {
+        _CurrentProcess.pc = this.PC &amp; 0xff;
+        _CurrentProcess.acc = this.Acc &amp; 0xff;
+        _CurrentProcess.xReg = this.Xreg &amp; 0xff;
+        _CurrentProcess.yReg = this.Yreg &amp; 0xff;
+        _CurrentProcess.zFlag = this.Zflag &amp; 0xff;
+        _CurrentProcess.ir = this.IR &amp; 0xff;
+      }
+
+      if (_CurrentProcess &amp;&amp; this.isExecuting) {
+        if (_SchedulerCounter &gt; 0) {
+          _SchedulerCounter--;
+        }
+        if (_SchedulerCounter &lt;= 0) {
+          _KernelInterruptQueue.enqueue(new Interrupt(TIMER_IRQ, []));
+          _SchedulerCounter = 0;
+        }
+        _CurrentProcess.quantumRemaining = Math.max(_SchedulerCounter, 0);
+        _CurrentProcess.turnaroundCycles = _CpuCycleCount - _CurrentProcess.arrivalCycle;
+      }
+</code></pre>
+<p>First the CPU <strong>saves its registers into the running PCB</strong>. This happens after <em>every</em> instruction, so by the time anyone decides to switch, the outgoing process’s state is already saved. (Compare slide p. 177, where “save state into PCB<sub>0</sub>” is an explicit step of the switch. rObSen does it eagerly.)</p>
+<p>Then it <strong>decrements <code>_SchedulerCounter</code></strong>, and when the counter reaches zero, it <strong>enqueues a <code>TIMER_IRQ</code></strong>. That’s the hardware timer from slide p. 56: “Set interrupt after specific period. Operating System decrements counter. When counter zero generate an interrupt.” The counter starts at <code>_SchedulerQuantum</code> (6 by default, changeable with <code>q &lt;n&gt;</code>) each time a process is dispatched.</p>
+<p>The interrupt isn’t handled immediately. It sits in the interrupt queue until the next clock tick, and since interrupts take priority over CPU cycles (Chapter 6), that next tick handles it before the process can execute a seventh instruction. So the quantum is exactly <em>q</em> instructions, and every context switch lands cleanly between instructions, as the spec requires.</p>
+<h2 id="piece-2-the-timer-isr"><a class="header" href="#piece-2-the-timer-isr">Piece 2: the timer ISR</a></h2>
+<pre><code class="language-typescript">    public krnTimerISR() {
+      this.enterKernelMode("Timer");
+      if (!_CPU) {
+        _SchedulerCounter = _SchedulerQuantum;
+        this.exitToUserMode();
+        return;
+      }
+
+      if (!_CurrentProcess) {
+        const next = this.dequeueNextReadyProcess();
+        if (next) {
+          this.krnTrace(`Timer ISR dispatching PID ${next.pid} (no current process).`);
+          this.dispatchProcess(next);
+        } else {
+          _SchedulerCounter = _SchedulerQuantum;
+        }
+        this.exitToUserMode();
+        return;
+      }
+
+      if (!_RunAllMode) {
+        _SchedulerCounter = _SchedulerQuantum;
+        this.exitToUserMode();
+        return;
+      }
+
+      if (!_ReadyQueue || _ReadyQueue.getSize() === 0) {
+        _SchedulerCounter = _SchedulerQuantum;
+        this.exitToUserMode();
+        return;
+      }
+
+      const current = _CurrentProcess;
+      current.markReady();
+      current.noteEnqueued();
+      _ReadyQueue.enqueue(current);
+
+      const next = this.dequeueNextReadyProcess();
+      if (!next || next.pid === current.pid) {
+        this.dispatchProcess(current);
+        this.exitToUserMode();
+        return;
+      }
+
+      this.krnTrace(
+        `Timer ISR context switch from PID ${current.pid} to PID ${next.pid}.`,
+      );
+      Control.hostLog(
+        `Context switch: PID ${current.pid} -&gt; PID ${next.pid}`,
+        "scheduler",
+      );
+      if (next.location === "Disk" &amp;&amp; !this.swapInProcess(next)) {
+        this.dispatchProcess(current);
+        this.exitToUserMode();
+        return;
+      }
+      this.dispatchProcess(next);
+      this.exitToUserMode();
+    }
+</code></pre>
+<p>The decision tree:</p>
+<ol>
+<li><strong>No CPU?</strong> Reset the counter and leave.</li>
+<li><strong>No current process?</strong> Dispatch whoever’s next, if anyone.</li>
+<li><strong>Not in <code>runall</code> mode?</strong> Reset the counter and let the current process continue. A process started with <code>run &lt;pid&gt;</code> runs to completion uninterrupted, by design.</li>
+<li><strong>Ready queue empty?</strong> Nobody to switch to; reset the counter and let the current process continue.</li>
+<li>Otherwise, <strong>preempt</strong>: mark the current process ready, put it at the back of the ready queue, and ask the policy (<code>dequeueNextReadyProcess</code>) who’s next. If the answer is the same process (it was alone after all), just re-dispatch it. Otherwise log <code>Context switch: PID a -&gt; PID b</code>, roll the next process in from disk if it’s been swapped out (Chapter 17), and dispatch it.</li>
+</ol>
+<p>Step 5 is the round-robin rule of slide p. 421 exactly: “After this time has elapsed, the process is preempted… and added to the end of the ready queue.”</p>
+<h2 id="piece-3-the-dispatcher"><a class="header" href="#piece-3-the-dispatcher">Piece 3: the dispatcher</a></h2>
+<pre><code class="language-typescript">    private dispatchProcess(pcb: TSOS.PCB): void {
+      if (pcb.location === "Disk") {
+        const allocation = _MemoryManager.getFreePartition();
+        if (!allocation) {
+          this.krnTrace("No free partition for swap-in.");
+          return;
+        }
+        _MemoryManager.claimPartition(allocation, pcb.pid);
+        _Swapper.rollIn(pcb, allocation);
+        pcb.base = allocation.base;
+        pcb.limit = allocation.limit;
+        pcb.segment = allocation.partition;
+      }
+
+      pcb.markRunning();
+
+      _ReadyQueue?.remove((queued: TSOS.PCB) =&gt; queued.pid === pcb.pid);
+
+      if (_CPU) {
+        _CPU.PC = pcb.pc;
+        _CPU.Acc = pcb.acc;
+        _CPU.Xreg = pcb.xReg;
+        _CPU.Yreg = pcb.yReg;
+        _CPU.Zflag = pcb.zFlag;
+        _CPU.isExecuting = true;
+      }
+
+      pcb.quantumRemaining = _SchedulerQuantum;
+      _CurrentProcess = pcb;
+      _SchedulerCounter = _SchedulerQuantum;
+      this.krnTrace(`Dispatching PID ${pcb.pid} with quantum ${_SchedulerQuantum}`);
+      Control.hostUpdateDisplays();
+      this.exitToUserMode();
+    }
+</code></pre>
+<p>“Dispatcher module gives control of the CPU to the process selected by the short-term scheduler… switching context, switching to user mode, jumping to the proper location in the user program to restart that program” (slide p. 277). Line for line:</p>
+<ul>
+<li>If the process is on disk, find it a partition and roll it in. (This path is used by <code>resumeRunAllIfPossible</code>; the timer ISR rolls processes in itself, first.)</li>
+<li><code>markRunning()</code>: update its state and its waiting-time accounting.</li>
+<li>Remove it from the ready queue.</li>
+<li><strong>Switch context</strong>: copy its saved <code>pc</code>, <code>acc</code>, <code>xReg</code>, <code>yReg</code>, <code>zFlag</code> into the CPU, and set <code>isExecuting</code>. Because the PC is logical (Chapter 4), the process resumes exactly where it left off, in whichever partition it now occupies.</li>
+<li>Make it <code>_CurrentProcess</code>, which also tells the memory accessor whose base to add.</li>
+<li><strong>Reset the timer</strong> to a full quantum.</li>
+<li><strong>Switch to user mode.</strong></li>
+</ul>
+<p>That’s a complete context switch in about fifteen lines. The overhead is real, though invisible in the cycle counts: each switch costs one clock tick spent handling the timer interrupt instead of executing an instruction.</p>
+<figure class="slide"><img src="img/slides/slide-186.jpg" alt="Context switching"><figcaption>Slide p. 186: "Context-switch time is overhead; the system does no useful work in terms of getting the user's program done while switching."</figcaption></figure>
+<h2 id="policy-choosing-the-next-process"><a class="header" href="#policy-choosing-the-next-process">Policy: choosing the next process</a></h2>
+<pre><code class="language-typescript">    private dequeueNextReadyProcess(): TSOS.PCB | null {
+      if (!_ReadyQueue) {
+        return null;
+      }
+
+      const queueArray = _ReadyQueue.toArray() as TSOS.PCB[];
+      if (queueArray.length === 0) {
+        return null;
+      }
+
+      let selected: TSOS.PCB | null = null;
+
+      switch (_SchedulerMode) {
+        case "FCFS":
+          selected = queueArray[0];
+          break;
+        case "PRIORITY":
+          selected = queueArray.reduce((best, pcb) =&gt; {
+            if (!best || (pcb.priority ?? 0) &lt; (best.priority ?? 0)) {
+              return pcb;
+            }
+            return best;
+          }, null as TSOS.PCB | null);
+          break;
+        default:
+          selected = queueArray[0];
+          break;
+      }
+
+      _ReadyQueue.remove((pcb: TSOS.PCB) =&gt; pcb.pid === selected.pid);
+
+      if (selected.state === "Terminated") {
+        return this.dequeueNextReadyProcess();
+      }
+
+      return selected;
+    }
+</code></pre>
+<p>For <code>RR</code> and <code>FCFS</code> it takes the front of the queue. For <code>PRIORITY</code> it uses <code>reduce</code> to find the PCB with the smallest priority number; because the comparison is strict (<code>&lt;</code>), the earliest-queued process wins ties, which is the FCFS tie-break the slides use. It skips (and discards) any terminated process it finds.</p>
+<p>The <code>setschedule</code> command changes <code>_SchedulerMode</code>, and <code>getschedule</code> displays it.</p>
+<h2 id="running-everything-runall-kill-killall"><a class="header" href="#running-everything-runall-kill-killall">Running everything: <code>runall</code>, <code>kill</code>, <code>killall</code></a></h2>
+<pre><code class="language-typescript">    public krnRunAll(): { success: boolean; message?: string } {
+      if (!_ReadyQueue) {
+        return { success: false, message: "Ready queue is unavailable." };
+      }
+
+      const readyItems = _ReadyQueue.toArray() as TSOS.PCB[];
+      const next = readyItems.find((pcb) =&gt; pcb.state !== "Terminated");
+      if (!next) {
+        return { success: false, message: "No ready processes to run." };
+      }
+
+      this.enterKernelMode("Run All");
+
+      // If the first process is on disk, swap it in before dispatching
+      if (next.location === "Disk") {
+        if (!this.swapInProcess(next)) {
+          return { success: false, message: "Failed to swap in first process." };
+        }
+      }
+
+      this.dispatchProcess(next);
+      return { success: true };
+    }
+</code></pre>
+<pre><code class="language-typescript">    public shellRunAll(args: string[]): void {
+      if (_CPU &amp;&amp; _CPU.isExecuting) {
+        _StdOut.putText("Error: the CPU is already executing a process.");
+        return;
+      }
+
+      const runResult = _Kernel.krnRunAll();
+      if (!runResult.success) {
+        _StdOut.putText(runResult.message);
+        return;
+      }
+
+      _RunAllMode = true;
+      _StdOut.putText("Running all resident processes.");
+      Control.hostUpdateDisplays();
+    }
+</code></pre>
+<p><code>runall</code> dispatches the first non-terminated process in the ready queue (rolling it in first if necessary) and sets <code>_RunAllMode</code>, which is what licenses the timer ISR to preempt. When a process finishes, <code>krnCompleteCurrentProcess</code> (Chapter 9) calls <code>krnRunAll</code> again to start the next one, and when the queue is empty, it clears <code>_RunAllMode</code> and prints a prompt.</p>
+<p><code>kill &lt;pid&gt;</code> terminates one process; if it was the running one, <code>resumeRunAllIfPossible</code> dispatches the next so the batch continues. <code>killall</code> terminates everything and leaves run-all mode. The spec’s warning that killing a running process “should not create a zombie” is satisfied because <code>terminateProcess</code> removes the PCB from the process table (Chapter 9).</p>
+<h2 id="accounting-turnaround-and-wait"><a class="header" href="#accounting-turnaround-and-wait">Accounting: turnaround and wait</a></h2>
+<p>Project Part Three says: “Track and display turnaround time and wait time (measured in cpu cycles) for each process.” The PCB’s state-change methods (Chapter 9) maintain them, and two places display them: the <em>Process Metrics</em> panel (for the current process) and <code>ps</code>:</p>
+<pre><code class="language-text">PID 0 :: state=Ready :: location=Mem 0 :: queue=1 :: segment=0 :: priority=0 :: base=0x0000 limit=0x00ff :: quantum=6 :: turnaround=18 :: wait=12
+PID 1 :: state=Ready :: location=Mem 1 :: queue=2 :: segment=1 :: priority=0 :: base=0x0100 limit=0x01ff :: quantum=6 :: turnaround=18 :: wait=12
+PID 2 :: state=Running :: location=Mem 2 :: queue=RUN :: segment=2 :: priority=0 :: base=0x0200 limit=0x02ff :: quantum=0 :: turnaround=18 :: wait=12
+</code></pre>
+<p>That’s a real capture, 20 ticks into a <code>runall</code> of three copies of a 12-instruction program (eleven <code>EA</code> NOPs and a <code>00</code>). Each process has run one quantum of 6; PID 2’s quantum has just hit 0, so a timer interrupt is pending.</p>
+<p>For a ready process, the displayed wait includes the time it has been waiting <em>so far</em> (<code>waitCycles + (now − lastStateChangeCycle)</code>), so you can watch it grow live.</p>
+<div class="callout bug"><span class="label">In the code</span>
+<strong>When a process finishes, its successor loses a unit of quantum.</strong> Let that same three-process run continue and the processes finish in the order 0, <em>2</em>, 1. Why not 0, 1, 2? Trace it: PID 0 executes its BRK as the last instruction of its second quantum. Inside <code>opBreak</code>, the kernel completes PID 0 and immediately dispatches PID 1, which sets the counter to 6 and makes PID 1 the current process. Then control returns to the tail of <code>Cpu.cycle</code>, which still has bookkeeping to do for "the process that just executed," and finds <code>_CurrentProcess</code> pointing at PID 1. So PID 1's PCB gets PID 0's IR (<code>00</code>), and PID 1's brand-new quantum is decremented to 5. PID 1 runs 5 instructions, is preempted one short of its BRK, and has to wait for PID 2's whole quantum. The fix is to remember who was running at the top of <code>cycle</code> (<code>const pcb = _CurrentProcess;</code>) and do the tail's bookkeeping only if <code>_CurrentProcess === pcb</code> afterwards.
+</div>
+<h2 id="do-the-policies-do-what-they-say"><a class="header" href="#do-the-policies-do-what-they-say">Do the policies do what they say?</a></h2>
+<p>Here is where reading the code pays off. Run three copies of a long program under <code>setschedule fcfs</code> and watch the host log. I did, by running rObSen’s compiled JavaScript in Node.js:</p>
+<pre><code class="language-text">Context switch: PID 2 -&gt; PID 3 | Context switch: PID 3 -&gt; PID 4 | Context switch: PID 4 -&gt; PID 2 | …
+</code></pre>
+<div class="callout bug"><span class="label">In the code</span>
+<strong>FCFS behaves exactly like round-robin.</strong> FCFS is non-preemptive: the running process should keep the CPU until it finishes. But the timer ISR preempts in run-all mode regardless of the scheduling mode, puts the current process at the back of the queue, and then FCFS dutifully takes the front, which is the next process in rotation. The policy (choose the front) is correct; the mechanism around it (preempt every quantum) isn't policy-aware. This is the flip side of the policy/mechanism separation praised in Chapter 2: the split is in the right place, but the mechanism quietly encodes a policy decision of its own.
+</div>
+<div class="callout bug"><span class="label">In the code</span>
+<strong>PRIORITY can never prefer anyone.</strong> Every PCB's priority is 0, because <code>load</code> takes no priority argument and the PCB constructor's <code>priority</code> parameter defaults to 0. With all priorities equal, the <code>reduce</code> always returns the front of the queue, so PRIORITY behaves like FCFS, which (above) behaves like RR. The spec also asks for <em>non-preemptive</em> priority, which runs into the same timer-ISR problem as FCFS. And after a process completes, <code>krnRunAll</code> picks the next process with <code>readyItems.find(…)</code>, the front of the queue, without consulting the policy at all.
+</div>
+<p>The fix is small and instructive, because it moves the “should I preempt?” decision into the policy where it belongs:</p>
+<pre><code class="language-typescript">// shell.ts, in shellLoad: accept an optional priority, e.g. "load 3"
+const priority = args.length &gt; 0 ? parseInt(args[0], 10) : 0;
+// … later:
+const pcb = new PCB(pid, allocation.base, allocation.limit, allocation.size, allocation.partition,
+                    Number.isNaN(priority) ? 0 : priority);
+
+// kernel.ts, in krnTimerISR, right after the !_RunAllMode check:
+if (_SchedulerMode !== "RR") {
+  // FCFS and non-preemptive priority never take the CPU away;
+  // the next decision happens when the current process finishes.
+  _SchedulerCounter = _SchedulerQuantum;
+  this.exitToUserMode();
+  return;
+}
+
+// kernel.ts, in krnRunAll: let the policy choose, instead of the queue's front
+const next = this.dequeueNextReadyProcess();
+</code></pre>
+<p>(The last change also requires <code>krnRunAll</code> to cope with <code>dequeueNextReadyProcess</code> removing the process from the queue, which <code>dispatchProcess</code> already tolerates.) With those three edits, <code>setschedule fcfs</code> produces no context switches until each process finishes, and <code>load 0</code> / <code>load 2</code> let you watch priority reorder the batch.</p>
+<h2 id="check-yourself"><a class="header" href="#check-yourself">Check yourself</a></h2>
+<ol>
+<li>With the default quantum, how many clock ticks does it take for three processes of 12 instructions each to finish under RR, counting the ticks spent on timer interrupts?</li>
+<li>What does <code>q 1</code> do to throughput? Why?</li>
+<li>Why is it safe for the timer ISR to modify <code>_ReadyQueue</code> without any lock?</li>
+</ol>
+<details>
+<summary>Answers</summary>
+<ol>
+<li>Measured: <strong>40 ticks</strong>, of which 36 are instructions and 4 are timer interrupts (after PID 0’s, PID 1’s, and PID 2’s first quanta, and after PID 1’s shortened second quantum; see the bug callout above). Without that bug it would be 39: three interrupts, one after each first quantum, because each process’s BRK then ends its second quantum before the timer fires.</li>
+<li>It roughly halves throughput in wall-clock terms: every instruction is followed by a timer interrupt, and each interrupt costs a full tick. The cycle counts (turnaround, wait) look fine, because they only count instructions; the overhead is hidden from them. That’s the slide’s warning that the quantum “must be large with respect to context switch, otherwise overhead is too high.”</li>
+<li>Because nothing else can run while it does. JavaScript runs one callback at a time to completion (Chapter 10a), so the shell, the keyboard ISR, and the timer ISR can never interleave. On a real multiprocessor kernel, the ready queue would need a lock (Chapter 19).</li>
+</ol>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch12-scheduling-theory.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="ch13a-ts-generics.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch12-scheduling-theory.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="ch13a-ts-generics.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

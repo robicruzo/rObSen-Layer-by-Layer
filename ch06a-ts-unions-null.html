@@ -1,0 +1,319 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>TS Deep Dive: Union Types, Null, and Optional Chaining - rObSen, Layer by Layer</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A companion to Alan Labouseur&#x27;s Operating Systems course (CMPT 424, Marist), told through one student&#x27;s browser-based OS written in TypeScript.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">Preface: How to Read This Book</a></li><li class="chapter-item expanded affix "><a href="map.html">The Map: rObSen at a Glance</a></li><li class="chapter-item expanded affix "><li class="part-title">Part I — Foundations</li><li class="chapter-item expanded "><a href="ch01-what-is-an-os.html"><strong aria-hidden="true">1.</strong> What Is an Operating System?</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch01a-ts-namespaces.html"><strong aria-hidden="true">1.1.</strong> TS Deep Dive: Namespaces and the Global Script World</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-structures.html"><strong aria-hidden="true">2.</strong> OS Structures and the Machine Inside the Browser</a></li><li class="chapter-item expanded affix "><li class="part-title">Part II — The Hardware Layer (source/host)</li><li class="chapter-item expanded "><a href="ch03-host.html"><strong aria-hidden="true">3.</strong> The Host: Clock, Buttons, and the Log</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch03a-ts-static-dom.html"><strong aria-hidden="true">3.1.</strong> TS Deep Dive: Static Members, Type Assertions, and the DOM</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-memory.html"><strong aria-hidden="true">4.</strong> Memory and the Memory Accessor</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch04a-ts-class-anatomy.html"><strong aria-hidden="true">4.1.</strong> TS Deep Dive: Anatomy of a Class</a></li></ol></li><li class="chapter-item expanded "><a href="ch05-cpu.html"><strong aria-hidden="true">5.</strong> The CPU: Fetch, Decode, Execute</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch05a-ts-bitwise.html"><strong aria-hidden="true">5.1.</strong> TS Deep Dive: Bits, Bytes, and Bitwise Operators</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part III — The Kernel Layer (source/os)</li><li class="chapter-item expanded "><a href="ch06-kernel.html"><strong aria-hidden="true">6.</strong> Booting, Interrupts, and the Mode Bit</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ch06a-ts-unions-null.html" class="active"><strong aria-hidden="true">6.1.</strong> TS Deep Dive: Union Types, Null, and Optional Chaining</a></li></ol></li><li class="chapter-item expanded "><a href="ch07-drivers.html"><strong aria-hidden="true">7.</strong> Device Drivers: The Keyboard</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch07a-ts-inheritance-this.html"><strong aria-hidden="true">7.1.</strong> TS Deep Dive: Inheritance, super, and the Trouble with this</a></li></ol></li><li class="chapter-item expanded "><a href="ch08-shell.html"><strong aria-hidden="true">8.</strong> The Console and the Shell</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch08a-ts-functions-as-values.html"><strong aria-hidden="true">8.1.</strong> TS Deep Dive: Functions as Values</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part IV — Processes and Threads</li><li class="chapter-item expanded "><a href="ch09-processes.html"><strong aria-hidden="true">9.</strong> Processes and the PCB</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch09a-ts-literal-types.html"><strong aria-hidden="true">9.1.</strong> TS Deep Dive: Literal Types and Type Aliases</a></li></ol></li><li class="chapter-item expanded "><a href="ch10-threads.html"><strong aria-hidden="true">10.</strong> Threads, and the One Thread You Have</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch10a-ts-event-loop.html"><strong aria-hidden="true">10.1.</strong> TS Deep Dive: The Event Loop, Timers, and Callbacks</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part V — Main Memory</li><li class="chapter-item expanded "><a href="ch11-main-memory.html"><strong aria-hidden="true">11.</strong> Binding, Base/Limit, and Partitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch11a-ts-interfaces.html"><strong aria-hidden="true">11.1.</strong> TS Deep Dive: Interfaces and Object Shapes</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VI — CPU Scheduling</li><li class="chapter-item expanded "><a href="ch12-scheduling-theory.html"><strong aria-hidden="true">12.</strong> Scheduling Theory, by Hand and by Code</a></li><li class="chapter-item expanded "><a href="ch13-scheduling-robsen.html"><strong aria-hidden="true">13.</strong> Scheduling in rObSen: Timer, Dispatcher, Context Switch</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch13a-ts-generics.html"><strong aria-hidden="true">13.1.</strong> TS Deep Dive: Generics</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VII — Storage</li><li class="chapter-item expanded "><a href="ch14-fs-interface.html"><strong aria-hidden="true">14.</strong> The File-System Interface</a></li><li class="chapter-item expanded "><a href="ch15-fs-implementation.html"><strong aria-hidden="true">15.</strong> File-System Implementation: The TSB Disk</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch15a-ts-storage-strings.html"><strong aria-hidden="true">15.1.</strong> TS Deep Dive: Web Storage, JSON, and Hex Strings</a></li></ol></li><li class="chapter-item expanded "><a href="ch16-disks.html"><strong aria-hidden="true">16.</strong> Disk Systems and Disk Scheduling</a></li><li class="chapter-item expanded affix "><li class="part-title">Part VIII — Beyond Contiguous Memory</li><li class="chapter-item expanded "><a href="ch17-swapping.html"><strong aria-hidden="true">17.</strong> Swapping: Roll-Out and Roll-In</a></li><li class="chapter-item expanded "><a href="ch18-paging.html"><strong aria-hidden="true">18.</strong> Paging</a></li><li class="chapter-item expanded affix "><li class="part-title">Part IX — Concurrency</li><li class="chapter-item expanded "><a href="ch19-sync-deadlock.html"><strong aria-hidden="true">19.</strong> Synchronization and Deadlock</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch19a-ts-async.html"><strong aria-hidden="true">19.1.</strong> TS Deep Dive: Promises and async/await</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part X — Virtual Memory</li><li class="chapter-item expanded "><a href="ch20-virtual-memory.html"><strong aria-hidden="true">20.</strong> Demand Paging and Page Replacement</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch20a-ts-implements.html"><strong aria-hidden="true">20.1.</strong> TS Deep Dive: implements and the Strategy Pattern</a></li></ol></li><li class="chapter-item expanded "><li class="spacer"></li><li class="chapter-item expanded affix "><a href="appA-6502a.html">A. The 6502a Instruction Set</a></li><li class="chapter-item expanded affix "><a href="appB-commands.html">B. Shell Command Reference</a></li><li class="chapter-item expanded affix "><a href="appC-bugs.html">C. Bug Ledger</a></li><li class="chapter-item expanded affix "><a href="appD-glados.html">D. Testing with GLaDOS</a></li><li class="chapter-item expanded affix "><a href="appE-slide-index.html">E. Slide Index</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">rObSen, Layer by Layer</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="ts-deep-dive-union-types-null-and-optional-chaining"><a class="header" href="#ts-deep-dive-union-types-null-and-optional-chaining">TS Deep Dive: Union Types, Null, and Optional Chaining</a></h1>
+<p><span class="deep-dive-badge">TypeScript deep dive</span></p>
+<p>An operating system is mostly about things that might not be there. Is there a current process? Is the ready queue initialized yet? Did the memory manager find a free partition? Does this PID exist? The kernel answers “no” with <code>null</code> a lot, and TypeScript has a family of features for saying “this might be null” in a type and then handling it safely. rObSen uses all of them.</p>
+<h2 id="union-types"><a class="header" href="#union-types">Union types</a></h2>
+<p>A <strong>union type</strong> says a value can be one of several types:</p>
+<pre><code class="language-typescript">var _ModeDisplayUpdater: (() =&gt; void) | null = null;
+</code></pre>
+<p>“Either a function that takes nothing and returns nothing, or <code>null</code>.” The <code>|</code> reads as “or.” Unions show up all over the kernel:</p>
+<pre><code class="language-typescript">public firstRunCycle: number | null;     // null until the process first runs
+public swapKey: string | null;           // null unless the process is on disk
+private dequeueNextReadyProcess(): TSOS.PCB | null
+public allocate(pid: number, size: number): MemoryAllocation | null
+</code></pre>
+<p>Unions aren’t only about null. Chapter 9a covers unions of <em>literal</em> types, like <code>"RR" | "FCFS" | "PRIORITY"</code>.</p>
+<h2 id="strictnullchecks-and-why-robsen-doesnt-always-need--null"><a class="header" href="#strictnullchecks-and-why-robsen-doesnt-always-need--null"><code>strictNullChecks</code>, and why rObSen doesn’t always need <code>| null</code></a></h2>
+<p><code>globals.ts</code> says:</p>
+<pre><code class="language-typescript">var _CurrentProcess: TSOS.PCB = null;
+</code></pre>
+<p>Under <code>strict</code> mode (specifically <code>strictNullChecks</code>), that’s an error: <code>null</code> isn’t a <code>PCB</code>. rObSen’s <code>tsconfig.json</code> doesn’t mention strict mode, and under TypeScript 5 (what rObSen was built with) that means it’s off, so in this project <code>null</code> and <code>undefined</code> are silently allowed in <em>every</em> type. (TypeScript 6 and later flip the default to strict, which is why they report this line; Appendix C.) That’s why some declarations bother with <code>| null</code> and others don’t: the ones that do are documentation, and the compiler is not holding anyone to them.</p>
+<p>With <code>strictNullChecks</code> on, the compiler forces you to handle the null case before using a value, which catches a whole category of “cannot read properties of null” crashes at compile time. The newer parts of rObSen are written as if it were on; turning it on for the whole project would surface the older places that aren’t.</p>
+<h2 id="narrowing"><a class="header" href="#narrowing">Narrowing</a></h2>
+<p>Given a value of type <code>PCB | null</code>, how do you use it as a <code>PCB</code>? You check, and TypeScript <strong>narrows</strong> the type inside the checked branch:</p>
+<pre><code class="language-typescript">    public krnRunProcessByPid(
+      pid: number,
+    ): { success: boolean; message?: string } {
+      const pcb = _ProcessTable.get(pid);
+      if (!pcb) {
+        return { success: false, message: `Error: PID ${pid} was not found.` };
+      }
+
+      if (pcb.state === "Terminated") {
+        return {
+          success: false,
+          message: `Error: PID ${pid} is not resident in memory.`,
+        };
+      }
+
+      pcb.resetCpuState();
+      pcb.markReady();
+      this.enterKernelMode("Run PID");
+      this.dispatchProcess(pcb);
+      return { success: true };
+    }
+</code></pre>
+<p>After <code>if (!pcb) { return …; }</code>, the compiler knows <code>pcb</code> can’t be null (or undefined) for the rest of the function, so <code>pcb.state</code> is fine. Narrowing works with:</p>
+<ul>
+<li>truthiness checks: <code>if (pcb)</code>, <code>if (!pcb) return;</code></li>
+<li>equality: <code>if (pcb !== null)</code>, <code>if (pcb.location === "Disk")</code></li>
+<li><code>typeof</code>: <code>if (typeof _SchedulerQuantum === "number")</code> (used in <code>PCB.defaultQuantum</code>)</li>
+<li><code>instanceof</code>: <code>if (el instanceof HTMLCanvasElement)</code></li>
+<li>the <code>in</code> operator and custom type guards, which rObSen doesn’t use</li>
+</ul>
+<h3 id="the-truthiness-trap"><a class="header" href="#the-truthiness-trap">The truthiness trap</a></h3>
+<p><code>if (!x)</code> treats <code>null</code>, <code>undefined</code>, <code>0</code>, <code>""</code>, <code>NaN</code>, and <code>false</code> all the same. That’s a bug waiting to happen whenever 0 is a legitimate value, and in an OS, 0 is a very legitimate value: PID 0, partition 0, address 0, priority 0. rObSen mostly avoids the trap. For example, <code>shellRun</code> checks <code>Number.isNaN(pid)</code> rather than <code>!pid</code>, so <code>run 0</code> works. But it’s the first thing to suspect when “process 0 is treated as missing.”</p>
+<h2 id="optional-chaining-"><a class="header" href="#optional-chaining-">Optional chaining: <code>?.</code></a></h2>
+<p><code>a?.b</code> means “if <code>a</code> is null or undefined, the whole expression is <code>undefined</code>; otherwise it’s <code>a.b</code>.” It short-circuits instead of throwing. rObSen uses three forms:</p>
+<pre><code class="language-typescript">_ReadyQueue?.remove((queued: TSOS.PCB) =&gt; queued.pid === pcb.pid);  // optional method call
+_MemoryManager?.releaseByPid(pid);                                  // same
+_ModeDisplayUpdater?.();                                             // optional *function* call
+readyMap.get(pcb.pid)?.toString()                                    // optional call on a maybe-value
+</code></pre>
+<p>The third one is worth staring at: <code>?.()</code> calls a function only if the function exists. Without it you’d write <code>if (_ModeDisplayUpdater) { _ModeDisplayUpdater(); }</code>.</p>
+<p>Optional chaining is a tool for values that are <em>legitimately</em> sometimes absent. It can also hide bugs: <code>_ReadyQueue?.remove(…)</code> silently does nothing if the ready queue was never created, which would be a serious error in a running kernel. Use <code>?.</code> where absence is normal, and let it crash (or check and trap) where absence means something’s broken.</p>
+<h2 id="nullish-coalescing-"><a class="header" href="#nullish-coalescing-">Nullish coalescing: <code>??</code></a></h2>
+<p><code>a ?? b</code> means “<code>a</code>, unless <code>a</code> is null or undefined, in which case <code>b</code>.” It’s the null-safe default:</p>
+<pre><code class="language-typescript">const segmentLabel = pcb.segment ?? "–";
+priorityEl.textContent = (pcb.priority ?? 0).toString();
+const quick = options?.quick ?? false;
+return this.aliases.get(command) ?? command;
+</code></pre>
+<p>The older idiom <code>a || b</code> looks similar but falls back on <em>any</em> falsy value, including 0. With <code>pcb.segment || "–"</code>, a process in <strong>segment 0</strong> would display as “–”. <code>??</code> only falls back on null and undefined, so segment 0 shows as 0. That’s the difference, and it’s exactly why rObSen’s newer code uses <code>??</code>.</p>
+<p><code>Map.get</code> returns <code>undefined</code> for a missing key, which makes <code>map.get(key) ?? fallback</code> the standard way to read a map with a default. <code>resolveAlias</code> does exactly that: look up the alias, and if there isn’t one, the command is its own name.</p>
+<h2 id="optional-properties-and-parameters"><a class="header" href="#optional-properties-and-parameters">Optional properties and parameters</a></h2>
+<p>A <code>?</code> after a property or parameter name means “may be missing”:</p>
+<pre><code class="language-typescript">public krnRunAll(): { success: boolean; message?: string } {
+</code></pre>
+<p>A result always has <code>success</code>, but only has <code>message</code> when there’s something to say. Callers check <code>if (!runResult.success) { _StdOut.putText(runResult.message); }</code>.</p>
+<pre><code class="language-typescript">public execute(fn, args?) {
+public format(options?: { quick?: boolean }): void {
+</code></pre>
+<p><code>args?</code> and <code>options?</code> are optional parameters: callers may leave them off. Inside, their type includes <code>undefined</code>. <code>format</code> handles that with <code>options?.quick ?? false</code>: if there are no options, or no <code>quick</code> in them, it’s a full format.</p>
+<h2 id="summary"><a class="header" href="#summary">Summary</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Syntax</th><th>Meaning</th><th>Example in rObSen</th></tr></thead><tbody>
+<tr><td><code>T | null</code></td><td>might be null</td><td><code>dequeueNextReadyProcess(): PCB | null</code></td></tr>
+<tr><td><code>if (!x) return</code></td><td>narrow away null</td><td><code>krnRunProcessByPid</code></td></tr>
+<tr><td><code>a?.b</code>, <code>a?.()</code></td><td>short-circuit if missing</td><td><code>_ModeDisplayUpdater?.()</code></td></tr>
+<tr><td><code>a ?? b</code></td><td>default only for null/undefined</td><td><code>pcb.segment ?? "–"</code></td></tr>
+<tr><td><code>x?: T</code></td><td>optional property or parameter</td><td><code>message?: string</code></td></tr>
+</tbody></table>
+</div>
+<p>The deeper lesson: <strong>types can carry the absence of a thing</strong>. A kernel full of <code>| null</code> is a kernel that has thought about every “what if there’s no process?” Turning on <code>strictNullChecks</code> would make the compiler check that thought for you.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch06-kernel.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="ch07-drivers.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch06-kernel.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="ch07-drivers.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

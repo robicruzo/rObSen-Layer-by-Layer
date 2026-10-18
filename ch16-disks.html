@@ -1,0 +1,324 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Disk Systems and Disk Scheduling - rObSen, Layer by Layer</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A companion to Alan Labouseur&#x27;s Operating Systems course (CMPT 424, Marist), told through one student&#x27;s browser-based OS written in TypeScript.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">Preface: How to Read This Book</a></li><li class="chapter-item expanded affix "><a href="map.html">The Map: rObSen at a Glance</a></li><li class="chapter-item expanded affix "><li class="part-title">Part I — Foundations</li><li class="chapter-item expanded "><a href="ch01-what-is-an-os.html"><strong aria-hidden="true">1.</strong> What Is an Operating System?</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch01a-ts-namespaces.html"><strong aria-hidden="true">1.1.</strong> TS Deep Dive: Namespaces and the Global Script World</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-structures.html"><strong aria-hidden="true">2.</strong> OS Structures and the Machine Inside the Browser</a></li><li class="chapter-item expanded affix "><li class="part-title">Part II — The Hardware Layer (source/host)</li><li class="chapter-item expanded "><a href="ch03-host.html"><strong aria-hidden="true">3.</strong> The Host: Clock, Buttons, and the Log</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch03a-ts-static-dom.html"><strong aria-hidden="true">3.1.</strong> TS Deep Dive: Static Members, Type Assertions, and the DOM</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-memory.html"><strong aria-hidden="true">4.</strong> Memory and the Memory Accessor</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch04a-ts-class-anatomy.html"><strong aria-hidden="true">4.1.</strong> TS Deep Dive: Anatomy of a Class</a></li></ol></li><li class="chapter-item expanded "><a href="ch05-cpu.html"><strong aria-hidden="true">5.</strong> The CPU: Fetch, Decode, Execute</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch05a-ts-bitwise.html"><strong aria-hidden="true">5.1.</strong> TS Deep Dive: Bits, Bytes, and Bitwise Operators</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part III — The Kernel Layer (source/os)</li><li class="chapter-item expanded "><a href="ch06-kernel.html"><strong aria-hidden="true">6.</strong> Booting, Interrupts, and the Mode Bit</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch06a-ts-unions-null.html"><strong aria-hidden="true">6.1.</strong> TS Deep Dive: Union Types, Null, and Optional Chaining</a></li></ol></li><li class="chapter-item expanded "><a href="ch07-drivers.html"><strong aria-hidden="true">7.</strong> Device Drivers: The Keyboard</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch07a-ts-inheritance-this.html"><strong aria-hidden="true">7.1.</strong> TS Deep Dive: Inheritance, super, and the Trouble with this</a></li></ol></li><li class="chapter-item expanded "><a href="ch08-shell.html"><strong aria-hidden="true">8.</strong> The Console and the Shell</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch08a-ts-functions-as-values.html"><strong aria-hidden="true">8.1.</strong> TS Deep Dive: Functions as Values</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part IV — Processes and Threads</li><li class="chapter-item expanded "><a href="ch09-processes.html"><strong aria-hidden="true">9.</strong> Processes and the PCB</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch09a-ts-literal-types.html"><strong aria-hidden="true">9.1.</strong> TS Deep Dive: Literal Types and Type Aliases</a></li></ol></li><li class="chapter-item expanded "><a href="ch10-threads.html"><strong aria-hidden="true">10.</strong> Threads, and the One Thread You Have</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch10a-ts-event-loop.html"><strong aria-hidden="true">10.1.</strong> TS Deep Dive: The Event Loop, Timers, and Callbacks</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part V — Main Memory</li><li class="chapter-item expanded "><a href="ch11-main-memory.html"><strong aria-hidden="true">11.</strong> Binding, Base/Limit, and Partitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch11a-ts-interfaces.html"><strong aria-hidden="true">11.1.</strong> TS Deep Dive: Interfaces and Object Shapes</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VI — CPU Scheduling</li><li class="chapter-item expanded "><a href="ch12-scheduling-theory.html"><strong aria-hidden="true">12.</strong> Scheduling Theory, by Hand and by Code</a></li><li class="chapter-item expanded "><a href="ch13-scheduling-robsen.html"><strong aria-hidden="true">13.</strong> Scheduling in rObSen: Timer, Dispatcher, Context Switch</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch13a-ts-generics.html"><strong aria-hidden="true">13.1.</strong> TS Deep Dive: Generics</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VII — Storage</li><li class="chapter-item expanded "><a href="ch14-fs-interface.html"><strong aria-hidden="true">14.</strong> The File-System Interface</a></li><li class="chapter-item expanded "><a href="ch15-fs-implementation.html"><strong aria-hidden="true">15.</strong> File-System Implementation: The TSB Disk</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch15a-ts-storage-strings.html"><strong aria-hidden="true">15.1.</strong> TS Deep Dive: Web Storage, JSON, and Hex Strings</a></li></ol></li><li class="chapter-item expanded "><a href="ch16-disks.html" class="active"><strong aria-hidden="true">16.</strong> Disk Systems and Disk Scheduling</a></li><li class="chapter-item expanded affix "><li class="part-title">Part VIII — Beyond Contiguous Memory</li><li class="chapter-item expanded "><a href="ch17-swapping.html"><strong aria-hidden="true">17.</strong> Swapping: Roll-Out and Roll-In</a></li><li class="chapter-item expanded "><a href="ch18-paging.html"><strong aria-hidden="true">18.</strong> Paging</a></li><li class="chapter-item expanded affix "><li class="part-title">Part IX — Concurrency</li><li class="chapter-item expanded "><a href="ch19-sync-deadlock.html"><strong aria-hidden="true">19.</strong> Synchronization and Deadlock</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch19a-ts-async.html"><strong aria-hidden="true">19.1.</strong> TS Deep Dive: Promises and async/await</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part X — Virtual Memory</li><li class="chapter-item expanded "><a href="ch20-virtual-memory.html"><strong aria-hidden="true">20.</strong> Demand Paging and Page Replacement</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch20a-ts-implements.html"><strong aria-hidden="true">20.1.</strong> TS Deep Dive: implements and the Strategy Pattern</a></li></ol></li><li class="chapter-item expanded "><li class="spacer"></li><li class="chapter-item expanded affix "><a href="appA-6502a.html">A. The 6502a Instruction Set</a></li><li class="chapter-item expanded affix "><a href="appB-commands.html">B. Shell Command Reference</a></li><li class="chapter-item expanded affix "><a href="appC-bugs.html">C. Bug Ledger</a></li><li class="chapter-item expanded affix "><a href="appD-glados.html">D. Testing with GLaDOS</a></li><li class="chapter-item expanded affix "><a href="appE-slide-index.html">E. Slide Index</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">rObSen, Layer by Layer</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="disk-systems-and-disk-scheduling"><a class="header" href="#disk-systems-and-disk-scheduling">Disk Systems and Disk Scheduling</a></h1>
+<div class="stack"><span>Browser</span><span>Host: clock & devices</span><span>Host: memory</span><span>Host: CPU</span><span>Kernel</span><span class="here">Drivers</span><span>Console & shell</span><span>Processes</span><span>Memory manager</span><span>Scheduler</span><span class="here">File system</span><span>Swapper</span></div>
+<p><em>Slides: Chapter 12, “Disk Systems,” pp. 786–808.</em></p>
+<p>The last storage chapter goes below the file system to the device itself. rObSen’s “disk” has no moving parts, so most of this chapter is theory. But the theory explains why rObSen’s disk is organized into tracks and sectors at all, and it ends with a sketch of how rObSen could simulate the physics if you wanted the scheduling algorithms to matter.</p>
+<h2 id="how-a-hard-disk-works"><a class="header" href="#how-a-hard-disk-works">How a hard disk works</a></h2>
+<p>A hard disk is a stack of <strong>platters</strong> spinning at 7,200 to 15,000 RPM, with a <strong>head</strong> for each surface on an <strong>arm</strong> that moves all the heads together (slides pp. 787–788). Each surface is divided into concentric <strong>tracks</strong>; the set of tracks at one arm position, across all surfaces, is a <strong>cylinder</strong>; each track is divided into <strong>sectors</strong>.</p>
+<p>Reading a sector costs:</p>
+<ul>
+<li><strong>seek time</strong>: moving the arm to the right cylinder;</li>
+<li><strong>rotational latency</strong>: waiting for the sector to spin under the head;</li>
+<li><strong>transfer time</strong>: actually reading the bits.</li>
+</ul>
+<p>Seek time dominates, and it’s roughly proportional to the distance the arm moves. Hence the whole subject of disk scheduling: “Minimize seek time. Seek time ≈ seek distance” (slide p. 790).</p>
+<p>The OS sees the disk as “a large 1-dimensional array of logical blocks,” mapped onto sectors starting at the outermost cylinder and working inward (slide p. 789). rObSen’s <code>toIndex(track, sector, block)</code> is that mapping in reverse: it flattens a three-dimensional address into a position in a one-dimensional array.</p>
+<h2 id="disk-scheduling"><a class="header" href="#disk-scheduling">Disk scheduling</a></h2>
+<p>When several I/O requests are pending, the order in which the disk serves them determines how far the arm travels. The slides use the textbook’s standard example: a disk with cylinders 0–199, the head at cylinder 53, and a queue of requests for cylinders</p>
+<pre><code class="language-text">98, 183, 37, 122, 14, 124, 65, 67
+</code></pre>
+<p><strong>FCFS</strong> serves them in arrival order. Fair, simple, and the arm swings wildly: <strong>640</strong> cylinders.</p>
+<figure class="slide"><img src="img/slides/slide-792.jpg" alt="FCFS disk scheduling"><figcaption>Slide p. 792: FCFS, total head movement 640 cylinders.</figcaption></figure>
+<p><strong>SSTF</strong> (shortest seek time first) always serves the closest pending request. It’s SJF for disks (slide p. 793), with SJF’s virtue (<strong>236</strong> cylinders) and SJF’s vice: a request far from a busy region can <strong>starve</strong>.</p>
+<p><strong>SCAN</strong>, the <strong>elevator algorithm</strong>, sweeps the arm from one end of the disk to the other, serving requests along the way, then reverses (p. 795). <strong>C-SCAN</strong> (circular SCAN) sweeps in one direction only, then jumps back to the start without serving anything on the return trip, which gives more uniform waiting times, because a request just behind the head doesn’t have to wait for two full sweeps (p. 797). <strong>LOOK</strong> and <strong>C-LOOK</strong> are the same, except the arm turns around at the last request in each direction instead of travelling all the way to the edge (p. 799).</p>
+<div class="slide-pair">
+<figure class="slide"><img src="img/slides/slide-794.jpg" alt="SSTF"><figcaption>Slide p. 794: SSTF.</figcaption></figure>
+<figure class="slide"><img src="img/slides/slide-796.jpg" alt="SCAN"><figcaption>Slide p. 796: SCAN.</figcaption></figure>
+<figure class="slide"><img src="img/slides/slide-798.jpg" alt="C-SCAN"><figcaption>Slide p. 798: C-SCAN.</figcaption></figure>
+<figure class="slide"><img src="img/slides/slide-800.jpg" alt="C-LOOK"><figcaption>Slide p. 800: C-LOOK.</figcaption></figure>
+</div>
+<h3 id="by-code"><a class="header" href="#by-code">By code</a></h3>
+<p><code>src/code/sims/disk.ts</code> implements each policy as a function from the queue to a visiting order (a function type, Chapter 8a):</p>
+<pre><code class="language-typescript">type Order = (queue: number[], head: number, maxCyl: number) =&gt; number[]; // returns visit order (stops)
+
+const fcfs: Order = (q) =&gt; [...q];
+
+const sstf: Order = (q, head) =&gt; {
+  const pending = [...q];
+  const path: number[] = [];
+  let at = head;
+  while (pending.length) {
+    pending.sort((a, b) =&gt; Math.abs(a - at) - Math.abs(b - at));
+    at = pending.shift()!;
+    path.push(at);
+  }
+  return path;
+};
+
+// SCAN toward 0 first: sweep down to cylinder 0, then reverse.
+const scanDown: Order = (q, head) =&gt; {
+  const down = q.filter((c) =&gt; c &lt;= head).sort((a, b) =&gt; b - a);
+  const up = q.filter((c) =&gt; c &gt; head).sort((a, b) =&gt; a - b);
+  return [...down, 0, ...up];
+};
+</code></pre>
+<p>and sums the distances:</p>
+<pre><code class="language-text">$ tsc --target es2022 disk.ts &amp;&amp; node disk.js
+FCFS          640 cylinders   53 → 98 → 183 → 37 → 122 → 14 → 124 → 65 → 67
+SSTF          236 cylinders   53 → 65 → 67 → 37 → 14 → 98 → 122 → 124 → 183
+SCAN (down)   236 cylinders   53 → 37 → 14 → 0 → 65 → 67 → 98 → 122 → 124 → 183
+LOOK (down)   208 cylinders   53 → 37 → 14 → 65 → 67 → 98 → 122 → 124 → 183
+C-SCAN (up)   382 cylinders   53 → 65 → 67 → 98 → 122 → 124 → 183 → 199 → 0 → 14 → 37
+C-LOOK (up)   322 cylinders   53 → 65 → 67 → 98 → 122 → 124 → 183 → 14 → 37
+</code></pre>
+<p>FCFS and SSTF match the slides. Notice SCAN: the slide says “Illustration shows total head movement of <strong>208</strong> cylinders.” But a true SCAN moving toward 0 goes 53 → 0 (53 cylinders), then 0 → 183 (183 more), for <strong>236</strong>. The 208 figure is what you get if the arm reverses at cylinder <strong>14</strong>, the last request, instead of at 0, which is LOOK. The slide’s number fits LOOK, not SCAN as described. On an exam, show your path and your arithmetic, and say which convention you’re using.</p>
+<div class="callout exam"><span class="label">Exam-style</span>
+Conventions matter for C-SCAN too. If the jump from 199 back to 0 is counted as head movement, C-SCAN (up) costs 382; if it's treated as a fast return that "doesn't count," it's 382 − 199 = 183. The slides don't compute C-SCAN's total, so state your assumption. Likewise C-LOOK's jump from 183 to 14: counted, 322; not counted, 153.
+</div>
+<h3 id="choosing"><a class="header" href="#choosing">Choosing</a></h3>
+<p>“SSTF is common and has a natural appeal. SCAN and C-SCAN perform better for systems that place a heavy load on the disk… Either SSTF or LOOK is a reasonable choice for the default algorithm,” and the scheduler “should be written as a separate module of the operating system, allowing it to be replaced” (slide p. 801). That last point is the policy/mechanism separation from Chapter 2 again, and the strategy pattern from Chapter 20a.</p>
+<p>(Modern SSDs have no arm and no rotation, so seek-distance scheduling buys nothing; their schedulers focus on fairness, merging requests, and parallelism across flash channels.)</p>
+<h2 id="disk-management"><a class="header" href="#disk-management">Disk management</a></h2>
+<p>Before a disk can hold files it needs <strong>low-level (physical) formatting</strong>, which divides it into sectors the controller can read, then <strong>partitioning</strong> into groups of cylinders, then <strong>logical formatting</strong> (“making a file system”). The <strong>boot block</strong> holds the bootstrap loader. <strong>Bad blocks</strong> are handled by sector sparing: the controller quietly remaps them to spares (slide p. 802). <strong>Defragmentation</strong> (pp. 803–805) rearranges blocks so that each file’s blocks are adjacent, which matters on spinning disks because it turns many seeks into one. rObSen’s <code>chkdsk</code> defragmenter (Chapter 15) is the same idea in miniature.</p>
+<h2 id="swap-space-management"><a class="header" href="#swap-space-management">Swap-space management</a></h2>
+<p>“Virtual memory uses disk space as an extension of main memory” (slide p. 807). Swap space can be carved out of the regular file system (a swap <em>file</em>: easy to resize, but every access goes through file-system code) or live in a separate raw <strong>partition</strong> (faster, fixed size). 4.3BSD allocated swap space when a process started; Solaris 2 allocates it only when a page is actually forced out of memory. Chapter 17 looks at where rObSen puts its swap space, and finds that it’s neither.</p>
+<h2 id="what-it-would-take-to-make-scheduling-matter-in-robsen"><a class="header" href="#what-it-would-take-to-make-scheduling-matter-in-robsen">What it would take to make scheduling matter in rObSen</a></h2>
+<p>rObSen’s disk reads are instantaneous: <code>sessionStorage.getItem</code> takes the same time for any block. So disk scheduling can’t improve anything, and there’s no request queue to schedule. To make the course’s algorithms meaningful, you’d simulate the physics:</p>
+<ol>
+<li>Give the disk driver an <strong>arm position</strong> (the current track) and a <strong>request queue</strong>.</li>
+<li>Make operations <strong>asynchronous</strong>: a request is queued, and the caller (a process, or the swapper) moves to a waiting state.</li>
+<li>On each clock tick, move the arm one track toward the next request chosen by the scheduling policy (FCFS, SSTF, LOOK, …). When it arrives, perform the read or write and raise <strong><code>DISK_IRQ</code></strong>, the IRQ number <code>globals.ts</code> already reserves.</li>
+<li>The disk ISR wakes the waiting process (moves it back to the ready queue).</li>
+</ol>
+<p>That would add the <strong>waiting</strong> state that the course’s process-state diagram leaves out (Chapter 9), give the kernel a second interrupt source, and make swapping cost something, which is the honest way to motivate everything in Chapter 18.</p>
+<h2 id="check-yourself"><a class="header" href="#check-yourself">Check yourself</a></h2>
+<ol>
+<li>Compute SSTF’s path by hand from 53. At which step is there a tie, if any?</li>
+<li>Why does C-SCAN give more uniform waiting times than SCAN?</li>
+<li>In the example, which request waits longest under SSTF?</li>
+</ol>
+<details>
+<summary>Answers</summary>
+<ol>
+<li>53 → 65 (12) → 67 (2) → 37 (30) → 14 (23) → 98 (84) → 122 (24) → 124 (2) → 183 (59) = 236. No exact ties: at 67, the nearest are 37 (30 away) and 98 (31 away).</li>
+<li>With SCAN, a request that arrives just behind the head as it reverses waits a little, but a request at the far end that just missed the head waits for nearly two full sweeps; cylinders in the middle get served twice as often as those at the edges. C-SCAN serves every cylinder once per sweep, in the same direction, so the maximum wait is about the same everywhere.</li>
+<li>183: it’s served last, after the arm has gone down to 14 and back up.</li>
+</ol>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch15a-ts-storage-strings.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="ch17-swapping.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch15a-ts-storage-strings.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="ch17-swapping.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

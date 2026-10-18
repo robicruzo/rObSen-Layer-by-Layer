@@ -1,0 +1,471 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Binding, Base/Limit, and Partitions - rObSen, Layer by Layer</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A companion to Alan Labouseur&#x27;s Operating Systems course (CMPT 424, Marist), told through one student&#x27;s browser-based OS written in TypeScript.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">Preface: How to Read This Book</a></li><li class="chapter-item expanded affix "><a href="map.html">The Map: rObSen at a Glance</a></li><li class="chapter-item expanded affix "><li class="part-title">Part I — Foundations</li><li class="chapter-item expanded "><a href="ch01-what-is-an-os.html"><strong aria-hidden="true">1.</strong> What Is an Operating System?</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch01a-ts-namespaces.html"><strong aria-hidden="true">1.1.</strong> TS Deep Dive: Namespaces and the Global Script World</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-structures.html"><strong aria-hidden="true">2.</strong> OS Structures and the Machine Inside the Browser</a></li><li class="chapter-item expanded affix "><li class="part-title">Part II — The Hardware Layer (source/host)</li><li class="chapter-item expanded "><a href="ch03-host.html"><strong aria-hidden="true">3.</strong> The Host: Clock, Buttons, and the Log</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch03a-ts-static-dom.html"><strong aria-hidden="true">3.1.</strong> TS Deep Dive: Static Members, Type Assertions, and the DOM</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-memory.html"><strong aria-hidden="true">4.</strong> Memory and the Memory Accessor</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch04a-ts-class-anatomy.html"><strong aria-hidden="true">4.1.</strong> TS Deep Dive: Anatomy of a Class</a></li></ol></li><li class="chapter-item expanded "><a href="ch05-cpu.html"><strong aria-hidden="true">5.</strong> The CPU: Fetch, Decode, Execute</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch05a-ts-bitwise.html"><strong aria-hidden="true">5.1.</strong> TS Deep Dive: Bits, Bytes, and Bitwise Operators</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part III — The Kernel Layer (source/os)</li><li class="chapter-item expanded "><a href="ch06-kernel.html"><strong aria-hidden="true">6.</strong> Booting, Interrupts, and the Mode Bit</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch06a-ts-unions-null.html"><strong aria-hidden="true">6.1.</strong> TS Deep Dive: Union Types, Null, and Optional Chaining</a></li></ol></li><li class="chapter-item expanded "><a href="ch07-drivers.html"><strong aria-hidden="true">7.</strong> Device Drivers: The Keyboard</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch07a-ts-inheritance-this.html"><strong aria-hidden="true">7.1.</strong> TS Deep Dive: Inheritance, super, and the Trouble with this</a></li></ol></li><li class="chapter-item expanded "><a href="ch08-shell.html"><strong aria-hidden="true">8.</strong> The Console and the Shell</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch08a-ts-functions-as-values.html"><strong aria-hidden="true">8.1.</strong> TS Deep Dive: Functions as Values</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part IV — Processes and Threads</li><li class="chapter-item expanded "><a href="ch09-processes.html"><strong aria-hidden="true">9.</strong> Processes and the PCB</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch09a-ts-literal-types.html"><strong aria-hidden="true">9.1.</strong> TS Deep Dive: Literal Types and Type Aliases</a></li></ol></li><li class="chapter-item expanded "><a href="ch10-threads.html"><strong aria-hidden="true">10.</strong> Threads, and the One Thread You Have</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch10a-ts-event-loop.html"><strong aria-hidden="true">10.1.</strong> TS Deep Dive: The Event Loop, Timers, and Callbacks</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part V — Main Memory</li><li class="chapter-item expanded "><a href="ch11-main-memory.html" class="active"><strong aria-hidden="true">11.</strong> Binding, Base/Limit, and Partitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch11a-ts-interfaces.html"><strong aria-hidden="true">11.1.</strong> TS Deep Dive: Interfaces and Object Shapes</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VI — CPU Scheduling</li><li class="chapter-item expanded "><a href="ch12-scheduling-theory.html"><strong aria-hidden="true">12.</strong> Scheduling Theory, by Hand and by Code</a></li><li class="chapter-item expanded "><a href="ch13-scheduling-robsen.html"><strong aria-hidden="true">13.</strong> Scheduling in rObSen: Timer, Dispatcher, Context Switch</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch13a-ts-generics.html"><strong aria-hidden="true">13.1.</strong> TS Deep Dive: Generics</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VII — Storage</li><li class="chapter-item expanded "><a href="ch14-fs-interface.html"><strong aria-hidden="true">14.</strong> The File-System Interface</a></li><li class="chapter-item expanded "><a href="ch15-fs-implementation.html"><strong aria-hidden="true">15.</strong> File-System Implementation: The TSB Disk</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch15a-ts-storage-strings.html"><strong aria-hidden="true">15.1.</strong> TS Deep Dive: Web Storage, JSON, and Hex Strings</a></li></ol></li><li class="chapter-item expanded "><a href="ch16-disks.html"><strong aria-hidden="true">16.</strong> Disk Systems and Disk Scheduling</a></li><li class="chapter-item expanded affix "><li class="part-title">Part VIII — Beyond Contiguous Memory</li><li class="chapter-item expanded "><a href="ch17-swapping.html"><strong aria-hidden="true">17.</strong> Swapping: Roll-Out and Roll-In</a></li><li class="chapter-item expanded "><a href="ch18-paging.html"><strong aria-hidden="true">18.</strong> Paging</a></li><li class="chapter-item expanded affix "><li class="part-title">Part IX — Concurrency</li><li class="chapter-item expanded "><a href="ch19-sync-deadlock.html"><strong aria-hidden="true">19.</strong> Synchronization and Deadlock</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch19a-ts-async.html"><strong aria-hidden="true">19.1.</strong> TS Deep Dive: Promises and async/await</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part X — Virtual Memory</li><li class="chapter-item expanded "><a href="ch20-virtual-memory.html"><strong aria-hidden="true">20.</strong> Demand Paging and Page Replacement</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch20a-ts-implements.html"><strong aria-hidden="true">20.1.</strong> TS Deep Dive: implements and the Strategy Pattern</a></li></ol></li><li class="chapter-item expanded "><li class="spacer"></li><li class="chapter-item expanded affix "><a href="appA-6502a.html">A. The 6502a Instruction Set</a></li><li class="chapter-item expanded affix "><a href="appB-commands.html">B. Shell Command Reference</a></li><li class="chapter-item expanded affix "><a href="appC-bugs.html">C. Bug Ledger</a></li><li class="chapter-item expanded affix "><a href="appD-glados.html">D. Testing with GLaDOS</a></li><li class="chapter-item expanded affix "><a href="appE-slide-index.html">E. Slide Index</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">rObSen, Layer by Layer</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="binding-baselimit-and-partitions"><a class="header" href="#binding-baselimit-and-partitions">Binding, Base/Limit, and Partitions</a></h1>
+<div class="stack"><span>Browser</span><span>Host: clock & devices</span><span>Host: memory</span><span>Host: CPU</span><span>Kernel</span><span>Drivers</span><span>Console & shell</span><span>Processes</span><span class="here">Memory manager</span><span>Scheduler</span><span>File system</span><span>Swapper</span></div>
+<p><em>Slides: Chapter 8, “Main Memory — Part One,” pp. 554–598. Project Part Three; Lab 011.</em></p>
+<p>Chapter 4 covered the hardware half of memory management: the memory accessor that translates every address. This chapter covers the software half: the <strong>memory manager</strong>, which decides which process lives where, and the theory of contiguous allocation that it implements.</p>
+<h2 id="address-binding"><a class="header" href="#address-binding">Address binding</a></h2>
+<p>A program refers to memory addresses. At some point those addresses have to be <strong>bound</strong> to real, physical locations. The question is <em>when</em> (slide p. 559):</p>
+<div class="table-wrapper"><table><thead><tr><th>When</th><th>How</th><th>Slide’s project tag</th><th>Example</th></tr></thead><tbody>
+<tr><td><strong>Compile time</strong></td><td>The compiler emits absolute addresses. Move the program and you must recompile.</td><td>iP2</td><td>MS-DOS <code>.com</code> files</td></tr>
+<tr><td><strong>Load time</strong></td><td>The compiler emits <em>relocatable</em> code (“42 bytes from the beginning of this module”); the loader fixes up addresses when it knows where the program goes.</td><td>iP3</td><td>classic relocating loaders</td></tr>
+<tr><td><strong>Execution time</strong></td><td>Binding is delayed until each access, so “the process can be moved during its execution from one memory segment to another (due to swapping, perhaps).” Needs hardware support: base and limit registers.</td><td>iP4</td><td>every modern OS</td></tr>
+</tbody></table>
+</div><figure class="slide"><img src="img/slides/slide-560.jpg" alt="Multistep processing of a user program"><figcaption>Slide p. 560: source → compiler → object module → linker → load module → loader → in-memory image, with compile, load, and execution time marked.</figcaption></figure>
+<p>The project tags tell a story. In Part Two, with one program always loaded at <code>$0000</code>, compile-time binding is enough: the program’s addresses <em>are</em> physical addresses. In Part Three, with three partitions, a program might land at <code>$0000</code>, <code>$0100</code>, or <code>$0200</code>, so something must relocate it. And in Part Four, with swapping, a process can be rolled out of partition 0 and rolled back into partition 2, <em>in the middle of running</em>, so binding must happen at execution time.</p>
+<p>rObSen uses <strong>execution-time binding</strong> throughout. Programs are written as if they start at <code>$0000</code>; the memory accessor adds the process’s base on every access (Chapter 4). Nothing about the program’s bytes ever changes when it moves. That’s why swapping works at all: Chapter 17’s roll-in can put a process in any free partition, update its PCB’s <code>base</code> and <code>limit</code>, and carry on.</p>
+<h2 id="logical-versus-physical-addresses"><a class="header" href="#logical-versus-physical-addresses">Logical versus physical addresses</a></h2>
+<p>“The concept of a logical address space that is bound to a separate physical address space is central to proper memory management” (slide p. 561). A <strong>logical</strong> (virtual) address is generated by the CPU; a <strong>physical</strong> address is what the memory hardware sees. Under compile-time and load-time binding they’re the same; under execution-time binding they differ, and the mapping is the MMU’s job. In rObSen, every 6502a address is logical (0–255), physical addresses run 0–767, and the mapping is <code>base + (address &amp; 0xff)</code>.</p>
+<p>Slide p. 562 adds a careful distinction that rObSen embodies: the relocation (base) value “in the PCB” is OS data, while the relocation <em>register</em> is hardware. In rObSen, <code>PCB.base</code> is the saved copy and <code>_CurrentProcess.base</code> is what the memory accessor reads on each access. Strictly, a dispatcher would load the PCB’s base into a hardware register on each context switch, the same way it loads <code>PC</code> and <code>Acc</code>, and the accessor would read the register. rObSen’s accessor reaches straight into the current PCB instead, which has the same effect.</p>
+<h2 id="dynamic-loading-and-linking"><a class="header" href="#dynamic-loading-and-linking">Dynamic loading and linking</a></h2>
+<p>Two related ideas (slides pp. 567–568), neither used by rObSen: <strong>dynamic loading</strong> doesn’t load a routine until it’s called, and <strong>dynamic linking</strong> postpones linking a library until run time, using a small stub that finds the library routine the first time it’s called and patches itself. Shared libraries (<code>.dll</code>, <code>.so</code>, <code>.dylib</code>) work this way, and that’s why one copy of a common library can serve every process in memory.</p>
+<h2 id="contiguous-allocation-and-fixed-partitions"><a class="header" href="#contiguous-allocation-and-fixed-partitions">Contiguous allocation and fixed partitions</a></h2>
+<p>In <strong>contiguous allocation</strong>, each process occupies one unbroken range of physical memory (slide p. 571). The simplest version divides memory into <strong>fixed-size partitions</strong> ahead of time and gives each arriving process a free one (slide p. 573). The OS keeps a table of which partitions are allocated and which are free.</p>
+<figure class="slide"><img src="img/slides/slide-573.jpg" alt="Fixed-size memory partitions"><figcaption>Slide p. 573: fixed-size partitions, "iP3." Process 9 finishes, process 10 takes its partition.</figcaption></figure>
+<p>That’s rObSen exactly: three partitions of 256 bytes each, at <code>$0000</code>, <code>$0100</code>, and <code>$0200</code>, as Lab 011 specifies. Here is the whole memory manager:</p>
+<pre><code class="language-typescript">module TSOS {
+  interface MemoryPartition {
+    base: number;
+    limit: number;
+    capacity: number;
+    allocated: boolean;
+    pid: number | null;
+  }
+
+  export interface MemoryAllocation {
+    base: number;
+    limit: number;
+    size: number;
+    partition: number;
+  }
+
+  export class MemoryManager {
+    private readonly partitions: MemoryPartition[];
+
+    constructor(
+      private readonly memory: Memory,
+      private readonly accessor: MemoryAccessor,
+      segmentSize: number = Memory.SIZE,
+      segmentCount: number = 1,
+    ) {
+      this.partitions = [];
+      for (let index = 0; index &lt; segmentCount; index++) {
+        const base = index * segmentSize;
+        const limit = base + segmentSize - 1;
+        this.partitions.push({
+          base,
+          limit,
+          capacity: segmentSize,
+          allocated: false,
+          pid: null,
+        });
+      }
+    }
+
+    public reset(): void {
+      this.memory.clear();
+      this.partitions.forEach((partition) =&gt; {
+        partition.allocated = false;
+        partition.pid = null;
+      });
+    }
+
+    public allocate(pid: number, size: number): MemoryAllocation | null {
+      if (size &lt;= 0) {
+        return null;
+      }
+
+      const partitionIndex = this.partitions.findIndex(
+        (partition) =&gt; !partition.allocated &amp;&amp; size &lt;= partition.capacity,
+      );
+
+      if (partitionIndex === -1) {
+        return null;
+      }
+
+      const partition = this.partitions[partitionIndex];
+      partition.allocated = true;
+      partition.pid = pid;
+
+      return {
+        base: partition.base,
+        limit: partition.limit,
+        size,
+        partition: partitionIndex,
+      };
+    }
+
+    public load(allocation: MemoryAllocation, bytes: number[]): void {
+      this.accessor.loadBytes(allocation.base, bytes);
+
+      const partition = this.partitions[allocation.partition];
+      const end = partition.base + partition.capacity;
+      const paddingStart = allocation.base + allocation.size;
+
+      for (let address = paddingStart; address &lt; end; address++) {
+        this.accessor.write(address, 0x00);
+      }
+    }
+
+    public releaseByPid(pid: number): void {
+      const partition = this.partitions.find((part) =&gt; part.pid === pid);
+      if (!partition) {
+        return;
+      }
+      this.zeroPartition(partition);
+      partition.allocated = false;
+      partition.pid = null;
+    }
+
+    public releaseByBase(base: number): void {
+      const partition = this.partitions.find((part) =&gt; part.base === base);
+      if (!partition) {
+        return;
+      }
+      this.zeroPartition(partition);
+      partition.allocated = false;
+      partition.pid = null;
+    }
+
+    public isAllocated(pid: number): boolean {
+      return this.partitions.some((partition) =&gt; partition.pid === pid);
+    }
+
+    public availableCapacity(): number {
+      return this.partitions.reduce((total, partition) =&gt; {
+        return partition.allocated ? total : total + partition.capacity;
+      }, 0);
+    }
+
+    private zeroPartition(partition: MemoryPartition): void {
+      for (let address = partition.base; address &lt;= partition.limit; address++) {
+        this.accessor.write(address, 0x00);
+      }
+    }
+
+    public getFreePartition(): MemoryAllocation | null {
+      const partitionIndex = this.partitions.findIndex((partition) =&gt; !partition.allocated);
+      if (partitionIndex === -1) {
+        return null;
+      }
+      const partition = this.partitions[partitionIndex];
+      return {
+        base: partition.base,
+        limit: partition.limit,
+        size: partition.capacity,
+        partition: partitionIndex,
+      };
+    }
+
+    public claimPartition(allocation: MemoryAllocation, pid: number): void {
+      const partition = this.partitions[allocation.partition];
+      partition.allocated = true;
+      partition.pid = pid;
+    }
+
+    public releaseAllocation(allocation: MemoryAllocation): void {
+      const partition = this.partitions[allocation.partition];
+      this.zeroPartition(partition);
+      partition.allocated = false;
+      partition.pid = null;
+    }
+
+    public getPartitionForPid(pid: number): MemoryAllocation | null {
+      const partitionIndex = this.partitions.findIndex((partition) =&gt; partition.pid === pid);
+      if (partitionIndex === -1) {
+        return null;
+      }
+      const partition = this.partitions[partitionIndex];
+      return {
+        base: partition.base,
+        limit: partition.limit,
+        size: partition.capacity,
+        partition: partitionIndex,
+      };
+    }
+  }
+}
+</code></pre>
+<p>The partition table is an array of records (Chapter 11a covers the <code>interface</code> syntax), built once in the constructor: partition <em>i</em> has <code>base = i × 256</code> and <code>limit = base + 255</code>. The operations:</p>
+<ul>
+<li><strong><code>allocate(pid, size)</code></strong>: find the first unallocated partition with enough capacity (<code>findIndex</code>), mark it allocated to this PID, and return an allocation record. If none fits, return <code>null</code>. Taking the <em>first</em> free partition is <strong>first fit</strong>, although with identical partitions every fit strategy picks the same one.</li>
+<li><strong><code>load(allocation, bytes)</code></strong>: copy the program in through the memory accessor, then write zeros over the rest of the partition.</li>
+<li><strong><code>releaseByPid(pid)</code></strong>: zero the partition and mark it free.</li>
+<li><strong><code>getFreePartition</code></strong> / <strong><code>claimPartition</code></strong>: a two-step version of <code>allocate</code> used by the swapper, which needs to know <em>where</em> a process will go before it commits to putting it there (Chapter 17).</li>
+<li><strong><code>reset</code></strong>: clear all of memory and free every partition. The shell’s <code>clearmem</code> command calls it, but only when no process is resident, which answers the spec’s question, “What should happen if the user tries to clearmem while processes are running?”: it refuses.</li>
+</ul>
+<h3 id="zeroing-a-security-feature-in-disguise"><a class="header" href="#zeroing-a-security-feature-in-disguise">Zeroing: a security feature in disguise</a></h3>
+<p><code>load</code> zero-fills the end of the partition, and <code>releaseByPid</code> zeroes the whole partition. That’s not just tidiness. Without it, a new process loaded into a partition could read whatever the previous occupant left behind. Real operating systems do the same: Chapter 9’s slides (p. 666) describe handing out pages from a pool of “zeroed-out pages… erase the previous contents before giving it to a new process,” called <strong>zero-fill on demand</strong>. In rObSen the zeroing also has a functional side effect: a program that runs off its end executes <code>00</code> (BRK) and exits cleanly.</p>
+<h3 id="dead-code"><a class="header" href="#dead-code">Dead code</a></h3>
+<p>Five of the memory manager’s methods are never called anywhere in rObSen: <code>releaseByBase</code>, <code>isAllocated</code>, <code>availableCapacity</code>, <code>releaseAllocation</code>, and <code>getPartitionForPid</code>. They’re the kind of complete-looking API that a code generator produces in anticipation of needs that never arrive. They do no harm, but they’re surface area to read and maintain. Deleting unused code is one of the cheapest ways to make a codebase easier to understand.</p>
+<h2 id="variable-partitions-and-the-dynamic-storage-allocation-problem"><a class="header" href="#variable-partitions-and-the-dynamic-storage-allocation-problem">Variable partitions and the dynamic storage-allocation problem</a></h2>
+<p>With <strong>variable-size partitions</strong> (slide p. 574), the OS carves memory into exactly as much as each process needs. Free memory becomes a set of <strong>holes</strong> of various sizes scattered between processes, and each arriving process needs a hole big enough to hold it. Which hole? (Slide p. 575.)</p>
+<ul>
+<li><strong>First fit</strong>: the first hole that’s big enough.</li>
+<li><strong>Best fit</strong>: the smallest hole that’s big enough; produces the smallest leftover.</li>
+<li><strong>Worst fit</strong>: the largest hole; produces the largest leftover.</li>
+</ul>
+<p>The slides work an example (pp. 576–587) on a memory of 20 units, with A (4k) at unit 1, B (2k) at 11, and C (3k) at 17 already resident, leaving holes at 5–10, 13–16, and 20. Then D (1k), E (4k), and F (2k) arrive in that order. <code>src/code/sims/fit.ts</code> replays it:</p>
+<pre><code class="language-typescript">interface Hole { start: number; size: number; }
+type Strategy = (holes: Hole[], need: number) =&gt; Hole | undefined;
+
+const firstFit: Strategy = (holes, need) =&gt; holes.find((h) =&gt; h.size &gt;= need);
+const bestFit: Strategy = (holes, need) =&gt;
+  holes.filter((h) =&gt; h.size &gt;= need).sort((a, b) =&gt; a.size - b.size)[0];
+const worstFit: Strategy = (holes, need) =&gt;
+  holes.filter((h) =&gt; h.size &gt;= need).sort((a, b) =&gt; b.size - a.size)[0];
+</code></pre>
+<pre><code class="language-text">$ tsc --target es2022 fit.ts &amp;&amp; node fit.js
+first fit: D@5  E@6  F@13
+best fit:  D@20  E@13  F@5
+worst fit: D@5  E@6  F@13
+</code></pre>
+<p>These match the slides. Best fit tucks D into the 1k hole at the very end and E into the exactly-sized 4k hole, leaving the big hole for later; first and worst fit both split the big hole. The slides’ verdict (p. 588): “First-fit and best-fit [have] been shown to be better than worst-fit in terms of speed and storage utilization. First-fit is easier to implement.” And Alan’s parenthetical: “I wonder, what’s the ‘Big-oh’ of those operations?” (First fit is O(<em>h</em>) for <em>h</em> holes but often stops early; best and worst fit are O(<em>h</em>) every time unless the hole list is kept sorted by size, which makes each allocation and free O(log <em>h</em>) with a balanced tree.)</p>
+<h2 id="fragmentation"><a class="header" href="#fragmentation">Fragmentation</a></h2>
+<p>Two kinds (slides pp. 591–596):</p>
+<ul>
+<li><strong>External fragmentation</strong>: there’s enough free memory in total, but it isn’t contiguous. Variable partitions suffer from this. A 3k process can’t run in two separate 2k holes.</li>
+<li><strong>Internal fragmentation</strong>: a process is given more memory than it asked for, and the excess, <em>inside</em> its allocation, is wasted. Fixed partitions suffer from this.</li>
+</ul>
+<p>rObSen’s fixed partitions have <strong>no external fragmentation</strong> (any free partition fits any program up to 256 bytes) and <strong>severe internal fragmentation</strong>. The counting program used to test swapping in Chapter 17 is 22 bytes long, so each copy wastes 234 of its 256 bytes, or about 91%. Three such processes use 66 bytes of a 768-byte memory, and the fourth still has to be swapped to disk.</p>
+<p>The cure for external fragmentation is <strong>compaction</strong>: shuffle processes together to merge the holes. That needs execution-time binding (you’re moving running processes), and it’s slow, and it’s awkward while I/O is in progress. The cure for both kinds at once is <strong>paging</strong>: chop memory into small fixed-size frames, and let a process occupy any frames, not necessarily adjacent ones. That’s the subject of Chapter 18.</p>
+<h2 id="check-yourself"><a class="header" href="#check-yourself">Check yourself</a></h2>
+<ol>
+<li>Under rObSen’s scheme, what’s the largest program you can load? What happens if you try to load something larger?</li>
+<li>Why does swapping (Project Part Four) require execution-time rather than load-time binding?</li>
+<li>With variable partitions, run the slide example using next fit (like first fit, but each search starts where the previous one ended). Where do D, E, and F go?</li>
+</ol>
+<details>
+<summary>Answers</summary>
+<ol>
+<li>256 bytes. A larger program passes <code>shellLoad</code>’s size check (which compares with all 768 bytes), fails to find a partition, needlessly swaps out a resident process, and then reports “insufficient memory” (Chapter 9).</li>
+<li>Because a swapped-out process may come back into a <em>different</em> partition. With load-time binding, its addresses were fixed up for the old location when it was first loaded. Execution-time binding re-applies the (new) base on every access, so the process doesn’t care where it lands.</li>
+<li>D goes to 5 (the first fit from the start), leaving the search at 6. E fits at 6–9; the search continues from 10. F (2k) doesn’t fit the 1k hole at 10, so it goes on to 13. Same as first fit for this example, though next fit diverges from first fit on longer request sequences.</li>
+</ol>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch10a-ts-event-loop.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="ch11a-ts-interfaces.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch10a-ts-event-loop.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="ch11a-ts-interfaces.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

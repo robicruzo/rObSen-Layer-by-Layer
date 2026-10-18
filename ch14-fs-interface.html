@@ -1,0 +1,330 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>The File-System Interface - rObSen, Layer by Layer</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A companion to Alan Labouseur&#x27;s Operating Systems course (CMPT 424, Marist), told through one student&#x27;s browser-based OS written in TypeScript.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">Preface: How to Read This Book</a></li><li class="chapter-item expanded affix "><a href="map.html">The Map: rObSen at a Glance</a></li><li class="chapter-item expanded affix "><li class="part-title">Part I — Foundations</li><li class="chapter-item expanded "><a href="ch01-what-is-an-os.html"><strong aria-hidden="true">1.</strong> What Is an Operating System?</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch01a-ts-namespaces.html"><strong aria-hidden="true">1.1.</strong> TS Deep Dive: Namespaces and the Global Script World</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-structures.html"><strong aria-hidden="true">2.</strong> OS Structures and the Machine Inside the Browser</a></li><li class="chapter-item expanded affix "><li class="part-title">Part II — The Hardware Layer (source/host)</li><li class="chapter-item expanded "><a href="ch03-host.html"><strong aria-hidden="true">3.</strong> The Host: Clock, Buttons, and the Log</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch03a-ts-static-dom.html"><strong aria-hidden="true">3.1.</strong> TS Deep Dive: Static Members, Type Assertions, and the DOM</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-memory.html"><strong aria-hidden="true">4.</strong> Memory and the Memory Accessor</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch04a-ts-class-anatomy.html"><strong aria-hidden="true">4.1.</strong> TS Deep Dive: Anatomy of a Class</a></li></ol></li><li class="chapter-item expanded "><a href="ch05-cpu.html"><strong aria-hidden="true">5.</strong> The CPU: Fetch, Decode, Execute</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch05a-ts-bitwise.html"><strong aria-hidden="true">5.1.</strong> TS Deep Dive: Bits, Bytes, and Bitwise Operators</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part III — The Kernel Layer (source/os)</li><li class="chapter-item expanded "><a href="ch06-kernel.html"><strong aria-hidden="true">6.</strong> Booting, Interrupts, and the Mode Bit</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch06a-ts-unions-null.html"><strong aria-hidden="true">6.1.</strong> TS Deep Dive: Union Types, Null, and Optional Chaining</a></li></ol></li><li class="chapter-item expanded "><a href="ch07-drivers.html"><strong aria-hidden="true">7.</strong> Device Drivers: The Keyboard</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch07a-ts-inheritance-this.html"><strong aria-hidden="true">7.1.</strong> TS Deep Dive: Inheritance, super, and the Trouble with this</a></li></ol></li><li class="chapter-item expanded "><a href="ch08-shell.html"><strong aria-hidden="true">8.</strong> The Console and the Shell</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch08a-ts-functions-as-values.html"><strong aria-hidden="true">8.1.</strong> TS Deep Dive: Functions as Values</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part IV — Processes and Threads</li><li class="chapter-item expanded "><a href="ch09-processes.html"><strong aria-hidden="true">9.</strong> Processes and the PCB</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch09a-ts-literal-types.html"><strong aria-hidden="true">9.1.</strong> TS Deep Dive: Literal Types and Type Aliases</a></li></ol></li><li class="chapter-item expanded "><a href="ch10-threads.html"><strong aria-hidden="true">10.</strong> Threads, and the One Thread You Have</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch10a-ts-event-loop.html"><strong aria-hidden="true">10.1.</strong> TS Deep Dive: The Event Loop, Timers, and Callbacks</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part V — Main Memory</li><li class="chapter-item expanded "><a href="ch11-main-memory.html"><strong aria-hidden="true">11.</strong> Binding, Base/Limit, and Partitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch11a-ts-interfaces.html"><strong aria-hidden="true">11.1.</strong> TS Deep Dive: Interfaces and Object Shapes</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VI — CPU Scheduling</li><li class="chapter-item expanded "><a href="ch12-scheduling-theory.html"><strong aria-hidden="true">12.</strong> Scheduling Theory, by Hand and by Code</a></li><li class="chapter-item expanded "><a href="ch13-scheduling-robsen.html"><strong aria-hidden="true">13.</strong> Scheduling in rObSen: Timer, Dispatcher, Context Switch</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch13a-ts-generics.html"><strong aria-hidden="true">13.1.</strong> TS Deep Dive: Generics</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VII — Storage</li><li class="chapter-item expanded "><a href="ch14-fs-interface.html" class="active"><strong aria-hidden="true">14.</strong> The File-System Interface</a></li><li class="chapter-item expanded "><a href="ch15-fs-implementation.html"><strong aria-hidden="true">15.</strong> File-System Implementation: The TSB Disk</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch15a-ts-storage-strings.html"><strong aria-hidden="true">15.1.</strong> TS Deep Dive: Web Storage, JSON, and Hex Strings</a></li></ol></li><li class="chapter-item expanded "><a href="ch16-disks.html"><strong aria-hidden="true">16.</strong> Disk Systems and Disk Scheduling</a></li><li class="chapter-item expanded affix "><li class="part-title">Part VIII — Beyond Contiguous Memory</li><li class="chapter-item expanded "><a href="ch17-swapping.html"><strong aria-hidden="true">17.</strong> Swapping: Roll-Out and Roll-In</a></li><li class="chapter-item expanded "><a href="ch18-paging.html"><strong aria-hidden="true">18.</strong> Paging</a></li><li class="chapter-item expanded affix "><li class="part-title">Part IX — Concurrency</li><li class="chapter-item expanded "><a href="ch19-sync-deadlock.html"><strong aria-hidden="true">19.</strong> Synchronization and Deadlock</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch19a-ts-async.html"><strong aria-hidden="true">19.1.</strong> TS Deep Dive: Promises and async/await</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part X — Virtual Memory</li><li class="chapter-item expanded "><a href="ch20-virtual-memory.html"><strong aria-hidden="true">20.</strong> Demand Paging and Page Replacement</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch20a-ts-implements.html"><strong aria-hidden="true">20.1.</strong> TS Deep Dive: implements and the Strategy Pattern</a></li></ol></li><li class="chapter-item expanded "><li class="spacer"></li><li class="chapter-item expanded affix "><a href="appA-6502a.html">A. The 6502a Instruction Set</a></li><li class="chapter-item expanded affix "><a href="appB-commands.html">B. Shell Command Reference</a></li><li class="chapter-item expanded affix "><a href="appC-bugs.html">C. Bug Ledger</a></li><li class="chapter-item expanded affix "><a href="appD-glados.html">D. Testing with GLaDOS</a></li><li class="chapter-item expanded affix "><a href="appE-slide-index.html">E. Slide Index</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">rObSen, Layer by Layer</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="the-file-system-interface"><a class="header" href="#the-file-system-interface">The File-System Interface</a></h1>
+<div class="stack"><span>Browser</span><span>Host: clock & devices</span><span>Host: memory</span><span>Host: CPU</span><span>Kernel</span><span>Drivers</span><span>Console & shell</span><span>Processes</span><span>Memory manager</span><span>Scheduler</span><span class="here">File system</span><span>Swapper</span></div>
+<p><em>Slides: Chapter 10, “File-System Interface,” pp. 717–752. Project Part Four; Lab 100.</em></p>
+<p>The course takes the file system in two halves, and so does this book. This chapter is the <strong>interface</strong>: what a file is, what you can do to one, and how files are organized into directories, as seen by a user or a program. Chapter 15 is the <strong>implementation</strong>: how rObSen’s disk driver turns those operations into reads and writes of blocks. Lab 100 frames the whole project: “implement a file system API supporting the commands specified in your Issues and Project Part Four.”</p>
+<h2 id="what-is-a-file"><a class="header" href="#what-is-a-file">What is a file?</a></h2>
+<p>A file is a “contiguous logical address space” (slide p. 720): from the user’s point of view, a sequence of bytes (or records) with a name, regardless of how scattered it is on the disk. Whether that sequence has internal structure (lines, fixed records, a formatted document, a relocatable load module) is decided either by the OS or by the program that reads it (p. 721). rObSen’s files are unstructured strings of characters.</p>
+<h2 id="attributes"><a class="header" href="#attributes">Attributes</a></h2>
+<p>The slides list the attributes a file system typically keeps (p. 722), all of them “kept in the directory structure, which is maintained on the disk.” Here they are against rObSen’s directory entry:</p>
+<div class="table-wrapper"><table><thead><tr><th>Attribute (slide p. 722)</th><th>rObSen</th></tr></thead><tbody>
+<tr><td>Name, the only human-readable one</td><td>yes, up to 21 characters in practice (Chapter 15)</td></tr>
+<tr><td>Identifier, a unique number</td><td>no; the name is the identity</td></tr>
+<tr><td>Type</td><td>no; but a leading <code>.</code> marks a file <strong>hidden</strong></td></tr>
+<tr><td>Location, a pointer to the data</td><td>yes: a track/sector/block triple</td></tr>
+<tr><td>Size</td><td>yes, in characters</td></tr>
+<tr><td>Protection</td><td>no</td></tr>
+<tr><td>Time, date, user identification</td><td>creation time only (<code>YYYYMMDDHHMM</code>), no owner</td></tr>
+</tbody></table>
+</div>
+<h2 id="operations"><a class="header" href="#operations">Operations</a></h2>
+<p>A file is “an abstract data type” (p. 723) with operations: create, write, read, reposition, delete, truncate, and two bookkeeping operations, <strong>open</strong> (find the file’s directory entry and copy it into memory) and <strong>close</strong> (write it back). Open files need an in-memory <strong>open-file table</strong> with, per open file, a <strong>file pointer</strong> (current position), an <strong>open count</strong>, the file’s disk location, and access rights (p. 724). Some systems also provide <strong>file locks</strong>, either mandatory (enforced by the OS) or advisory (processes are expected to check) (p. 725).</p>
+<p>rObSen’s shell exposes these operations:</p>
+<div class="table-wrapper"><table><thead><tr><th>Operation</th><th>Command</th><th>Driver method</th></tr></thead><tbody>
+<tr><td>create</td><td><code>create &lt;name&gt;</code></td><td><code>createFile(name)</code></td></tr>
+<tr><td>write</td><td><code>write &lt;name&gt; "data"</code></td><td><code>writeFile(name, data)</code></td></tr>
+<tr><td>read</td><td><code>read &lt;name&gt;</code></td><td><code>readFile(name)</code></td></tr>
+<tr><td>delete</td><td><code>delete &lt;name&gt;</code></td><td><code>deleteFile(name)</code></td></tr>
+<tr><td>list the directory</td><td><code>ls</code>, <code>ls -a</code></td><td><code>listDirectory()</code></td></tr>
+<tr><td>copy</td><td><code>copy &lt;existing&gt; &lt;new&gt;</code></td><td><code>copyFile(src, dst)</code></td></tr>
+<tr><td>rename</td><td><code>rename &lt;current&gt; &lt;new&gt;</code></td><td><code>renameFile(cur, next)</code></td></tr>
+<tr><td>make another name for the same data</td><td><code>link &lt;existing&gt; &lt;new&gt;</code></td><td><code>link(src, dst)</code></td></tr>
+<tr><td>initialize the disk</td><td><code>format</code>, <code>format -quick</code></td><td><code>format({ quick })</code></td></tr>
+<tr><td>check and repair</td><td><code>chkdsk [--no-recover] [--no-reclaim] [--no-defrag]</code></td><td><code>runCheck(opts)</code></td></tr>
+</tbody></table>
+</div>
+<p>What’s missing is just as instructive. There’s no <strong>open</strong> or <strong>close</strong>, so every operation looks the file up by name in the directory again; there’s no <strong>file pointer</strong>, so there’s no reposition and no reading part of a file; every <strong>write</strong> replaces the whole contents (no append, and truncate is implicit); and there are no <strong>locks</strong>, which is fine because only the shell, running in one JavaScript thread, ever touches files.</p>
+<h3 id="access-methods"><a class="header" href="#access-methods">Access methods</a></h3>
+<p><strong>Sequential access</strong> reads and writes in order: read next, write next, reset. <strong>Direct access</strong> reads or writes block <em>n</em> in any order (slides pp. 729–731). Sequential access can be simulated on a direct-access file by keeping a current-position pointer. An <strong>index</strong> file can sit in front of a large relative file to find records quickly (p. 732).</p>
+<p>rObSen offers neither in the usual sense: a file is read or written all at once, as a single string. Underneath, the disk is very much direct access: <code>readBlock(t, s, b)</code> reads any block in constant time.</p>
+<h2 id="magic-numbers"><a class="header" href="#magic-numbers">Magic numbers</a></h2>
+<p>Relying on extensions to know a file’s type is unreliable, so many formats begin with a <strong>magic number</strong> (p. 727): Java class files start with <code>0xCAFEBABE</code>; PNG files with <code>0x89 'P' 'N' 'G'</code>. rObSen doesn’t type files, but its <em>disk</em> has a magic number of sorts: the first character of every block is <code>1</code> if it’s in use and <code>0</code> if not, and the driver reads that before anything else.</p>
+<h2 id="directories"><a class="header" href="#directories">Directories</a></h2>
+<p>A directory is “a collection of nodes containing information about all files” (p. 735), supporting search, create, delete, list, rename, and traverse (p. 736). It should be efficient to search, convenient to name things in (two users can use the same name; one file can have several names), and support grouping (p. 737). The slides walk through the classic organizations:</p>
+<ul>
+<li><strong>Single-level</strong> (p. 738): one directory for everyone. Simple, with naming and grouping problems.</li>
+<li><strong>Two-level</strong> (p. 739): one directory per user. Solves naming collisions between users, but no grouping.</li>
+<li><strong>Tree-structured</strong> (pp. 741–742): directories inside directories, path names (absolute and relative), a current working directory. Deleting a directory can delete a whole subtree.</li>
+<li><strong>Acyclic graph</strong> (pp. 743–744): a tree in which files and directories can be <strong>shared</strong>, appearing in more than one place, via <strong>links</strong>.</li>
+</ul>
+<figure class="slide"><img src="img/slides/slide-734.jpg" alt="A typical file-system organization"><figcaption>Slide p. 734: partitions, each with a directory and files, spread across disks.</figcaption></figure>
+<p>rObSen has a <strong>single-level</strong> directory: one flat list of up to <strong>8</strong> files (Chapter 15 shows why eight). No subdirectories, no paths, no current directory. Try <code>create f9</code> after creating eight files and it fails.</p>
+<h3 id="hidden-files"><a class="header" href="#hidden-files">Hidden files</a></h3>
+<p>Names that start with a period are hidden: <code>ls</code> skips them, and <code>ls -a</code> shows everything, with sizes and creation dates. That’s the UNIX convention (<code>.bashrc</code>, <code>.git</code>), where it began as a side effect of <code>ls</code> skipping the <code>.</code> and <code>..</code> entries. In rObSen, <code>buildDirectoryEntry</code> sets a hidden flag in the entry if the name starts with a dot.</p>
+<pre><code class="language-text">&gt;create .secret
+Created .secret
+&gt;create pub
+Created pub
+&gt;ls
+pub
+&gt;ls -a
+.secret  0 bytes  2026-10-18 22:21
+pub  0 bytes  2026-10-18 22:21
+</code></pre>
+<h3 id="links-and-the-dangling-pointer-problem"><a class="header" href="#links-and-the-dangling-pointer-problem">Links, and the dangling-pointer problem</a></h3>
+<p>With an acyclic-graph directory, one file can have two names. What happens when one name is deleted? “If dict deletes list → dangling pointer” (slide p. 744): the other name now points at freed space, which may be reused by an unrelated file. The slide lists the solutions: <strong>backpointers</strong> from the file to every name, so all can be fixed or removed; or an <strong>entry-hold count</strong> (a reference count), so the data is freed only when the last name goes away. UNIX uses the count: each inode records how many directory entries (“hard links”) point at it.</p>
+<p>The project spec asks the same question about <code>link</code>: “make both file names point to the same file data. (What happens on delete?)”</p>
+<p>rObSen’s answer, in <code>deleteFile</code>: remove the directory entry, then scan every remaining entry, and free the data block only if no other entry still points at it. That’s a reference count computed on demand rather than stored, and it prevents dangling pointers correctly.</p>
+<p>There’s a subtler problem the slide doesn’t mention, and rObSen has it. UNIX keeps a file’s <em>attributes</em> (size, times, permissions) in the inode, which all its names share. rObSen keeps them in each directory entry, and <code>link</code> copies them at the moment of linking:</p>
+<pre><code class="language-text">&gt;create a
+&gt;write a "data"
+&gt;link a b
+&gt;write a "hello world"
+&gt;ls -a
+a  11 bytes  2026-10-18 22:21
+b  4 bytes  2026-10-18 22:21
+&gt;read b
+hello world
+</code></pre>
+<p>Both names see the new data, but <code>b</code> still believes the file is 4 bytes long. Attributes that belong to the <em>file</em> are stored with the <em>name</em>. The real fix is to separate the two, which is exactly what an inode (or the slides’ <strong>file control block</strong>, Chapter 15) is for.</p>
+<h2 id="mounting-sharing-and-protection"><a class="header" href="#mounting-sharing-and-protection">Mounting, sharing, and protection</a></h2>
+<p>The chapter ends with topics rObSen doesn’t touch, but which are fair game for exams:</p>
+<ul>
+<li><strong>Mounting</strong> attaches a file system on some device to a point in the directory tree (p. 733 and following).</li>
+<li><strong>Sharing</strong> across users relies on user IDs and group IDs (p. 746); across machines it relies on remote file systems such as NFS (UNIX) and CIFS (Windows), with naming services such as LDAP and DNS (p. 747).</li>
+<li><strong>Protection</strong> controls what can be done and by whom: read, write, execute, append, delete, list (p. 748). UNIX groups users into three classes (owner, group, public) and gives each three bits, <code>rwx</code>. <code>chmod 761 game</code> means owner <code>111</code> (rwx), group <code>110</code> (rw-), public <code>001</code> (–x) (p. 749).</li>
+</ul>
+<div class="callout exam"><span class="label">Exam-style</span>
+What does <code>chmod 754 report</code> allow? Owner 7 = <code>111</code> = read, write, execute. Group 5 = <code>101</code> = read and execute. Public 4 = <code>100</code> = read only.
+</div>
+<h2 id="check-yourself"><a class="header" href="#check-yourself">Check yourself</a></h2>
+<ol>
+<li>Which of the slide’s file operations does rObSen implement, and which would need an open-file table to implement?</li>
+<li>Why can’t rObSen’s directory support two users with files of the same name?</li>
+<li>What would <code>delete a</code> do in the link example above, and what would <code>read b</code> show afterwards?</li>
+</ol>
+<details>
+<summary>Answers</summary>
+<ol>
+<li>Create, write, read, delete, and (implicitly) truncate. Reposition, and reading or writing part of a file, need a per-open-file position pointer, which lives in an open-file table.</li>
+<li>Because it’s single-level: one flat namespace, and <code>createFile</code> refuses a name that already exists. A two-level directory would give each user a namespace.</li>
+<li>It removes <code>a</code>’s directory entry but <em>keeps</em> the data block, because <code>b</code> still points at it. <code>read b</code> still shows <code>hello world</code>. (And <code>ls -a</code> still claims <code>b</code> is 4 bytes.)</li>
+</ol>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch13a-ts-generics.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="ch15-fs-implementation.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch13a-ts-generics.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="ch15-fs-implementation.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

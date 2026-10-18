@@ -1,0 +1,556 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>The CPU: Fetch, Decode, Execute - rObSen, Layer by Layer</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A companion to Alan Labouseur&#x27;s Operating Systems course (CMPT 424, Marist), told through one student&#x27;s browser-based OS written in TypeScript.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">Preface: How to Read This Book</a></li><li class="chapter-item expanded affix "><a href="map.html">The Map: rObSen at a Glance</a></li><li class="chapter-item expanded affix "><li class="part-title">Part I — Foundations</li><li class="chapter-item expanded "><a href="ch01-what-is-an-os.html"><strong aria-hidden="true">1.</strong> What Is an Operating System?</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch01a-ts-namespaces.html"><strong aria-hidden="true">1.1.</strong> TS Deep Dive: Namespaces and the Global Script World</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-structures.html"><strong aria-hidden="true">2.</strong> OS Structures and the Machine Inside the Browser</a></li><li class="chapter-item expanded affix "><li class="part-title">Part II — The Hardware Layer (source/host)</li><li class="chapter-item expanded "><a href="ch03-host.html"><strong aria-hidden="true">3.</strong> The Host: Clock, Buttons, and the Log</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch03a-ts-static-dom.html"><strong aria-hidden="true">3.1.</strong> TS Deep Dive: Static Members, Type Assertions, and the DOM</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-memory.html"><strong aria-hidden="true">4.</strong> Memory and the Memory Accessor</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch04a-ts-class-anatomy.html"><strong aria-hidden="true">4.1.</strong> TS Deep Dive: Anatomy of a Class</a></li></ol></li><li class="chapter-item expanded "><a href="ch05-cpu.html" class="active"><strong aria-hidden="true">5.</strong> The CPU: Fetch, Decode, Execute</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch05a-ts-bitwise.html"><strong aria-hidden="true">5.1.</strong> TS Deep Dive: Bits, Bytes, and Bitwise Operators</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part III — The Kernel Layer (source/os)</li><li class="chapter-item expanded "><a href="ch06-kernel.html"><strong aria-hidden="true">6.</strong> Booting, Interrupts, and the Mode Bit</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch06a-ts-unions-null.html"><strong aria-hidden="true">6.1.</strong> TS Deep Dive: Union Types, Null, and Optional Chaining</a></li></ol></li><li class="chapter-item expanded "><a href="ch07-drivers.html"><strong aria-hidden="true">7.</strong> Device Drivers: The Keyboard</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch07a-ts-inheritance-this.html"><strong aria-hidden="true">7.1.</strong> TS Deep Dive: Inheritance, super, and the Trouble with this</a></li></ol></li><li class="chapter-item expanded "><a href="ch08-shell.html"><strong aria-hidden="true">8.</strong> The Console and the Shell</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch08a-ts-functions-as-values.html"><strong aria-hidden="true">8.1.</strong> TS Deep Dive: Functions as Values</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part IV — Processes and Threads</li><li class="chapter-item expanded "><a href="ch09-processes.html"><strong aria-hidden="true">9.</strong> Processes and the PCB</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch09a-ts-literal-types.html"><strong aria-hidden="true">9.1.</strong> TS Deep Dive: Literal Types and Type Aliases</a></li></ol></li><li class="chapter-item expanded "><a href="ch10-threads.html"><strong aria-hidden="true">10.</strong> Threads, and the One Thread You Have</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch10a-ts-event-loop.html"><strong aria-hidden="true">10.1.</strong> TS Deep Dive: The Event Loop, Timers, and Callbacks</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part V — Main Memory</li><li class="chapter-item expanded "><a href="ch11-main-memory.html"><strong aria-hidden="true">11.</strong> Binding, Base/Limit, and Partitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch11a-ts-interfaces.html"><strong aria-hidden="true">11.1.</strong> TS Deep Dive: Interfaces and Object Shapes</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VI — CPU Scheduling</li><li class="chapter-item expanded "><a href="ch12-scheduling-theory.html"><strong aria-hidden="true">12.</strong> Scheduling Theory, by Hand and by Code</a></li><li class="chapter-item expanded "><a href="ch13-scheduling-robsen.html"><strong aria-hidden="true">13.</strong> Scheduling in rObSen: Timer, Dispatcher, Context Switch</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch13a-ts-generics.html"><strong aria-hidden="true">13.1.</strong> TS Deep Dive: Generics</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VII — Storage</li><li class="chapter-item expanded "><a href="ch14-fs-interface.html"><strong aria-hidden="true">14.</strong> The File-System Interface</a></li><li class="chapter-item expanded "><a href="ch15-fs-implementation.html"><strong aria-hidden="true">15.</strong> File-System Implementation: The TSB Disk</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch15a-ts-storage-strings.html"><strong aria-hidden="true">15.1.</strong> TS Deep Dive: Web Storage, JSON, and Hex Strings</a></li></ol></li><li class="chapter-item expanded "><a href="ch16-disks.html"><strong aria-hidden="true">16.</strong> Disk Systems and Disk Scheduling</a></li><li class="chapter-item expanded affix "><li class="part-title">Part VIII — Beyond Contiguous Memory</li><li class="chapter-item expanded "><a href="ch17-swapping.html"><strong aria-hidden="true">17.</strong> Swapping: Roll-Out and Roll-In</a></li><li class="chapter-item expanded "><a href="ch18-paging.html"><strong aria-hidden="true">18.</strong> Paging</a></li><li class="chapter-item expanded affix "><li class="part-title">Part IX — Concurrency</li><li class="chapter-item expanded "><a href="ch19-sync-deadlock.html"><strong aria-hidden="true">19.</strong> Synchronization and Deadlock</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch19a-ts-async.html"><strong aria-hidden="true">19.1.</strong> TS Deep Dive: Promises and async/await</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part X — Virtual Memory</li><li class="chapter-item expanded "><a href="ch20-virtual-memory.html"><strong aria-hidden="true">20.</strong> Demand Paging and Page Replacement</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch20a-ts-implements.html"><strong aria-hidden="true">20.1.</strong> TS Deep Dive: implements and the Strategy Pattern</a></li></ol></li><li class="chapter-item expanded "><li class="spacer"></li><li class="chapter-item expanded affix "><a href="appA-6502a.html">A. The 6502a Instruction Set</a></li><li class="chapter-item expanded affix "><a href="appB-commands.html">B. Shell Command Reference</a></li><li class="chapter-item expanded affix "><a href="appC-bugs.html">C. Bug Ledger</a></li><li class="chapter-item expanded affix "><a href="appD-glados.html">D. Testing with GLaDOS</a></li><li class="chapter-item expanded affix "><a href="appE-slide-index.html">E. Slide Index</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">rObSen, Layer by Layer</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="the-cpu-fetch-decode-execute"><a class="header" href="#the-cpu-fetch-decode-execute">The CPU: Fetch, Decode, Execute</a></h1>
+<div class="stack"><span>Browser</span><span>Host: clock & devices</span><span>Host: memory</span><span class="here">Host: CPU</span><span>Kernel</span><span>Drivers</span><span>Console & shell</span><span>Processes</span><span>Memory manager</span><span>Scheduler</span><span>File system</span><span>Swapper</span></div>
+<p><em>Slides: Chapter 1, pp. 23–28 (CPU and registers); Chapter 3, pp. 175–177 (registers in the PCB); Chapter 8, p. 556 (6502a op codes). Reference: Alan’s “6502alan” instruction-set handout.</em></p>
+<p>The last piece of hardware is the processor. rObSen’s CPU is a tiny interpreter for a 14-instruction subset of the MOS 6502, the chip inside the Apple II, the Commodore 64, and the original Nintendo. In 296 lines it implements the <strong>instruction cycle</strong> that every CPU performs: fetch an instruction from memory, decode it, execute it, repeat.</p>
+<h2 id="registers"><a class="header" href="#registers">Registers</a></h2>
+<pre><code class="language-typescript">  export class Cpu {
+    constructor(
+      public PC: number = 0,
+      public Acc: number = 0,
+      public Xreg: number = 0,
+      public Yreg: number = 0,
+      public Zflag: number = 0,
+      public isExecuting: boolean = false,
+      public IR: number = 0,
+    ) {}
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Register</th><th>Width</th><th>Purpose</th></tr></thead><tbody>
+<tr><td><code>PC</code> (program counter)</td><td>8 bits in practice</td><td>Logical address of the next byte to fetch</td></tr>
+<tr><td><code>IR</code> (instruction register)</td><td>8 bits</td><td>The opcode currently being executed</td></tr>
+<tr><td><code>Acc</code> (accumulator)</td><td>8 bits</td><td>The arithmetic register: loads, stores, adds</td></tr>
+<tr><td><code>Xreg</code>, <code>Yreg</code></td><td>8 bits</td><td>Index registers; also the system-call selector (X) and argument (Y)</td></tr>
+<tr><td><code>Zflag</code></td><td>1 bit</td><td>Zero flag: set by comparisons, tested by branches</td></tr>
+<tr><td><code>isExecuting</code></td><td>1 bit</td><td>Not a real 6502 register: “is the CPU running user code right now?”</td></tr>
+</tbody></table>
+</div>
+<p>These are the “CPU registers” that slide p. 175 says belong in a process control block, and exactly the set that Project Part Two asks you to “update and display” in real time alongside memory and the PCB.</p>
+<h2 id="the-instruction-cycle"><a class="header" href="#the-instruction-cycle">The instruction cycle</a></h2>
+<p>Every clock pulse that isn’t spent on an interrupt calls <code>cycle()</code>:</p>
+<pre><code class="language-typescript">    public cycle(): void {
+      if (!this.isExecuting) {
+        return;
+      }
+
+      if (!_CurrentProcess) {
+        this.isExecuting = false;
+        return;
+      }
+
+      _Kernel.krnTrace("CPU cycle");
+      _CpuCycleCount++;
+
+      const opcode = this.fetchByte();
+      this.IR = opcode;
+      _CurrentProcess.ir = opcode;
+
+      switch (opcode) {
+        case 0xa9:
+          this.opLoadAccImmediate();
+          break;
+        case 0xad:
+          this.opLoadAccAbsolute();
+          break;
+        case 0x8d:
+          this.opStoreAccAbsolute();
+          break;
+        case 0x6d:
+          this.opAddWithCarry();
+          break;
+        case 0xa2:
+          this.opLoadXImmediate();
+          break;
+        case 0xae:
+          this.opLoadXAbsolute();
+          break;
+        case 0xa0:
+          this.opLoadYImmediate();
+          break;
+        case 0xac:
+          this.opLoadYAbsolute();
+          break;
+        case 0xea:
+          this.opNoOperation();
+          break;
+        case 0xec:
+          this.opCompareX();
+          break;
+        case 0xee:
+          this.opIncrementAbsolute();
+          break;
+        case 0xd0:
+          this.opBranchNotEqual();
+          break;
+        case 0x00:
+          this.opBreak();
+          break;
+        case 0xff:
+          this.opSystemCall();
+          break;
+        default:
+          this.opInvalid(opcode);
+          break;
+      }
+
+      if (_CurrentProcess) {
+        _CurrentProcess.pc = this.PC &amp; 0xff;
+        _CurrentProcess.acc = this.Acc &amp; 0xff;
+        _CurrentProcess.xReg = this.Xreg &amp; 0xff;
+        _CurrentProcess.yReg = this.Yreg &amp; 0xff;
+        _CurrentProcess.zFlag = this.Zflag &amp; 0xff;
+        _CurrentProcess.ir = this.IR &amp; 0xff;
+      }
+
+      if (_CurrentProcess &amp;&amp; this.isExecuting) {
+        if (_SchedulerCounter &gt; 0) {
+          _SchedulerCounter--;
+        }
+        if (_SchedulerCounter &lt;= 0) {
+          _KernelInterruptQueue.enqueue(new Interrupt(TIMER_IRQ, []));
+          _SchedulerCounter = 0;
+        }
+        _CurrentProcess.quantumRemaining = Math.max(_SchedulerCounter, 0);
+        _CurrentProcess.turnaroundCycles = _CpuCycleCount - _CurrentProcess.arrivalCycle;
+      }
+    }
+</code></pre>
+<p>Five phases, in order:</p>
+<ol>
+<li><strong>Guard.</strong> Do nothing unless the CPU is executing <em>and</em> there’s a current process. This is what Pause turns off.</li>
+<li><strong>Fetch.</strong> <code>fetchByte()</code> reads the byte at <code>PC</code> through the memory accessor and advances <code>PC</code>. That byte goes into <code>IR</code>.</li>
+<li><strong>Decode.</strong> The <code>switch</code> maps the opcode to a handler. An unknown opcode goes to <code>opInvalid</code>.</li>
+<li><strong>Execute.</strong> The handler fetches any operand bytes it needs (advancing <code>PC</code> again), does its work, and updates registers and memory.</li>
+<li><strong>Write back and tick.</strong> The registers are copied into the running PCB (always masked to 8 bits, and always <em>logical</em>; see the GLaDOS bug in Chapter 4), and the scheduler’s countdown is decremented. When the countdown reaches zero, the CPU enqueues a <code>TIMER_IRQ</code>. That is the timer hardware from slide p. 56, built into the CPU (Chapter 13).</li>
+</ol>
+<p>Note that <code>cycle</code> executes exactly <strong>one instruction</strong>, however many bytes it occupies. The 6502 spends several clock cycles on a three-byte instruction; rObSen’s CPU spends one. That’s a simplification, and a convenient one: “turnaround time in CPU cycles” becomes “turnaround time in instructions.”</p>
+<h2 id="operands-and-addressing-modes"><a class="header" href="#operands-and-addressing-modes">Operands and addressing modes</a></h2>
+<p>The 6502a subset uses four addressing modes:</p>
+<div class="table-wrapper"><table><thead><tr><th>Mode</th><th>Bytes</th><th>Example</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>Implied</td><td>1</td><td><code>EA</code> (NOP), <code>00</code> (BRK), <code>FF</code> (SYS)</td><td>No operand</td></tr>
+<tr><td>Immediate</td><td>2</td><td><code>A9 05</code> (LDA #$05)</td><td>The operand <em>is</em> the value</td></tr>
+<tr><td>Absolute</td><td>3</td><td><code>AD 50 00</code> (LDA $0050)</td><td>The operand is a memory address</td></tr>
+<tr><td>Relative</td><td>2</td><td><code>D0 EF</code> (BNE −17)</td><td>The operand is a signed offset from <code>PC</code></td></tr>
+</tbody></table>
+</div>
+<pre><code class="language-typescript">    private fetchByte(): number {
+      this.ensureOperandAvailable(1);
+      const value = _MemoryAccessor.read(this.PC &amp; 0xff);
+      this.PC = (this.PC + 1) &amp; 0xff;
+      return value &amp; 0xff;
+    }
+
+    private fetchWord(): number {
+      this.ensureOperandAvailable(2);
+      const low = _MemoryAccessor.read(this.PC &amp; 0xff);
+      const high = _MemoryAccessor.read((this.PC + 1) &amp; 0xff);
+      this.PC = (this.PC + 2) &amp; 0xff;
+      return ((high &lt;&lt; 8) | low) &amp; 0xffff;
+    }
+</code></pre>
+<p><strong>Little-endian addresses.</strong> An absolute address is two bytes, <em>low byte first</em>. The bytes <code>50 00</code> mean address <code>$0050</code>, not <code>$5000</code>. <code>fetchWord</code> reads the low byte, then the high byte, and assembles <code>(high &lt;&lt; 8) | low</code>: shift the high byte left 8 bits and combine. (Chapter 5a explains <code>&lt;&lt;</code>, <code>|</code>, and <code>&amp;</code>.) This is why every 6502a program is full of <code>00</code>s: the high byte of every address in a 256-byte program is zero.</p>
+<p><strong>PC wraparound.</strong> <code>this.PC = (this.PC + 1) &amp; 0xff</code> keeps the program counter in the range 0–255. The spec says “the program counter for any process should never be greater than FF (255),” and this is how rObSen enforces it: increment past <code>FF</code> and you’re back at <code>00</code>.</p>
+<p><strong>Missing operands.</strong> <code>ensureOperandAvailable</code> checks, before reading, that the bytes an instruction needs fit inside the process’s partition. If <code>AD</code> is the last byte of the partition, there’s nowhere to get its address from, and the CPU traps with “Missing operand for opcode…”. The spec asks for “missing operands (if you can detect that)” to be handled. In practice, <code>MemoryManager.load</code> pads every partition with zeros, so an operand is almost always “available” (as <code>00</code>), and the check only fires at the very end of a partition.</p>
+<h2 id="the-instructions"><a class="header" href="#the-instructions">The instructions</a></h2>
+<p>Here’s every handler. Each is a few lines; the interesting ones get commentary afterwards.</p>
+<pre><code class="language-typescript">    private opLoadAccImmediate(): void {
+      this.Acc = this.fetchByte();
+      this.updateZeroFlag(this.Acc);
+    }
+
+    private opLoadAccAbsolute(): void {
+      const address = this.fetchWord();
+      this.Acc = this.readMemory(address);
+      this.updateZeroFlag(this.Acc);
+    }
+
+    private opStoreAccAbsolute(): void {
+      const address = this.fetchWord();
+      this.writeMemory(address, this.Acc);
+    }
+
+    private opAddWithCarry(): void {
+      const address = this.fetchWord();
+      const value = this.readMemory(address);
+      this.Acc = (this.Acc + value) &amp; 0xff;
+      this.updateZeroFlag(this.Acc);
+    }
+
+    private opLoadXImmediate(): void {
+      this.Xreg = this.fetchByte();
+      this.updateZeroFlag(this.Xreg);
+    }
+
+    private opLoadXAbsolute(): void {
+      const address = this.fetchWord();
+      this.Xreg = this.readMemory(address);
+      this.updateZeroFlag(this.Xreg);
+    }
+
+    private opLoadYImmediate(): void {
+      this.Yreg = this.fetchByte();
+      this.updateZeroFlag(this.Yreg);
+    }
+
+    private opLoadYAbsolute(): void {
+      const address = this.fetchWord();
+      this.Yreg = this.readMemory(address);
+      this.updateZeroFlag(this.Yreg);
+    }
+
+    private opNoOperation(): void {
+      // Intentionally empty.
+    }
+
+    private opCompareX(): void {
+      const address = this.fetchWord();
+      const value = this.readMemory(address);
+      this.Zflag = this.Xreg === value ? 1 : 0;
+    }
+
+    private opIncrementAbsolute(): void {
+      const address = this.fetchWord();
+      const value = (this.readMemory(address) + 1) &amp; 0xff;
+      this.writeMemory(address, value);
+      this.updateZeroFlag(value);
+    }
+
+    private opBranchNotEqual(): void {
+      const offset = this.fetchByte();
+      if (this.Zflag !== 0) {
+        return;
+      }
+      const signedOffset = offset &lt; 0x80 ? offset : offset - 0x100;
+      this.PC = (this.PC + signedOffset) &amp; 0xff;
+    }
+</code></pre>
+<p><strong>ADC (6D)</strong> adds a memory byte to the accumulator and masks to 8 bits. The real 6502 also adds the carry flag and sets it on overflow (“add with carry”); the 6502a subset has no carry flag, so <code>250 + 10</code> quietly becomes <code>4</code>.</p>
+<p><strong>CPX (EC)</strong> compares X to a memory byte and sets <code>Zflag</code> to 1 if they’re equal, 0 if not. It is the only way to make a decision, because…</p>
+<p><strong>BNE (D0)</strong> is the only branch: “Branch n bytes if Z flag = 0.” The operand is a <strong>signed</strong> byte in two’s complement: <code>00</code>–<code>7F</code> mean 0 to +127, <code>80</code>–<code>FF</code> mean −128 to −1. So <code>D0 EF</code> jumps back 17 bytes (<code>0xEF − 0x100 = −17</code>). The offset is relative to the PC <em>after</em> the two-byte branch instruction has been fetched, which is the trap everyone falls into when hand-assembling: at <code>$20</code>, <code>D0 EF</code> lands at <code>$22 − 17 = $11</code>.</p>
+<p><strong>INC (EE)</strong> increments a byte in memory in place, the only read-modify-write instruction.</p>
+<p><strong>BRK (00)</strong> stops the CPU and tells the kernel the process is done (<code>krnCompleteCurrentProcess</code>). The handout calls it a “system call,” and functionally it’s the <code>exit()</code> system call. Because memory is zero-filled, running off the end of a program into unused memory executes <code>00</code> and exits cleanly, which is convenient and occasionally hides bugs.</p>
+<p><strong>SYS (FF)</strong> is covered in Chapter 2: X = 1 prints the integer in Y; X = 2 prints the zero-terminated string at address Y.</p>
+<div class="callout bug"><span class="label">In the code</span>
+<strong>The Z flag is set more often than the spec allows.</strong> The instruction-set handout says only CPX sets Z ("Sets the Z (zero) flag if equal"), and only BNE reads it. rObSen's CPU also sets Z after LDA, LDX, LDY, ADC, and INC (<code>updateZeroFlag</code>), which is what a real 6502 does, but not what the 6502a spec says. Most test programs put CPX immediately before BNE, so the difference rarely shows. Here's one where it does:
+<pre><code>A9 00 D0 02 A0 01 A2 01 FF 00
+LDA #0 · BNE +2 · LDY #1 · LDX #1 · SYS · BRK</code></pre>
+Under the spec, Z is still 0 when BNE executes (nothing has set it), so the branch skips <code>LDY #1</code> and the program prints <code>0</code>. Under rObSen, <code>LDA #0</code> sets Z to 1, the branch falls through, and it prints <code>1</code>. (Checked by running rObSen's compiled code.) If your goal is to match the class's reference emulator and test programs, remove the <code>updateZeroFlag</code> calls from everything except CPX.
+</div>
+<div class="callout bug"><span class="label">In the code</span>
+<strong>An invalid opcode kills the whole OS.</strong> <code>opInvalid</code> marks the process terminated and calls <code>krnTrap</code>, which shows the BSOD and shuts the kernel down. Load <code>A9 01 FE 00</code> and run it: Blue Screen, and you must press Reset. A bad instruction in a user program is the user program's problem; the OS should kill that process (releasing its partition and removing it from the ready queue, which <code>markTerminated</code> alone doesn't do) and carry on with the others. Appendix C shows a fix that routes it through <code>krnKillProcess</code> instead.
+</div>
+<h2 id="tracing-a-program-by-hand"><a class="header" href="#tracing-a-program-by-hand">Tracing a program by hand</a></h2>
+<p>Being able to trace 6502a by hand is the skill this chapter exists to build. Here’s the sample program printed under the input box in <code>index.html</code>, disassembled by <code>src/code/sims/disasm.ts</code>:</p>
+<pre><code class="language-text">00: A9 05      LDA #$05
+02: 8D 50 00   STA $0050      ; five = 5
+05: A9 00      LDA #$00
+07: 8D 51 00   STA $0051      ; i = 0
+0A: A2 05      LDX #$05       ; X = 5 (loop limit)
+0C: A9 00      LDA #$00
+0E: 8D 60 00   STA $0060      ; sum = 0
+11: AD 60 00   LDA $0060      ; loop1: Acc = sum
+14: 6D 50 00   ADC $0050      ;        Acc += five
+17: 8D 60 00   STA $0060      ;        sum = Acc
+1A: EE 51 00   INC $0051      ;        i++
+1D: EC 51 00   CPX $0051      ;        Z = (X == i)
+20: D0 EF      BNE $11        ;        if not equal, loop
+22: A9 00      LDA #$00
+24: 8D 51 00   STA $0051      ; i = 0
+27: A9 00      LDA #$00
+29: 8D 61 00   STA $0061      ; prod = 0
+2C: AD 61 00   LDA $0061      ; loop2: prod += sum, five times
+2F: 6D 60 00   ADC $0060
+32: 8D 61 00   STA $0061
+35: EE 51 00   INC $0051
+38: EC 51 00   CPX $0051
+3B: D0 EF      BNE $2C
+3D: AD 61 00   LDA $0061      ; Acc = prod
+40: A2 01      LDX #$01       ; syscall 1: print integer in Y
+42: FF         SYS
+43: 00         BRK
+</code></pre>
+<p>The first loop computes 5 × 5 = 25 by repeated addition; the second computes 25 × 5 = 125. Total: 75 instructions (7 + 6×5 + 4 + 6×5 + 4), so 7.5 seconds at 10 Hz. The variables live at <code>$50</code>, <code>$51</code>, <code>$60</code>, <code>$61</code>, inside the program’s own 256 bytes, after the code.</p>
+<p>And the output? It prints <strong><code>0</code></strong>, then the kernel reports <code>ACC = 125</code>. The program loads the product into the <em>accumulator</em>, but system call 1 prints the <em>Y register</em>, which was never set. A one-byte change fixes it: <code>AC 61 00</code> (LDY $0061) instead of <code>AD 61 00</code>. This is a nice reminder that the CPU does what the bytes say, not what the programmer meant.</p>
+<p>A second example, exercising both system calls:</p>
+<pre><code class="language-text">00: A9 41      LDA #$41       ; 'A'
+02: 8D 10 00   STA $0010      ; store it just past the code
+05: A0 10      LDY #$10       ; Y = address of the string
+07: A2 02      LDX #$02       ; syscall 2: print string at Y
+09: FF         SYS            ; prints "A" (byte $11 is 00, which ends the string)
+0A: A2 01      LDX #$01
+0C: A0 07      LDY #$07
+0E: FF         SYS            ; prints "7"
+0F: 00         BRK
+</code></pre>
+<p>Output: <code>A7</code>.</p>
+<div class="callout exam"><span class="label">Exam-style</span>
+Hand-assemble: "count X from 0 up to 3, then print it." You need a memory cell for the counter (say <code>$40</code>), because the only register you can increment is a memory byte, and the only comparison is X against memory.
+<pre><code>A9 00 8D 40 00   ; $40 = 0
+A2 03            ; X = 3
+EE 40 00         ; loop: $40++        (address 07)
+EC 40 00         ; Z = (X == $40)
+D0 F8            ; BNE loop: after this instruction PC = $0F; $0F - 8 = $07
+AC 40 00         ; Y = $40
+A2 01 FF 00      ; print Y, exit</code></pre>
+It prints <code>3</code>. Check the branch offset: the BNE sits at <code>$0D</code>, so after fetching it the PC is <code>$0F</code>; we want <code>$07</code>; <code>$07 - $0F = -8 = $F8</code>.
+</div>
+<h2 id="single-stepping"><a class="header" href="#single-stepping">Single-stepping</a></h2>
+<pre><code class="language-typescript">    public pause(): void {
+      this.isExecuting = false;
+    }
+    public resume(): void {
+      if (_CurrentProcess) {
+        this.isExecuting = true;
+      }
+    }
+
+    public step(resumeAfter: boolean = false): void {
+      if (!_CurrentProcess) {
+        return;
+      }
+
+      const wasExecuting = this.isExecuting;
+      this.isExecuting = true;
+      this.cycle();
+
+      if (resumeAfter &amp;&amp; wasExecuting &amp;&amp; _CurrentProcess) {
+        this.isExecuting = true;
+      } else {
+        this.isExecuting = false;
+      }
+    }
+</code></pre>
+<p><code>step</code> runs exactly one <code>cycle</code> even when the CPU is paused, by temporarily setting <code>isExecuting</code>. That’s the mechanism behind the Step button (Chapter 3), which the spec requires.</p>
+<h2 id="summary"><a class="header" href="#summary">Summary</a></h2>
+<ul>
+<li>The CPU holds PC, IR, Acc, X, Y, and Z, and executes one instruction per call to <code>cycle</code>.</li>
+<li>Absolute addresses are little-endian; branch offsets are signed and relative to the following instruction.</li>
+<li>After each instruction the registers are saved to the PCB and the scheduler’s countdown ticks.</li>
+<li>Two deviations from the spec: Z is set by loads and arithmetic, and invalid instructions crash the OS rather than the process.</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch04a-ts-class-anatomy.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="ch05a-ts-bitwise.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch04a-ts-class-anatomy.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="ch05a-ts-bitwise.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

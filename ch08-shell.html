@@ -1,0 +1,631 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>The Console and the Shell - rObSen, Layer by Layer</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A companion to Alan Labouseur&#x27;s Operating Systems course (CMPT 424, Marist), told through one student&#x27;s browser-based OS written in TypeScript.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">Preface: How to Read This Book</a></li><li class="chapter-item expanded affix "><a href="map.html">The Map: rObSen at a Glance</a></li><li class="chapter-item expanded affix "><li class="part-title">Part I — Foundations</li><li class="chapter-item expanded "><a href="ch01-what-is-an-os.html"><strong aria-hidden="true">1.</strong> What Is an Operating System?</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch01a-ts-namespaces.html"><strong aria-hidden="true">1.1.</strong> TS Deep Dive: Namespaces and the Global Script World</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-structures.html"><strong aria-hidden="true">2.</strong> OS Structures and the Machine Inside the Browser</a></li><li class="chapter-item expanded affix "><li class="part-title">Part II — The Hardware Layer (source/host)</li><li class="chapter-item expanded "><a href="ch03-host.html"><strong aria-hidden="true">3.</strong> The Host: Clock, Buttons, and the Log</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch03a-ts-static-dom.html"><strong aria-hidden="true">3.1.</strong> TS Deep Dive: Static Members, Type Assertions, and the DOM</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-memory.html"><strong aria-hidden="true">4.</strong> Memory and the Memory Accessor</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch04a-ts-class-anatomy.html"><strong aria-hidden="true">4.1.</strong> TS Deep Dive: Anatomy of a Class</a></li></ol></li><li class="chapter-item expanded "><a href="ch05-cpu.html"><strong aria-hidden="true">5.</strong> The CPU: Fetch, Decode, Execute</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch05a-ts-bitwise.html"><strong aria-hidden="true">5.1.</strong> TS Deep Dive: Bits, Bytes, and Bitwise Operators</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part III — The Kernel Layer (source/os)</li><li class="chapter-item expanded "><a href="ch06-kernel.html"><strong aria-hidden="true">6.</strong> Booting, Interrupts, and the Mode Bit</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch06a-ts-unions-null.html"><strong aria-hidden="true">6.1.</strong> TS Deep Dive: Union Types, Null, and Optional Chaining</a></li></ol></li><li class="chapter-item expanded "><a href="ch07-drivers.html"><strong aria-hidden="true">7.</strong> Device Drivers: The Keyboard</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch07a-ts-inheritance-this.html"><strong aria-hidden="true">7.1.</strong> TS Deep Dive: Inheritance, super, and the Trouble with this</a></li></ol></li><li class="chapter-item expanded "><a href="ch08-shell.html" class="active"><strong aria-hidden="true">8.</strong> The Console and the Shell</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch08a-ts-functions-as-values.html"><strong aria-hidden="true">8.1.</strong> TS Deep Dive: Functions as Values</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part IV — Processes and Threads</li><li class="chapter-item expanded "><a href="ch09-processes.html"><strong aria-hidden="true">9.</strong> Processes and the PCB</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch09a-ts-literal-types.html"><strong aria-hidden="true">9.1.</strong> TS Deep Dive: Literal Types and Type Aliases</a></li></ol></li><li class="chapter-item expanded "><a href="ch10-threads.html"><strong aria-hidden="true">10.</strong> Threads, and the One Thread You Have</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch10a-ts-event-loop.html"><strong aria-hidden="true">10.1.</strong> TS Deep Dive: The Event Loop, Timers, and Callbacks</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part V — Main Memory</li><li class="chapter-item expanded "><a href="ch11-main-memory.html"><strong aria-hidden="true">11.</strong> Binding, Base/Limit, and Partitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch11a-ts-interfaces.html"><strong aria-hidden="true">11.1.</strong> TS Deep Dive: Interfaces and Object Shapes</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VI — CPU Scheduling</li><li class="chapter-item expanded "><a href="ch12-scheduling-theory.html"><strong aria-hidden="true">12.</strong> Scheduling Theory, by Hand and by Code</a></li><li class="chapter-item expanded "><a href="ch13-scheduling-robsen.html"><strong aria-hidden="true">13.</strong> Scheduling in rObSen: Timer, Dispatcher, Context Switch</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch13a-ts-generics.html"><strong aria-hidden="true">13.1.</strong> TS Deep Dive: Generics</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VII — Storage</li><li class="chapter-item expanded "><a href="ch14-fs-interface.html"><strong aria-hidden="true">14.</strong> The File-System Interface</a></li><li class="chapter-item expanded "><a href="ch15-fs-implementation.html"><strong aria-hidden="true">15.</strong> File-System Implementation: The TSB Disk</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch15a-ts-storage-strings.html"><strong aria-hidden="true">15.1.</strong> TS Deep Dive: Web Storage, JSON, and Hex Strings</a></li></ol></li><li class="chapter-item expanded "><a href="ch16-disks.html"><strong aria-hidden="true">16.</strong> Disk Systems and Disk Scheduling</a></li><li class="chapter-item expanded affix "><li class="part-title">Part VIII — Beyond Contiguous Memory</li><li class="chapter-item expanded "><a href="ch17-swapping.html"><strong aria-hidden="true">17.</strong> Swapping: Roll-Out and Roll-In</a></li><li class="chapter-item expanded "><a href="ch18-paging.html"><strong aria-hidden="true">18.</strong> Paging</a></li><li class="chapter-item expanded affix "><li class="part-title">Part IX — Concurrency</li><li class="chapter-item expanded "><a href="ch19-sync-deadlock.html"><strong aria-hidden="true">19.</strong> Synchronization and Deadlock</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch19a-ts-async.html"><strong aria-hidden="true">19.1.</strong> TS Deep Dive: Promises and async/await</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part X — Virtual Memory</li><li class="chapter-item expanded "><a href="ch20-virtual-memory.html"><strong aria-hidden="true">20.</strong> Demand Paging and Page Replacement</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch20a-ts-implements.html"><strong aria-hidden="true">20.1.</strong> TS Deep Dive: implements and the Strategy Pattern</a></li></ol></li><li class="chapter-item expanded "><li class="spacer"></li><li class="chapter-item expanded affix "><a href="appA-6502a.html">A. The 6502a Instruction Set</a></li><li class="chapter-item expanded affix "><a href="appB-commands.html">B. Shell Command Reference</a></li><li class="chapter-item expanded affix "><a href="appC-bugs.html">C. Bug Ledger</a></li><li class="chapter-item expanded affix "><a href="appD-glados.html">D. Testing with GLaDOS</a></li><li class="chapter-item expanded affix "><a href="appE-slide-index.html">E. Slide Index</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">rObSen, Layer by Layer</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="the-console-and-the-shell"><a class="header" href="#the-console-and-the-shell">The Console and the Shell</a></h1>
+<div class="stack"><span>Browser</span><span>Host: clock & devices</span><span>Host: memory</span><span>Host: CPU</span><span>Kernel</span><span>Drivers</span><span class="here">Console & shell</span><span>Processes</span><span>Memory manager</span><span>Scheduler</span><span>File system</span><span>Swapper</span></div>
+<p><em>Slides: Chapter 2, pp. 93 and 100–108 (user interfaces, the CLI); Chapter 1, p. 22 (“Your OS – CLI,” iP1). Project Part One; Labs 000 and 001.</em></p>
+<p>The top of the input stack is two cooperating pieces, and the header comment of <code>console.ts</code> insists you keep them apart: “Note: This is not the Shell. The Shell is the ‘command line interface’ (CLI) or interpreter for this console.”</p>
+<ul>
+<li>The <strong>console</strong> is a device abstraction: a screen you can write text to and a keyboard you can read lines from. It does echoing, line editing, scrolling, and wrapping. It knows nothing about commands.</li>
+<li>The <strong>shell</strong> is a program that reads a line, decides what command it is, and runs it. It knows nothing about pixels.</li>
+</ul>
+<p>Nearly all of Project Part One lives here.</p>
+<h2 id="the-console"><a class="header" href="#the-console">The console</a></h2>
+<h3 id="drawing-text-the-hard-way"><a class="header" href="#drawing-text-the-hard-way">Drawing text the hard way</a></h3>
+<p>The console draws on an HTML <code>&lt;canvas&gt;</code>, using a vector font from 2007 rather than the canvas’s own text routines. <code>canvastext.ts</code> holds a table of every printable character as a list of points, and draws each glyph as connected line segments, lifting the pen at the sentinel point <code>[-1, -1]</code>:</p>
+<pre><code class="language-typescript">        public static draw(ctx, font, size, x, y, str) {
+            var total = 0;
+            var len = str.length;
+            var mag = size / 25.0;
+
+            ctx.save();
+            ctx.lineCap = "round";
+            ctx.lineWidth = 2.0 * mag;
+            ctx.strokeStyle = "black";
+
+            for (var i = 0; i &lt; len; i++) {
+                var c = CanvasTextFunctions.letter(str.charAt(i));
+                if (!c) {
+                    continue;
+                }
+                ctx.beginPath();
+                var penUp = true;
+                var needStroke = 0;
+                for (var j = 0; j &lt; c.points.length; j++) {
+                    var a = c.points[j];
+                    if (a[0] === -1 &amp;&amp; a[1] === -1) {
+                        penUp = true;
+                        continue;
+                    }
+                    if (penUp) {
+                        ctx.moveTo( x + a[0]*mag, y - a[1]*mag);
+                        penUp = false;
+                    } else {
+                        ctx.lineTo( x + a[0]*mag, y - a[1]*mag);
+                    }
+                }
+                ctx.stroke();
+                x += c.width*mag;
+            }
+            ctx.restore();
+            return total;
+        }
+</code></pre>
+<p>Alan’s comment on the file: “The current version on the HTML5 canvas object has text routines that are probably far better than this. But I like the brutal low-level-ness of this.” It’s also a good reminder that, at the bottom, a text console is just a program that draws shapes.</p>
+<h3 id="lines-scrolling-and-wrapping"><a class="header" href="#lines-scrolling-and-wrapping">Lines, scrolling, and wrapping</a></h3>
+<p>The console keeps every line of output in an array, <code>lines: string[]</code>, plus <code>firstVisibleLine</code>, the index of the line at the top of the screen. Drawing means clearing the canvas and painting lines <code>firstVisibleLine</code> through as many as fit. That design makes scrolling cheap: scrolling is just changing <code>firstVisibleLine</code> and redrawing.</p>
+<pre><code class="language-typescript">    public putText(text: string): void {
+      if (text === "") return;
+
+      const followOutput = this.isAtBottom();
+
+      for (let i = 0; i &lt; text.length; i++) {
+        const ch = text.charAt(i);
+        if (ch === "\n") {
+          this.advanceLine();
+          continue;
+        }
+        const w = _DrawingContext.measureText(
+          this.currentFont,
+          this.currentFontSize,
+          ch,
+        );
+
+        if (this.currentXPosition + w &gt; _Canvas.width) {
+          this.advanceLine();
+        }
+
+        this.lines[this.lines.length - 1] += ch;
+        this.currentXPosition += w;
+      }
+
+      if (followOutput) {
+        this.scrollToLatest();
+      } else {
+        this.syncCaretPosition();
+      }
+      this.redrawVisibleLines();
+    }
+
+    public advanceLine(): void {
+      const followOutput = this.isAtBottom();
+
+      this.lines.push("");
+      this.currentXPosition = 0;
+
+      if (followOutput) {
+        this.scrollToLatest();
+      } else {
+        this.syncCaretPosition();
+      }
+      this.redrawVisibleLines();
+    }
+</code></pre>
+<p><code>putText</code> measures each character and calls <code>advanceLine</code> when the next one would run off the right edge. That’s line wrapping, which Part Two asks for. <code>followOutput</code> remembers whether the view was already at the bottom; if so, new output keeps it there, and if you’ve scrolled back to read something, new output doesn’t yank you away. The <code>scroll [lines]</code> command moves the view down. (A commit from September 30 notes scrolling arrived “too late for the 10 points unfortunately.”)</p>
+<h3 id="the-line-discipline"><a class="header" href="#the-line-discipline">The line discipline</a></h3>
+<pre><code class="language-typescript">    public handleInput(): void {
+      while (_KernelInputQueue.getSize() &gt; 0) {
+        const chr = _KernelInputQueue.dequeue();
+
+        if (chr === String.fromCharCode(13)) {
+          // Enter
+          _OsShell.historyPush(this.buffer);
+          _OsShell.handleInput(this.buffer);
+          this.buffer = "";
+        } else if (chr === "[BS]") {
+          this.handleBackSpace();
+        } else if (chr === "[TAB]") {
+          this.handleTab();
+        } else if (chr === "[UP]") {
+          this.historyUp();
+        } else if (chr === "[DOWN]") {
+          this.historyDown();
+        } else if (chr === "[CTRL_C]") {
+          this.handleCtrlBreak();
+        } else {
+          // Normal printable char
+          this.putText(chr);
+          this.buffer += chr;
+        }
+      }
+    }
+</code></pre>
+<p>This is the loop that Lab 001’s TTY question is about (Chapter 7). It drains the kernel input queue one item at a time:</p>
+<ul>
+<li><strong>Enter</strong> (CR, code 13): push the buffer onto the shell’s history, hand it to the shell, clear the buffer.</li>
+<li><strong><code>[BS]</code></strong>: remove the last character from both the buffer and the screen. <code>handleBackSpace</code> deals with the awkward case where the character being erased wrapped onto a new line: it pops empty trailing lines, trims the last character, and recomputes the cursor’s x position from the remaining text.</li>
+<li><strong><code>[TAB]</code></strong>: complete the command name.</li>
+<li><strong><code>[UP]</code> / <code>[DOWN]</code></strong>: recall history.</li>
+<li><strong><code>[CTRL_C]</code></strong>: break the running program.</li>
+<li><strong>Anything else</strong>: echo it and append it to the buffer.</li>
+</ul>
+<h3 id="tab-completion-and-history"><a class="header" href="#tab-completion-and-history">Tab completion and history</a></h3>
+<pre><code class="language-typescript">    public handleTab() {
+      const typed = this.buffer.trim();
+      if (typed.length == 0) return;
+
+      const names = _OsShell.commandList.map((c: any) =&gt; c.command);
+      const hits = names.filter((n: string) =&gt; n.startsWith(typed));
+      if (hits.length === 1) {
+        const completion = hits[0];
+        const rest = completion.slice(typed.length);
+        this.buffer += rest;
+        this.putText(rest);
+      } else if (hits.length &gt; 1) {
+        this.advanceLine();
+        this.putText(hits.join(" "));
+        this.advanceLine();
+        this.putText("- " + this.buffer);
+      } else {
+      }
+    }
+
+    public historyUp() {
+      this.recall(-1);
+    }
+
+    public historyDown() {
+      this.recall(+1);
+    }
+
+    private recall(dir: 1 | -1) {
+      const recalled = _OsShell.historyPeek(dir);
+      if (recalled == null) return;
+
+      this.clearLineToPrompt();
+      this.buffer = recalled;
+      this.putText(this.buffer);
+    }
+
+    private clearLineToPrompt() {
+      while (this.buffer.length &gt; 0) {
+        this.handleBackSpace();
+      }
+    }
+</code></pre>
+<p>Tab finds every command whose name starts with what you’ve typed. One match: type the rest. Several: list them on a new line and redraw what you’d typed. None: do nothing.</p>
+<p>History recall asks the shell for the previous or next entry, erases the current line (by calling <code>handleBackSpace</code> repeatedly, which is simple and slightly wasteful), and types the recalled one. The shell side keeps the list and a cursor into it:</p>
+<pre><code class="language-typescript">    public historyPush(cmd) {
+      this.history.push(cmd);
+      this.historyIndex = -1;
+    }
+
+    public historyPeek(dir: -1 | 1): string | null {
+      if (this.history.length === 0) return null;
+      if (this.historyIndex === -1) {
+        this.historyIndex = this.history.length;
+      }
+      const next = this.historyIndex + dir;
+      if (next &lt; 0 || next &gt; this.history.length) return null;
+
+      this.historyIndex = next;
+
+      if (this.historyIndex === this.history.length) return "";
+      return this.history[this.historyIndex];
+    }
+</code></pre>
+<p><code>historyIndex = -1</code> means “not browsing.” The first Up press jumps to the end of the list and steps back one. Stepping past the newest entry returns the empty string, which is how you get back to a blank prompt.</p>
+<h3 id="ctrl-c"><a class="header" href="#ctrl-c">Ctrl-C</a></h3>
+<pre><code class="language-typescript">    public handleCtrlBreak(): void {
+      _StdOut.advanceLine();
+      _Kernel.krnBreakCurrentProcess();
+      this.buffer = "";
+      _OsShell.putPrompt();
+    }
+</code></pre>
+<pre><code class="language-typescript">    public krnBreakCurrentProcess(): void {
+      if (!_CurrentProcess) {
+        return;
+      }
+
+      const killedProcess = _CurrentProcess;
+      const pid = killedProcess.pid;
+
+      _CPU.pause();
+      this.enterKernelMode("Ctrl-C");
+      this.terminateProcess(killedProcess);
+
+      _StdOut.putText(`Process ${pid} terminated by Ctrl-C.`);
+      _StdOut.advanceLine();
+      _StdOut.putText(`ACC = ${killedProcess.acc}`);
+      _StdOut.advanceLine();
+
+      Control.hostUpdateDisplays();
+      Control.setPaused(false);
+      _RunAllMode = false;
+      this.exitToUserMode();
+    }
+</code></pre>
+<p>The console doesn’t kill anything itself; it asks the kernel. <code>krnBreakCurrentProcess</code> pauses the CPU, terminates the current process (freeing its memory, removing it from the queues), and reports its accumulator. It also turns off <code>_RunAllMode</code>, so Ctrl-C during <code>runall</code> stops the whole batch rather than moving on to the next process. Compare <code>kill &lt;pid&gt;</code>, which (Chapter 13) lets the others continue.</p>
+<h2 id="the-shell"><a class="header" href="#the-shell">The shell</a></h2>
+<h3 id="commands-are-data"><a class="header" href="#commands-are-data">Commands are data</a></h3>
+<p>The shell’s <code>init</code> builds a table of commands. Each entry is a <code>ShellCommand</code>: a function, a name, and a description.</p>
+<pre><code class="language-typescript">module TSOS {
+  export class ShellCommand {
+    constructor(
+      public func: any,
+      public command: string = "",
+      public description: string = "",
+    ) {}
+  }
+}
+</code></pre>
+<pre><code class="language-typescript">    public init() {
+      var sc: ShellCommand;
+      //
+      // Load the command list.
+
+      // ver
+      sc = new ShellCommand(
+        this.shellVer,
+        "ver",
+        "- Displays the current version data.",
+      );
+      this.commandList[this.commandList.length] = sc;
+
+      // help
+      sc = new ShellCommand(
+        this.shellHelp,
+        "help",
+        "- This is the help command. Seek help.",
+      );
+      this.commandList[this.commandList.length] = sc;
+</code></pre>
+<p>…and so on for 38 commands. <code>help</code> simply walks this table and prints each name and description, so the help text can never fall out of sync with the commands that exist. That’s the advantage of treating commands as <strong>data</strong> rather than as a long <code>if/else</code> chain.</p>
+<p>Note the <code>this.shellVer</code>, <em>without parentheses</em>. That’s a reference to the function, not a call. Chapter 8a is about functions as values.</p>
+<h3 id="from-line-to-command"><a class="header" href="#from-line-to-command">From line to command</a></h3>
+<pre><code class="language-typescript">    public parseInput(buffer: string): UserCommand {
+      var retVal = new UserCommand();
+
+      // 1. Remove leading and trailing spaces.
+      buffer = Utils.trim(buffer);
+
+      // 2. Lower-case it.
+      buffer = buffer.toLowerCase();
+
+      // 3. Separate on spaces so we can determine the command and command-line args, if any.
+      var tempList = buffer.split(" ");
+
+      // 4. Take the first (zeroth) element and use that as the command.
+      var cmd = tempList.shift(); // Yes, you can do that to an array in JavaScript. See the Queue class.
+      // 4.1 Remove any left-over spaces.
+      cmd = Utils.trim(cmd);
+      // 4.2 Record it in the return value.
+      retVal.command = cmd;
+
+      // 5. Now create the args array from what's left.
+      for (var i in tempList) {
+        var arg = Utils.trim(tempList[i]);
+        if (arg != "") {
+          retVal.args[retVal.args.length] = tempList[i];
+        }
+      }
+      return retVal;
+    }
+</code></pre>
+<p><code>parseInput</code> trims the line, <strong>lower-cases the entire thing</strong>, splits on spaces, and treats the first word as the command and the rest as arguments.</p>
+<pre><code class="language-typescript">    public handleInput(buffer) {
+      _Kernel.krnTrace("Shell Command~" + buffer);
+      //
+      // Parse the input...
+      //
+      var userCommand = this.parseInput(buffer);
+      // ... and assign the command and args to local variables.
+      var cmd = this.resolveAlias(userCommand.command);
+      var args = userCommand.args;
+      //
+      // Determine the command and execute it.
+      //
+      // TypeScript/JavaScript may not support associative arrays in all browsers so we have to iterate over the
+      // command list in attempt to find a match.
+      // TODO: Is there a better way? Probably. Someone work it out and tell me in class.
+      var index: number = 0;
+      var found: boolean = false;
+      var fn = undefined;
+      while (!found &amp;&amp; index &lt; this.commandList.length) {
+        if (this.commandList[index].command === cmd) {
+          found = true;
+          fn = this.commandList[index].func;
+        } else {
+          ++index;
+        }
+      }
+      if (found) {
+        this.execute(fn, args); // Note that args is always supplied, though it might be empty.
+      } else {
+        // It's not found, so check for curses and apologies before declaring the command invalid.
+        if (this.curses.indexOf("[" + Utils.rot13(cmd) + "]") &gt;= 0) {
+          // Check for curses.
+          this.execute(this.shellCurse);
+        } else if (this.apologies.indexOf("[" + cmd + "]") &gt;= 0) {
+          // Check for apologies.
+          this.execute(this.shellApology);
+        } else {
+          // It's just a bad command. {
+          this.execute(this.shellInvalidCommand);
+        }
+      }
+    }
+
+    // Note: args is an optional parameter, ergo the ? which allows TypeScript to understand that.
+    public execute(fn, args?) {
+      // We just got a command, so advance the line...
+      _StdOut.advanceLine();
+      // ... call the command function passing in the args with some über-cool functional programming ...
+      fn.call(this, args);
+      // Check to see if we need to advance the line again
+      if (_StdOut.currentXPosition &gt; 0) {
+        _StdOut.advanceLine();
+      }
+      // ... and finally write the prompt again.
+      this.putPrompt();
+    }
+</code></pre>
+<p><code>handleInput</code> resolves any alias, scans the command table for a match, and executes it. If there’s no match, it checks two easter eggs before declaring the command invalid: curses (stored rot13-encoded in the source, so the source file itself stays polite; typing one turns on <code>_SarcasticMode</code>) and apologies (<code>sorry</code> turns it off). These come from Alan’s original, which in turn come from the game <em>Portal</em>. <code>execute</code> advances a line, calls the command function with <code>fn.call(this, args)</code>, advances again if anything was printed, and prints a new prompt.</p>
+<p>Alan’s comment above the lookup loop: “TypeScript/JavaScript may not support associative arrays in all browsers so we have to iterate over the command list… TODO: Is there a better way? Probably. Someone work it out and tell me in class.” The better way is a <code>Map&lt;string, ShellCommand&gt;</code> keyed by name: constant-time lookup instead of a linear scan. (With 38 commands nobody will feel the difference, but it’s the right data structure, and rObSen already uses a <code>Map</code> for aliases.)</p>
+<div class="callout bug"><span class="label">In the code</span>
+<strong>Everything you type is lower-cased</strong>, including arguments. <code>write notes "Hello World"</code> stores <code>hello world</code>; <code>prompt $Robsen</code> sets the prompt to <code>$robsen</code>; <code>status Compiling</code> shows <code>compiling</code>. Lower-casing makes sense for the command name, so that <code>VER</code> and <code>ver</code> both work, but not for arguments. Fix: lower-case only <code>cmd</code>, after splitting.
+</div>
+<div class="callout bug"><span class="label">In the code</span>
+<strong><code>Utils.trim</code> doesn't trim a single leading space.</strong> Its regular expression is <code>/^\s+ | \s+$/g</code>, with literal spaces around the <code>|</code>. That actually means "one or more whitespace characters <em>followed by a space</em> at the start, or <em>a space followed by</em> one or more whitespace characters at the end." So <code>"  ver"</code> (two spaces) is trimmed, but <code>" ver"</code> (one space) isn't, and the shell reports "Invalid Command." Try it. The fix is to delete the two spaces, <code>/^\s+|\s+$/g</code>, or just call the built-in <code>str.trim()</code>. (The long comment under the regex, explaining what each part does, describes the regex the author <em>meant</em> to write.)
+</div>
+<div class="callout bug"><span class="label">In the code</span>
+<strong>Aliases only work for bare command names.</strong> <code>alias ll ls -a</code> reports "Alias created: ll -&gt; ls -a", but typing <code>ll</code> says "Invalid Command": <code>resolveAlias</code> replaces the command word with <code>"ls -a"</code>, then looks for a command literally named <code>"ls -a"</code>. To support arguments, expand the alias <em>textually</em> before parsing: replace the first word of the line with the alias's target and parse the result. Also, tab completion doesn't know about aliases.
+</div>
+<h2 id="part-one-checked-off"><a class="header" href="#part-one-checked-off">Part One, checked off</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Part One requirement</th><th>Where</th></tr></thead><tbody>
+<tr><td><code>ver</code> shows your data</td><td><code>shellVer</code>: <code>rObSen version 3000</code></td></tr>
+<tr><td><code>date</code></td><td><code>shellDate</code> (uses <code>toLocaleString</code>)</td></tr>
+<tr><td><code>whereami</code>, creatively</td><td>“In front of the greatest piece of software.”</td></tr>
+<tr><td>One more creative command</td><td><code>gta</code>: days until GTA VI (release date set to May 26, 2026)</td></tr>
+<tr><td>Taskbar with date/time and <code>status &lt;string&gt;</code></td><td><code>index.html</code>’s header; <code>shellStatus</code> writes <code>#taskbar-status</code></td></tr>
+<tr><td>Scrolling</td><td><code>Console.scrollDown</code>, <code>scroll [lines]</code></td></tr>
+<tr><td>Punctuation and symbols</td><td>keyboard driver’s shifted-digit string and punctuation map</td></tr>
+<tr><td>Backspace</td><td><code>Console.handleBackSpace</code></td></tr>
+<tr><td>Tab completion</td><td><code>Console.handleTab</code></td></tr>
+<tr><td>Up/down history</td><td><code>Shell.historyPeek</code>, <code>Console.recall</code></td></tr>
+<tr><td>BSOD on kernel trap, and a command to test it</td><td><code>Console.showBSOD</code>, <code>bsod [message]</code></td></tr>
+<tr><td><code>load</code> validates hex</td><td><code>shellLoad</code>’s regex and two-character check (Chapter 9)</td></tr>
+</tbody></table>
+</div><div class="callout"><span class="label">Note</span>
+<code>shellStatus</code> calls <code>document.getElementById</code>, from inside the OS. By the rule in the host's header comment ("the only place that we should see 'web' code"), that belongs in the host, with the shell calling something like <code>Control.hostSetStatus(text)</code>. The same goes for <code>shellLoad</code> reading the program textarea directly. They work; they just cross a layer.
+</div>
+<h2 id="check-yourself"><a class="header" href="#check-yourself">Check yourself</a></h2>
+<ol>
+<li>Why does <code>execute</code> advance a line <em>before</em> calling the command?</li>
+<li>Add a <code>man</code> page for <code>load</code>. Where does it go?</li>
+<li>What would it take for the shell to be a user program instead of part of the kernel, as slide p. 100 suggests?</li>
+</ol>
+<details>
+<summary>Answers</summary>
+<ol>
+<li>Because the cursor is still at the end of the line you typed. Advancing first puts the command’s output on its own line.</li>
+<li>A new <code>case "load":</code> in <code>shellMan</code>’s <code>switch</code>. (It currently has an entry only for <code>help</code>, with a TODO for the rest.)</li>
+<li>A way to run code other than 6502a programs as a process, system calls for console I/O (read a line, write text) that go through the kernel, and a way for that process to ask the kernel to load and run other programs (the <code>fork</code>/<code>exec</code> or <code>CreateProcess</code> calls of Chapter 3). rObSen has none of these, which is why its shell is in the kernel.</li>
+</ol>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch07a-ts-inheritance-this.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="ch08a-ts-functions-as-values.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch07a-ts-inheritance-this.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="ch08a-ts-functions-as-values.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

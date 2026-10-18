@@ -1,0 +1,345 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Synchronization and Deadlock - rObSen, Layer by Layer</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A companion to Alan Labouseur&#x27;s Operating Systems course (CMPT 424, Marist), told through one student&#x27;s browser-based OS written in TypeScript.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">Preface: How to Read This Book</a></li><li class="chapter-item expanded affix "><a href="map.html">The Map: rObSen at a Glance</a></li><li class="chapter-item expanded affix "><li class="part-title">Part I — Foundations</li><li class="chapter-item expanded "><a href="ch01-what-is-an-os.html"><strong aria-hidden="true">1.</strong> What Is an Operating System?</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch01a-ts-namespaces.html"><strong aria-hidden="true">1.1.</strong> TS Deep Dive: Namespaces and the Global Script World</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-structures.html"><strong aria-hidden="true">2.</strong> OS Structures and the Machine Inside the Browser</a></li><li class="chapter-item expanded affix "><li class="part-title">Part II — The Hardware Layer (source/host)</li><li class="chapter-item expanded "><a href="ch03-host.html"><strong aria-hidden="true">3.</strong> The Host: Clock, Buttons, and the Log</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch03a-ts-static-dom.html"><strong aria-hidden="true">3.1.</strong> TS Deep Dive: Static Members, Type Assertions, and the DOM</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-memory.html"><strong aria-hidden="true">4.</strong> Memory and the Memory Accessor</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch04a-ts-class-anatomy.html"><strong aria-hidden="true">4.1.</strong> TS Deep Dive: Anatomy of a Class</a></li></ol></li><li class="chapter-item expanded "><a href="ch05-cpu.html"><strong aria-hidden="true">5.</strong> The CPU: Fetch, Decode, Execute</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch05a-ts-bitwise.html"><strong aria-hidden="true">5.1.</strong> TS Deep Dive: Bits, Bytes, and Bitwise Operators</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part III — The Kernel Layer (source/os)</li><li class="chapter-item expanded "><a href="ch06-kernel.html"><strong aria-hidden="true">6.</strong> Booting, Interrupts, and the Mode Bit</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch06a-ts-unions-null.html"><strong aria-hidden="true">6.1.</strong> TS Deep Dive: Union Types, Null, and Optional Chaining</a></li></ol></li><li class="chapter-item expanded "><a href="ch07-drivers.html"><strong aria-hidden="true">7.</strong> Device Drivers: The Keyboard</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch07a-ts-inheritance-this.html"><strong aria-hidden="true">7.1.</strong> TS Deep Dive: Inheritance, super, and the Trouble with this</a></li></ol></li><li class="chapter-item expanded "><a href="ch08-shell.html"><strong aria-hidden="true">8.</strong> The Console and the Shell</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch08a-ts-functions-as-values.html"><strong aria-hidden="true">8.1.</strong> TS Deep Dive: Functions as Values</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part IV — Processes and Threads</li><li class="chapter-item expanded "><a href="ch09-processes.html"><strong aria-hidden="true">9.</strong> Processes and the PCB</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch09a-ts-literal-types.html"><strong aria-hidden="true">9.1.</strong> TS Deep Dive: Literal Types and Type Aliases</a></li></ol></li><li class="chapter-item expanded "><a href="ch10-threads.html"><strong aria-hidden="true">10.</strong> Threads, and the One Thread You Have</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch10a-ts-event-loop.html"><strong aria-hidden="true">10.1.</strong> TS Deep Dive: The Event Loop, Timers, and Callbacks</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part V — Main Memory</li><li class="chapter-item expanded "><a href="ch11-main-memory.html"><strong aria-hidden="true">11.</strong> Binding, Base/Limit, and Partitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch11a-ts-interfaces.html"><strong aria-hidden="true">11.1.</strong> TS Deep Dive: Interfaces and Object Shapes</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VI — CPU Scheduling</li><li class="chapter-item expanded "><a href="ch12-scheduling-theory.html"><strong aria-hidden="true">12.</strong> Scheduling Theory, by Hand and by Code</a></li><li class="chapter-item expanded "><a href="ch13-scheduling-robsen.html"><strong aria-hidden="true">13.</strong> Scheduling in rObSen: Timer, Dispatcher, Context Switch</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch13a-ts-generics.html"><strong aria-hidden="true">13.1.</strong> TS Deep Dive: Generics</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VII — Storage</li><li class="chapter-item expanded "><a href="ch14-fs-interface.html"><strong aria-hidden="true">14.</strong> The File-System Interface</a></li><li class="chapter-item expanded "><a href="ch15-fs-implementation.html"><strong aria-hidden="true">15.</strong> File-System Implementation: The TSB Disk</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch15a-ts-storage-strings.html"><strong aria-hidden="true">15.1.</strong> TS Deep Dive: Web Storage, JSON, and Hex Strings</a></li></ol></li><li class="chapter-item expanded "><a href="ch16-disks.html"><strong aria-hidden="true">16.</strong> Disk Systems and Disk Scheduling</a></li><li class="chapter-item expanded affix "><li class="part-title">Part VIII — Beyond Contiguous Memory</li><li class="chapter-item expanded "><a href="ch17-swapping.html"><strong aria-hidden="true">17.</strong> Swapping: Roll-Out and Roll-In</a></li><li class="chapter-item expanded "><a href="ch18-paging.html"><strong aria-hidden="true">18.</strong> Paging</a></li><li class="chapter-item expanded affix "><li class="part-title">Part IX — Concurrency</li><li class="chapter-item expanded "><a href="ch19-sync-deadlock.html" class="active"><strong aria-hidden="true">19.</strong> Synchronization and Deadlock</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch19a-ts-async.html"><strong aria-hidden="true">19.1.</strong> TS Deep Dive: Promises and async/await</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part X — Virtual Memory</li><li class="chapter-item expanded "><a href="ch20-virtual-memory.html"><strong aria-hidden="true">20.</strong> Demand Paging and Page Replacement</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch20a-ts-implements.html"><strong aria-hidden="true">20.1.</strong> TS Deep Dive: implements and the Strategy Pattern</a></li></ol></li><li class="chapter-item expanded "><li class="spacer"></li><li class="chapter-item expanded affix "><a href="appA-6502a.html">A. The 6502a Instruction Set</a></li><li class="chapter-item expanded affix "><a href="appB-commands.html">B. Shell Command Reference</a></li><li class="chapter-item expanded affix "><a href="appC-bugs.html">C. Bug Ledger</a></li><li class="chapter-item expanded affix "><a href="appD-glados.html">D. Testing with GLaDOS</a></li><li class="chapter-item expanded affix "><a href="appE-slide-index.html">E. Slide Index</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">rObSen, Layer by Layer</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="synchronization-and-deadlock"><a class="header" href="#synchronization-and-deadlock">Synchronization and Deadlock</a></h1>
+<div class="stack"><span>Browser</span><span>Host: clock & devices</span><span>Host: memory</span><span>Host: CPU</span><span class="here">Kernel</span><span>Drivers</span><span>Console & shell</span><span class="here">Processes</span><span>Memory manager</span><span class="here">Scheduler</span><span>File system</span><span>Swapper</span></div>
+<p><em>Slides: Chapters 6 and 7, “Synchronization and Deadlocks,” pp. 491–553.</em></p>
+<p>This is the one major topic of the course that rObSen never had to confront, and the reason is worth understanding precisely: rObSen’s kernel runs on a single JavaScript thread that is never interrupted mid-function, and its processes share no memory. Take away either of those, and every problem in this chapter appears at once. So this chapter does three things: it covers the theory, it <em>demonstrates</em> the problems with small simulations built from rObSen’s own parts, and it shows where rObSen would need synchronization if it grew.</p>
+<h2 id="the-problem-races"><a class="header" href="#the-problem-races">The problem: races</a></h2>
+<p>“Concurrent access to shared data may result in data inconsistency. (This is bad.)” (slide p. 492). The slides’ first example is written in 6502a (p. 493): two processes each want to double the value at <code>$10</code>.</p>
+<pre><code class="language-text">P1                    P2
+LDA $10               LDA $10
+ADC $10               ADC $10
+STA $10               STA $10
+</code></pre>
+<p>“We are fine if they execute in serial. But if not, there could be trouble. Lost reads, lost writes, and the whole thing is a race condition.” The trouble is that each process assumes “the accumulator [is] untouched while we’re adding and storing,” and more importantly that <code>$10</code> is untouched between its load and its store.</p>
+<p>How bad is it? <code>src/code/sims/race.ts</code> tries every possible interleaving of the six instructions, a context switch potentially between any two, starting with <code>$10 = 1</code>:</p>
+<pre><code class="language-text">$ tsc --target es2022 race.ts &amp;&amp; node race.js
+final value 2: 12 schedules, e.g. AABBAB AABBBA ABABAB ABABBA
+final value 3: 6 schedules, e.g. AABABB ABAABB ABBBAA BAAABB
+final value 4: 2 schedules, e.g. AAABBB BBBAAA
+</code></pre>
+<p>Only the two <strong>serial</strong> schedules (all of A then all of B, or the reverse) give the right answer, 4. Twelve of twenty lose one doubling entirely (a <strong>lost write</strong>: both read 1, both store 2). And six produce <strong>3</strong>, a value that no serial order could produce: in <code>AABABB</code>, A loads 1 and adds to get 2; B loads 1; A stores 2; B adds the <em>new</em> <code>$10</code> (2) to its stale 1 and stores 3. That’s a <strong>lost read</strong> mixed with a fresh one.</p>
+<p>The slides’ other examples (pp. 495–502) are the same bug in other clothes: two ticket sellers who both check “seats available” before either decrements it, and the 2016 DAO hack, in which a smart contract sent a user their balance <em>before</em> setting the balance to zero, letting a malicious contract call back in and withdraw again and again (a “reentrancy” attack). It cost about $50 million.</p>
+<h2 id="critical-sections-and-locks"><a class="header" href="#critical-sections-and-locks">Critical sections and locks</a></h2>
+<p>The fix is a <strong>critical section</strong>: a stretch of code that only one process may execute at a time (slide p. 494). The general shape (p. 503):</p>
+<pre><code class="language-text">while TRUE {
+    acquire lock
+        critical section
+    release lock
+        remainder section
+}
+</code></pre>
+<p>“What do these locks look like? How are they implemented?”</p>
+<h3 id="semaphores"><a class="header" href="#semaphores">Semaphores</a></h3>
+<p>Dijkstra’s <strong>semaphore</strong> (p. 504) is an integer <em>S</em> accessed only through two <strong>atomic</strong> operations, originally named in Dutch:</p>
+<pre><code class="language-text">wait(S)   / P (proberen, "try"):     while (S &lt;= 0) ; // busy wait
+                                      S--;
+signal(S) / V (verhogen, "increment"): S++;
+</code></pre>
+<p>A <strong>binary</strong> semaphore (0 or 1) is a <strong>mutex lock</strong>: initialize it to 1, <code>wait</code> before the critical section, <code>signal</code> after. A <strong>counting</strong> semaphore allows <em>n</em> holders at once. Semaphores also enforce ordering: to make S1 (in P1) happen before S2 (in P2), initialize <code>synch</code> to 0, have P1 run S1 then <code>signal(synch)</code>, and have P2 <code>wait(synch)</code> before S2 (p. 505).</p>
+<p>The catch is the word <em>atomic</em>. <code>wait</code> must test and decrement <em>S</em> without anyone else getting in between, which is itself a critical-section problem (p. 507). Hardware solves it with an atomic instruction (test-and-set, compare-and-swap) or, on a single processor, by <strong>disabling interrupts</strong> for the few instructions it takes. (Lamport’s <strong>bakery algorithm</strong>, linked from slide p. 506, achieves mutual exclusion with only ordinary reads and writes, which is remarkable, but slow.)</p>
+<p>The <code>while (S &lt;= 0);</code> loop is <strong>busy waiting</strong>, which wastes the CPU. Real semaphores instead put the waiting process on a queue attached to the semaphore and block it; <code>signal</code> wakes one. Chapter 19a builds exactly that in TypeScript, with promises.</p>
+<h2 id="why-robsens-kernel-has-no-races"><a class="header" href="#why-robsens-kernel-has-no-races">Why rObSen’s kernel has no races</a></h2>
+<p>Every kernel function in rObSen runs inside a single JavaScript callback, and JavaScript never interrupts a callback to run another (Chapter 10a). The timer ISR can’t be interrupted by a keystroke; the shell’s <code>load</code> can’t be interrupted by a context switch. In OS terms, <strong>the whole kernel runs with interrupts disabled</strong>. That makes the entire kernel one big critical section, which is the oldest synchronization strategy there is (early UNIX on uniprocessors did much the same: kernel code was non-preemptible).</p>
+<p>And rObSen’s <strong>user processes</strong> can’t race either, because they share nothing. Every address a process uses is folded into its own 256-byte partition (Chapter 4). The slides’ doubling example <em>can’t happen</em> in rObSen.</p>
+<p>So when would rObSen need synchronization?</p>
+<ul>
+<li><strong>Shared memory between processes</strong> (Chapter 9’s suggested extension). Then the race above happens for real, and user programs need a lock. The 6502a has no atomic instruction, so the natural design is for the <em>kernel</em> to provide semaphores as system calls, say <code>X = 03</code> for <code>wait(Y)</code> and <code>X = 04</code> for <code>signal(Y)</code>. Because system calls run in the kernel, between instructions, on the single JavaScript thread, they are automatically atomic. A process that <code>wait</code>s on a zero semaphore would move to a new <strong>waiting</strong> state (on the semaphore’s queue) instead of the ready queue, and <code>signal</code> would move one waiter back.</li>
+<li><strong>Asynchronous disk I/O</strong> (Chapter 16’s sketch). Once a disk request “takes time,” a process can be halfway through updating a file when another process starts reading it. That’s exactly the “check, then await, then act” race that Chapter 19a demonstrates <em>within</em> single-threaded JavaScript.</li>
+<li><strong>Multiple CPUs</strong> (Alan’s comment in <code>hostBtnStartOS_click</code>). Even simulated on one JavaScript thread, two CPUs taking turns instruction by instruction would let two processes interleave on shared data, and the ready queue would need protecting if each CPU ran its own scheduler.</li>
+</ul>
+<h2 id="deadlock-and-starvation"><a class="header" href="#deadlock-and-starvation">Deadlock and starvation</a></h2>
+<p>Locks bring their own failure: <strong>deadlock</strong>, “two or more processes waiting indefinitely for an event that can be caused by only one of the waiting processes” (slide p. 508):</p>
+<pre><code class="language-text">P0               P1
+wait(S);         wait(Q);
+wait(Q);         wait(S);      ← each holds one and waits for the other, forever
+</code></pre>
+<p>(“Interviewer: If you can explain deadlock I will hire you. Candidate: If you hire me I will explain deadlock.”) <strong>Starvation</strong> is indefinite waiting of a different kind: a process that’s never chosen from a semaphore’s queue. <strong>Priority inversion</strong> (p. 509) happens when a low-priority process holds a lock a high-priority process needs, and a medium-priority process keeps the low one from running. It famously reset the Mars Pathfinder lander repeatedly in 1997, until engineers enabled <strong>priority inheritance</strong> (the lock holder temporarily inherits the waiter’s priority) by remote patch.</p>
+<h3 id="the-dining-philosophers"><a class="header" href="#the-dining-philosophers">The dining philosophers</a></h3>
+<figure class="slide"><img src="img/slides/slide-512.jpg" alt="Dining philosophers"><figcaption>Slide p. 512: "5 philosophers, 1 bowl of rice, 5 individual chopsticks. Who will survive?"</figcaption></figure>
+<p>Each philosopher needs both neighbouring chopsticks to eat. The obvious solution (slide p. 515), <code>wait(chopstick[i]); wait(chopstick[(i+1) % 5]);</code>, deadlocks if all five pick up their left chopstick at once. The slides’ fixes (p. 516): pick up both chopsticks inside a critical section, or allow only four at the table. A third classic fix breaks the symmetry: number the chopsticks and have everyone pick up the <em>lower-numbered</em> one first. Chapter 19a runs both versions:</p>
+<pre><code class="language-text">naive philosophers:   DEADLOCK: nobody can eat
+ordered philosophers: all 5 philosophers ate
+</code></pre>
+<h3 id="monitors"><a class="header" href="#monitors">Monitors</a></h3>
+<p>“Semaphores are cool and all, but they are low-level and ‘fragile’… Lots of timing problems and Heisenbugs. We need higher-level features for our higher-level languages” (p. 516). A <strong>monitor</strong> bundles shared data with the procedures that operate on it, and guarantees that only one process is active inside the monitor at a time (pp. 517–518). Java’s <code>synchronized</code> methods are monitors (p. 519). (In JavaScript, every object is effectively a monitor for free, because only one callback runs at a time, until an <code>await</code> lets someone else in.)</p>
+<figure class="slide"><img src="img/slides/slide-518.jpg" alt="Schematic view of a monitor"><figcaption>Slide p. 518: a monitor: shared data, operations, initialization code, and an entry queue.</figcaption></figure>
+<h2 id="atomic-transactions"><a class="header" href="#atomic-transactions">Atomic transactions</a></h2>
+<p>The second half of Chapter 6 brings in ideas from databases (slides pp. 520–532), where “all good database systems” must deal with concurrency and failure:</p>
+<ul>
+<li>A <strong>transaction</strong> is a sequence of reads and writes that either <strong>commits</strong> (all of it happens) or <strong>aborts</strong> (none of it does; it’s <strong>rolled back</strong>).</li>
+<li><strong>Write-ahead logging</strong>: before changing data, write a log record (transaction, item, old value, new value) to stable storage, bracketed by <code>&lt;Ti starts&gt;</code> and <code>&lt;Ti commits&gt;</code>. After a crash, <strong>redo</strong> every transaction with a commit record and <strong>undo</strong> every one without. Undo and redo must be <strong>idempotent</strong> (doing them twice is the same as once). <strong>Checkpoints</strong> limit how far back recovery must look.</li>
+<li><strong>Serializability</strong>: a concurrent schedule is correct if it’s equivalent to <em>some</em> serial order. Swapping adjacent non-conflicting operations (different data items, or both reads) doesn’t change the outcome, so a schedule that can be rearranged into a serial one is <strong>conflict serializable</strong>.</li>
+<li><strong>Locking protocols</strong> enforce it: shared locks for reading, exclusive locks for writing. <strong>Two-phase locking</strong> (2PL) requires every transaction to acquire all its locks (the growing phase) before releasing any (the shrinking phase). It guarantees conflict serializability, but “does not prevent deadlock.”</li>
+</ul>
+<p>Notice the connection to rObSen’s disk: <code>chkdsk</code> exists because the disk driver writes the directory entry and the data block in separate steps, and a crash between them would leave the file system inconsistent. A write-ahead log would make <code>createFile</code> atomic.</p>
+<h2 id="deadlock-systematically-chapter-7"><a class="header" href="#deadlock-systematically-chapter-7">Deadlock, systematically (Chapter 7)</a></h2>
+<p><strong>Four conditions</strong> must <em>all</em> hold for deadlock (slide p. 536):</p>
+<ol>
+<li><strong>Mutual exclusion</strong>: at least one resource is non-shareable.</li>
+<li><strong>Hold and wait</strong>: a process holds one resource while waiting for another.</li>
+<li><strong>No preemption</strong>: resources are released only voluntarily.</li>
+<li><strong>Circular wait</strong>: P0 waits for P1, which waits for P2, …, which waits for P0.</li>
+</ol>
+<p><strong>Resource-allocation graphs</strong> (pp. 537–541) draw processes as circles and resources as boxes (with a dot per instance), with request edges P → R and assignment edges R → P. “If graph contains no cycles → no deadlock. If graph contains a cycle → if only one instance per resource type, then deadlock; if several instances per resource type, possibility of deadlock.”</p>
+<div class="slide-pair">
+<figure class="slide"><img src="img/slides/slide-540.jpg" alt="Resource allocation graph with deadlock"><figcaption>Slide p. 540: a resource-allocation graph with a deadlock.</figcaption></figure>
+<figure class="slide"><img src="img/slides/slide-544.jpg" alt="Wait-for graph"><figcaption>Slide p. 544: collapsing resources gives the wait-for graph.</figcaption></figure>
+</div>
+<p>There are three broad strategies (p. 547): <strong>prevent or avoid</strong> deadlock, <strong>detect and recover</strong>, or <strong>ignore the problem</strong> (“used by some operating systems, including some versions UNIX!!!”).</p>
+<p><strong>Detection</strong> (pp. 542–546): maintain a <strong>wait-for graph</strong> (Pi → Pj if Pi waits for Pj) and periodically search it for a cycle. Recovery means aborting processes, all at once or one at a time, choosing victims by priority, progress, resources held, and so on.</p>
+<p><strong>Prevention</strong> (pp. 548–549) breaks one of the four conditions: make resources shareable where possible; require processes to request everything up front (no hold-and-wait, at the cost of utilization and possible starvation); preempt resources from a process that must wait; or <strong>impose a total order on resource types</strong> and require requests in increasing order, which makes circular wait impossible. That last one is the ordered-chopsticks fix.</p>
+<p><strong>Avoidance</strong> (pp. 550–552) needs advance knowledge: each process declares its maximum need, and the OS grants a request only if the resulting state is <strong>safe</strong>, meaning there’s some order in which every process can still finish. With multiple instances per resource, that’s the <strong>banker’s algorithm</strong>: “the OS does not get over-leveraged.”</p>
+<div class="callout exam"><span class="label">Exam-style: the banker's algorithm</span>
+Five processes, resources A, B, C with 10, 5, 7 instances. Available = (3, 3, 2).
+<pre><code>        Allocation   Max       Need = Max − Allocation
+P0      0 1 0        7 5 3     7 4 3
+P1      2 0 0        3 2 2     1 2 2
+P2      3 0 2        9 0 2     6 0 0
+P3      2 1 1        2 2 2     0 1 1
+P4      0 0 2        4 3 3     4 3 1</code></pre>
+<strong>Safety check:</strong> find a process whose Need ≤ Work (initially Available), pretend it finishes and returns its Allocation, repeat. P1 (122 ≤ 332) → Work 532. P3 (011) → 743. P4 (431) → 745. P0 (743) → 755. P2 (600) → 10 5 7. All finish: <strong>safe</strong>, sequence ⟨P1, P3, P4, P0, P2⟩.<br><br>
+<strong>Can P1's request (1, 0, 2) be granted?</strong> Pretend: Available becomes (2, 3, 0), P1's Allocation (3, 0, 2), its Need (0, 2, 0). The safety check still succeeds, so yes.<br>
+<strong>Then P0 requests (0, 2, 0).</strong> Available would be (2, 1, 0); nobody's Need fits; <strong>unsafe</strong>: P0 must wait, even though the resources are physically available.<br><br>
+<code>src/code/sims/bankers.ts</code> checks all three answers.
+</div>
+<h2 id="check-yourself"><a class="header" href="#check-yourself">Check yourself</a></h2>
+<ol>
+<li>In the race simulation, why can’t the result ever be 1 or 8?</li>
+<li>Which of the four deadlock conditions does “allow only four philosophers at the table” break?</li>
+<li>Why doesn’t rObSen’s kernel need a lock around the ready queue, and what single change to the host would make it need one?</li>
+</ol>
+<details>
+<summary>Answers</summary>
+<ol>
+<li>Every process stores <em>something</em> computed from a load of <code>$10</code> (which is at least 1) plus a later load (at least 1), so the stored value is at least 2. And 8 would require three doublings, but there are only two processes, each doubling at most once.</li>
+<li>Circular wait: with only four seated, at least one philosopher can always get both chopsticks, so the cycle can’t close.</li>
+<li>Because every kernel function runs to completion on JavaScript’s single thread, so nothing else touches the queue meanwhile. Adding a second CPU that runs its <em>own</em> scheduler in an interleaved fashion (or moving the CPU into a Web Worker, a separate thread) would.</li>
+</ol>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch18-paging.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="ch19a-ts-async.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch18-paging.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="ch19a-ts-async.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

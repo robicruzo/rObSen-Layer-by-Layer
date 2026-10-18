@@ -1,0 +1,338 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>A. The 6502a Instruction Set - rObSen, Layer by Layer</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A companion to Alan Labouseur&#x27;s Operating Systems course (CMPT 424, Marist), told through one student&#x27;s browser-based OS written in TypeScript.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">Preface: How to Read This Book</a></li><li class="chapter-item expanded affix "><a href="map.html">The Map: rObSen at a Glance</a></li><li class="chapter-item expanded affix "><li class="part-title">Part I — Foundations</li><li class="chapter-item expanded "><a href="ch01-what-is-an-os.html"><strong aria-hidden="true">1.</strong> What Is an Operating System?</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch01a-ts-namespaces.html"><strong aria-hidden="true">1.1.</strong> TS Deep Dive: Namespaces and the Global Script World</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-structures.html"><strong aria-hidden="true">2.</strong> OS Structures and the Machine Inside the Browser</a></li><li class="chapter-item expanded affix "><li class="part-title">Part II — The Hardware Layer (source/host)</li><li class="chapter-item expanded "><a href="ch03-host.html"><strong aria-hidden="true">3.</strong> The Host: Clock, Buttons, and the Log</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch03a-ts-static-dom.html"><strong aria-hidden="true">3.1.</strong> TS Deep Dive: Static Members, Type Assertions, and the DOM</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-memory.html"><strong aria-hidden="true">4.</strong> Memory and the Memory Accessor</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch04a-ts-class-anatomy.html"><strong aria-hidden="true">4.1.</strong> TS Deep Dive: Anatomy of a Class</a></li></ol></li><li class="chapter-item expanded "><a href="ch05-cpu.html"><strong aria-hidden="true">5.</strong> The CPU: Fetch, Decode, Execute</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch05a-ts-bitwise.html"><strong aria-hidden="true">5.1.</strong> TS Deep Dive: Bits, Bytes, and Bitwise Operators</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part III — The Kernel Layer (source/os)</li><li class="chapter-item expanded "><a href="ch06-kernel.html"><strong aria-hidden="true">6.</strong> Booting, Interrupts, and the Mode Bit</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch06a-ts-unions-null.html"><strong aria-hidden="true">6.1.</strong> TS Deep Dive: Union Types, Null, and Optional Chaining</a></li></ol></li><li class="chapter-item expanded "><a href="ch07-drivers.html"><strong aria-hidden="true">7.</strong> Device Drivers: The Keyboard</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch07a-ts-inheritance-this.html"><strong aria-hidden="true">7.1.</strong> TS Deep Dive: Inheritance, super, and the Trouble with this</a></li></ol></li><li class="chapter-item expanded "><a href="ch08-shell.html"><strong aria-hidden="true">8.</strong> The Console and the Shell</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch08a-ts-functions-as-values.html"><strong aria-hidden="true">8.1.</strong> TS Deep Dive: Functions as Values</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part IV — Processes and Threads</li><li class="chapter-item expanded "><a href="ch09-processes.html"><strong aria-hidden="true">9.</strong> Processes and the PCB</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch09a-ts-literal-types.html"><strong aria-hidden="true">9.1.</strong> TS Deep Dive: Literal Types and Type Aliases</a></li></ol></li><li class="chapter-item expanded "><a href="ch10-threads.html"><strong aria-hidden="true">10.</strong> Threads, and the One Thread You Have</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch10a-ts-event-loop.html"><strong aria-hidden="true">10.1.</strong> TS Deep Dive: The Event Loop, Timers, and Callbacks</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part V — Main Memory</li><li class="chapter-item expanded "><a href="ch11-main-memory.html"><strong aria-hidden="true">11.</strong> Binding, Base/Limit, and Partitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch11a-ts-interfaces.html"><strong aria-hidden="true">11.1.</strong> TS Deep Dive: Interfaces and Object Shapes</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VI — CPU Scheduling</li><li class="chapter-item expanded "><a href="ch12-scheduling-theory.html"><strong aria-hidden="true">12.</strong> Scheduling Theory, by Hand and by Code</a></li><li class="chapter-item expanded "><a href="ch13-scheduling-robsen.html"><strong aria-hidden="true">13.</strong> Scheduling in rObSen: Timer, Dispatcher, Context Switch</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch13a-ts-generics.html"><strong aria-hidden="true">13.1.</strong> TS Deep Dive: Generics</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VII — Storage</li><li class="chapter-item expanded "><a href="ch14-fs-interface.html"><strong aria-hidden="true">14.</strong> The File-System Interface</a></li><li class="chapter-item expanded "><a href="ch15-fs-implementation.html"><strong aria-hidden="true">15.</strong> File-System Implementation: The TSB Disk</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch15a-ts-storage-strings.html"><strong aria-hidden="true">15.1.</strong> TS Deep Dive: Web Storage, JSON, and Hex Strings</a></li></ol></li><li class="chapter-item expanded "><a href="ch16-disks.html"><strong aria-hidden="true">16.</strong> Disk Systems and Disk Scheduling</a></li><li class="chapter-item expanded affix "><li class="part-title">Part VIII — Beyond Contiguous Memory</li><li class="chapter-item expanded "><a href="ch17-swapping.html"><strong aria-hidden="true">17.</strong> Swapping: Roll-Out and Roll-In</a></li><li class="chapter-item expanded "><a href="ch18-paging.html"><strong aria-hidden="true">18.</strong> Paging</a></li><li class="chapter-item expanded affix "><li class="part-title">Part IX — Concurrency</li><li class="chapter-item expanded "><a href="ch19-sync-deadlock.html"><strong aria-hidden="true">19.</strong> Synchronization and Deadlock</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch19a-ts-async.html"><strong aria-hidden="true">19.1.</strong> TS Deep Dive: Promises and async/await</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part X — Virtual Memory</li><li class="chapter-item expanded "><a href="ch20-virtual-memory.html"><strong aria-hidden="true">20.</strong> Demand Paging and Page Replacement</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch20a-ts-implements.html"><strong aria-hidden="true">20.1.</strong> TS Deep Dive: implements and the Strategy Pattern</a></li></ol></li><li class="chapter-item expanded "><li class="spacer"></li><li class="chapter-item expanded affix "><a href="appA-6502a.html" class="active">A. The 6502a Instruction Set</a></li><li class="chapter-item expanded affix "><a href="appB-commands.html">B. Shell Command Reference</a></li><li class="chapter-item expanded affix "><a href="appC-bugs.html">C. Bug Ledger</a></li><li class="chapter-item expanded affix "><a href="appD-glados.html">D. Testing with GLaDOS</a></li><li class="chapter-item expanded affix "><a href="appE-slide-index.html">E. Slide Index</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">rObSen, Layer by Layer</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="a-the-6502a-instruction-set"><a class="header" href="#a-the-6502a-instruction-set">A. The 6502a Instruction Set</a></h1>
+<p>The course’s “6502alan” subset of the MOS 6502: fourteen instructions, enough for loops, arithmetic, and output. This appendix collects everything you need to write, read, and hand-trace 6502a programs, with rObSen’s behaviour noted where it differs from the handout.</p>
+<h2 id="the-instructions"><a class="header" href="#the-instructions">The instructions</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Opcode</th><th>Mnemonic</th><th>Operand</th><th>Bytes</th><th>Meaning</th><th>rObSen handler</th></tr></thead><tbody>
+<tr><td><code>A9</code></td><td>LDA</td><td><code>#$nn</code> constant</td><td>2</td><td>Load the accumulator with a constant</td><td><code>opLoadAccImmediate</code></td></tr>
+<tr><td><code>AD</code></td><td>LDA</td><td><code>$nnnn</code> memory</td><td>3</td><td>Load the accumulator from memory</td><td><code>opLoadAccAbsolute</code></td></tr>
+<tr><td><code>8D</code></td><td>STA</td><td><code>$nnnn</code> memory</td><td>3</td><td>Store the accumulator in memory</td><td><code>opStoreAccAbsolute</code></td></tr>
+<tr><td><code>6D</code></td><td>ADC</td><td><code>$nnnn</code> memory</td><td>3</td><td>Add a memory byte to the accumulator; result stays in the accumulator</td><td><code>opAddWithCarry</code></td></tr>
+<tr><td><code>A2</code></td><td>LDX</td><td><code>#$nn</code> constant</td><td>2</td><td>Load the X register with a constant</td><td><code>opLoadXImmediate</code></td></tr>
+<tr><td><code>AE</code></td><td>LDX</td><td><code>$nnnn</code> memory</td><td>3</td><td>Load the X register from memory</td><td><code>opLoadXAbsolute</code></td></tr>
+<tr><td><code>A0</code></td><td>LDY</td><td><code>#$nn</code> constant</td><td>2</td><td>Load the Y register with a constant</td><td><code>opLoadYImmediate</code></td></tr>
+<tr><td><code>AC</code></td><td>LDY</td><td><code>$nnnn</code> memory</td><td>3</td><td>Load the Y register from memory</td><td><code>opLoadYAbsolute</code></td></tr>
+<tr><td><code>EA</code></td><td>NOP</td><td>none</td><td>1</td><td>No operation</td><td><code>opNoOperation</code></td></tr>
+<tr><td><code>00</code></td><td>BRK</td><td>none</td><td>1</td><td>Break: end the program (a system call to exit)</td><td><code>opBreak</code></td></tr>
+<tr><td><code>EC</code></td><td>CPX</td><td><code>$nnnn</code> memory</td><td>3</td><td>Compare memory to X; <strong>set Z if equal</strong>, clear it otherwise</td><td><code>opCompareX</code></td></tr>
+<tr><td><code>D0</code></td><td>BNE</td><td><code>$nn</code> offset</td><td>2</td><td>Branch <em>n</em> bytes (signed) if Z = 0</td><td><code>opBranchNotEqual</code></td></tr>
+<tr><td><code>EE</code></td><td>INC</td><td><code>$nnnn</code> memory</td><td>3</td><td>Increment a memory byte</td><td><code>opIncrementAbsolute</code></td></tr>
+<tr><td><code>FF</code></td><td>SYS</td><td>none</td><td>1</td><td>System call, selected by X (see below)</td><td><code>opSystemCall</code></td></tr>
+</tbody></table>
+</div>
+<p><strong>Addresses</strong> are two bytes, low byte first (little-endian): <code>8D 50 00</code> stores at <code>$0050</code>.</p>
+<p><strong>Branch offsets</strong> are signed (two’s complement) and relative to the address <em>after</em> the two-byte BNE: <code>00</code>–<code>7F</code> go forward 0–127 bytes, <code>80</code>–<code>FF</code> go back 128–1 bytes. To branch back to address <em>target</em> from a BNE at address <em>b</em>: offset = (<em>target</em> − (<em>b</em> + 2)) &amp; <code>0xFF</code>.</p>
+<p><strong>System calls</strong> (<code>FF</code>):</p>
+<div class="table-wrapper"><table><thead><tr><th>X</th><th>Effect</th></tr></thead><tbody>
+<tr><td><code>01</code></td><td>Print the integer in Y (decimal)</td></tr>
+<tr><td><code>02</code></td><td>Print the <code>00</code>-terminated string starting at the address in Y</td></tr>
+</tbody></table>
+</div>
+<p>The handout notes that SYS isn’t a real 6502 instruction and that “in the OS simulations, the CPU object will generate a software interrupt when it sees the SYS op code (FF).” rObSen’s CPU instead performs the call directly (Chapter 2); Appendix C’s patch routes it through the kernel.</p>
+<h2 id="where-robsen-differs-from-the-handout"><a class="header" href="#where-robsen-differs-from-the-handout">Where rObSen differs from the handout</a></h2>
+<ul>
+<li><strong>Z flag.</strong> The handout has only CPX set Z. rObSen also sets Z after LDA, LDX, LDY, ADC, and INC (real-6502 behaviour). Programs that rely on Z surviving across a load behave differently (Chapter 5).</li>
+<li><strong>No carry.</strong> ADC wraps at 255 with no carry flag, as the subset implies.</li>
+<li><strong>One instruction per clock tick</strong>, regardless of length.</li>
+<li><strong>PC wraps</strong> at 255 (<code>&amp; 0xff</code>).</li>
+<li><strong>Unknown opcodes</strong> trap and shut the OS down (Chapter 5; fixed in Appendix C).</li>
+</ul>
+<h2 id="disassembler"><a class="header" href="#disassembler">Disassembler</a></h2>
+<p><code>src/code/sims/disasm.ts</code> turns hex into readable assembly, and is the quickest way to check a hand-assembled program:</p>
+<pre><code class="language-console">$ tsc --target es2022 disasm.ts
+$ node disasm.js "A9 00 8D 30 00 A2 03 EE 30 00 EC 30 00 D0 F8 AC 30 00 A2 01 FF 00"
+00: A9 00      LDA #$00
+02: 8D 30 00   STA $0030
+05: A2 03      LDX #$03
+07: EE 30 00   INC $0030
+0A: EC 30 00   CPX $0030
+0D: D0 F8      BNE $07   ; -8
+0F: AC 30 00   LDY $0030
+12: A2 01      LDX #$01
+14: FF         SYS
+15: 00         BRK
+</code></pre>
+<pre><code class="language-typescript">function disassemble(bytes: number[], stopAtFirstBrk = true): string[] {
+  const lines: string[] = [];
+  let pc = 0;
+  while (pc &lt; bytes.length) {
+    const op = bytes[pc];
+    const info = OPCODES[op];
+    if (!info) {
+      lines.push(`${hex(pc)}: ${hex(op)}         .byte $${hex(op)}`);
+      pc += 1;
+      continue;
+    }
+    let raw = hex(op);
+    let operand = "";
+    if (info.mode === "immediate") {
+      raw += " " + hex(bytes[pc + 1]);
+      operand = `#$${hex(bytes[pc + 1])}`;
+      pc += 2;
+    } else if (info.mode === "absolute") {
+      const lo = bytes[pc + 1], hi = bytes[pc + 2];
+      raw += ` ${hex(lo)} ${hex(hi)}`;
+      operand = `$${hex((hi &lt;&lt; 8) | lo, 4)}`; // little-endian: low byte first
+      pc += 3;
+    } else if (info.mode === "relative") {
+      const offset = bytes[pc + 1];
+      const signed = offset &lt; 0x80 ? offset : offset - 0x100; // two's complement
+      pc += 2;
+      raw += " " + hex(offset);
+      operand = `$${hex((pc + signed) &amp; 0xff)}   ; ${signed &gt;= 0 ? "+" : ""}${signed}`;
+    } else {
+      pc += 1;
+    }
+    const start = pc - raw.split(" ").length;
+    lines.push(`${hex(start)}: ${raw.padEnd(10)} ${info.mnemonic} ${operand}`.trimEnd());
+    if (stopAtFirstBrk &amp;&amp; op === 0x00) break;
+  }
+  return lines;
+}
+</code></pre>
+<h2 id="idioms"><a class="header" href="#idioms">Idioms</a></h2>
+<p><strong>Count to <em>n</em>.</strong> The only instruction that increments is INC, which works on memory, and the only comparison is CPX, which compares X to memory. So: put the limit in X, the counter in memory.</p>
+<pre><code class="language-text">A9 00 8D 30 00     ; counter = 0
+A2 05              ; X = 5
+EE 30 00           ; loop: counter++
+EC 30 00           ;       Z = (counter == 5)
+D0 F8              ;       if not, back to loop
+</code></pre>
+<p><strong>Unconditional branch.</strong> There’s no JMP, but BNE always branches when Z = 0. Force it with a comparison you know fails: compare X against a memory cell holding a different value. Under rObSen’s Z behaviour, an LDA of a nonzero value also clears Z.</p>
+<p><strong>Print a string.</strong> Store the bytes somewhere after the code, terminated with <code>00</code>, then <code>A0 &lt;addr&gt; A2 02 FF</code>.</p>
+<p><strong>Print a number.</strong> <code>AC &lt;addr lo&gt; &lt;addr hi&gt;</code> (load it into Y) then <code>A2 01 FF</code>. A classic mistake, made by the sample program under rObSen’s input box, is to load the result into the <em>accumulator</em> and then print Y (Chapter 5).</p>
+<h2 id="test-programs-worth-keeping"><a class="header" href="#test-programs-worth-keeping">Test programs worth keeping</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Program</th><th>Hex</th><th>Expected output</th></tr></thead><tbody>
+<tr><td>Print <code>A7</code></td><td><code>A9 41 8D 10 00 A0 10 A2 02 FF A2 01 A0 07 FF 00</code></td><td><code>A7</code></td></tr>
+<tr><td>Count to 3</td><td><code>A9 00 8D 30 00 A2 03 EE 30 00 EC 30 00 D0 F8 AC 30 00 A2 01 FF 00</code></td><td><code>3</code></td></tr>
+<tr><td>5 × 5 × 5 (sample)</td><td>see Chapter 5</td><td><code>0</code>, then <code>ACC = 125</code></td></tr>
+<tr><td>Z-flag probe</td><td><code>A9 00 D0 02 A0 01 A2 01 FF 00</code></td><td>spec: <code>0</code>; rObSen: <code>1</code></td></tr>
+<tr><td>Invalid opcode</td><td><code>A9 01 FE 00</code></td><td>trap</td></tr>
+<tr><td>12-instruction filler</td><td><code>EA</code> × 11, then <code>00</code></td><td>nothing; useful for scheduling tests</td></tr>
+</tbody></table>
+</div>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch20a-ts-implements.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="appB-commands.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch20a-ts-implements.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="appB-commands.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

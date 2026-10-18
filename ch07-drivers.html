@@ -1,0 +1,405 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Device Drivers: The Keyboard - rObSen, Layer by Layer</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="A companion to Alan Labouseur&#x27;s Operating Systems course (CMPT 424, Marist), told through one student&#x27;s browser-based OS written in TypeScript.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">Preface: How to Read This Book</a></li><li class="chapter-item expanded affix "><a href="map.html">The Map: rObSen at a Glance</a></li><li class="chapter-item expanded affix "><li class="part-title">Part I — Foundations</li><li class="chapter-item expanded "><a href="ch01-what-is-an-os.html"><strong aria-hidden="true">1.</strong> What Is an Operating System?</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch01a-ts-namespaces.html"><strong aria-hidden="true">1.1.</strong> TS Deep Dive: Namespaces and the Global Script World</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-structures.html"><strong aria-hidden="true">2.</strong> OS Structures and the Machine Inside the Browser</a></li><li class="chapter-item expanded affix "><li class="part-title">Part II — The Hardware Layer (source/host)</li><li class="chapter-item expanded "><a href="ch03-host.html"><strong aria-hidden="true">3.</strong> The Host: Clock, Buttons, and the Log</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch03a-ts-static-dom.html"><strong aria-hidden="true">3.1.</strong> TS Deep Dive: Static Members, Type Assertions, and the DOM</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-memory.html"><strong aria-hidden="true">4.</strong> Memory and the Memory Accessor</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch04a-ts-class-anatomy.html"><strong aria-hidden="true">4.1.</strong> TS Deep Dive: Anatomy of a Class</a></li></ol></li><li class="chapter-item expanded "><a href="ch05-cpu.html"><strong aria-hidden="true">5.</strong> The CPU: Fetch, Decode, Execute</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch05a-ts-bitwise.html"><strong aria-hidden="true">5.1.</strong> TS Deep Dive: Bits, Bytes, and Bitwise Operators</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part III — The Kernel Layer (source/os)</li><li class="chapter-item expanded "><a href="ch06-kernel.html"><strong aria-hidden="true">6.</strong> Booting, Interrupts, and the Mode Bit</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch06a-ts-unions-null.html"><strong aria-hidden="true">6.1.</strong> TS Deep Dive: Union Types, Null, and Optional Chaining</a></li></ol></li><li class="chapter-item expanded "><a href="ch07-drivers.html" class="active"><strong aria-hidden="true">7.</strong> Device Drivers: The Keyboard</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch07a-ts-inheritance-this.html"><strong aria-hidden="true">7.1.</strong> TS Deep Dive: Inheritance, super, and the Trouble with this</a></li></ol></li><li class="chapter-item expanded "><a href="ch08-shell.html"><strong aria-hidden="true">8.</strong> The Console and the Shell</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch08a-ts-functions-as-values.html"><strong aria-hidden="true">8.1.</strong> TS Deep Dive: Functions as Values</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part IV — Processes and Threads</li><li class="chapter-item expanded "><a href="ch09-processes.html"><strong aria-hidden="true">9.</strong> Processes and the PCB</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch09a-ts-literal-types.html"><strong aria-hidden="true">9.1.</strong> TS Deep Dive: Literal Types and Type Aliases</a></li></ol></li><li class="chapter-item expanded "><a href="ch10-threads.html"><strong aria-hidden="true">10.</strong> Threads, and the One Thread You Have</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch10a-ts-event-loop.html"><strong aria-hidden="true">10.1.</strong> TS Deep Dive: The Event Loop, Timers, and Callbacks</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part V — Main Memory</li><li class="chapter-item expanded "><a href="ch11-main-memory.html"><strong aria-hidden="true">11.</strong> Binding, Base/Limit, and Partitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch11a-ts-interfaces.html"><strong aria-hidden="true">11.1.</strong> TS Deep Dive: Interfaces and Object Shapes</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VI — CPU Scheduling</li><li class="chapter-item expanded "><a href="ch12-scheduling-theory.html"><strong aria-hidden="true">12.</strong> Scheduling Theory, by Hand and by Code</a></li><li class="chapter-item expanded "><a href="ch13-scheduling-robsen.html"><strong aria-hidden="true">13.</strong> Scheduling in rObSen: Timer, Dispatcher, Context Switch</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch13a-ts-generics.html"><strong aria-hidden="true">13.1.</strong> TS Deep Dive: Generics</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part VII — Storage</li><li class="chapter-item expanded "><a href="ch14-fs-interface.html"><strong aria-hidden="true">14.</strong> The File-System Interface</a></li><li class="chapter-item expanded "><a href="ch15-fs-implementation.html"><strong aria-hidden="true">15.</strong> File-System Implementation: The TSB Disk</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch15a-ts-storage-strings.html"><strong aria-hidden="true">15.1.</strong> TS Deep Dive: Web Storage, JSON, and Hex Strings</a></li></ol></li><li class="chapter-item expanded "><a href="ch16-disks.html"><strong aria-hidden="true">16.</strong> Disk Systems and Disk Scheduling</a></li><li class="chapter-item expanded affix "><li class="part-title">Part VIII — Beyond Contiguous Memory</li><li class="chapter-item expanded "><a href="ch17-swapping.html"><strong aria-hidden="true">17.</strong> Swapping: Roll-Out and Roll-In</a></li><li class="chapter-item expanded "><a href="ch18-paging.html"><strong aria-hidden="true">18.</strong> Paging</a></li><li class="chapter-item expanded affix "><li class="part-title">Part IX — Concurrency</li><li class="chapter-item expanded "><a href="ch19-sync-deadlock.html"><strong aria-hidden="true">19.</strong> Synchronization and Deadlock</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch19a-ts-async.html"><strong aria-hidden="true">19.1.</strong> TS Deep Dive: Promises and async/await</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Part X — Virtual Memory</li><li class="chapter-item expanded "><a href="ch20-virtual-memory.html"><strong aria-hidden="true">20.</strong> Demand Paging and Page Replacement</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ch20a-ts-implements.html"><strong aria-hidden="true">20.1.</strong> TS Deep Dive: implements and the Strategy Pattern</a></li></ol></li><li class="chapter-item expanded "><li class="spacer"></li><li class="chapter-item expanded affix "><a href="appA-6502a.html">A. The 6502a Instruction Set</a></li><li class="chapter-item expanded affix "><a href="appB-commands.html">B. Shell Command Reference</a></li><li class="chapter-item expanded affix "><a href="appC-bugs.html">C. Bug Ledger</a></li><li class="chapter-item expanded affix "><a href="appD-glados.html">D. Testing with GLaDOS</a></li><li class="chapter-item expanded affix "><a href="appE-slide-index.html">E. Slide Index</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">rObSen, Layer by Layer</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="device-drivers-the-keyboard"><a class="header" href="#device-drivers-the-keyboard">Device Drivers: The Keyboard</a></h1>
+<div class="stack"><span>Browser</span><span>Host: clock & devices</span><span>Host: memory</span><span>Host: CPU</span><span>Kernel</span><span class="here">Drivers</span><span>Console & shell</span><span>Processes</span><span>Memory manager</span><span>Scheduler</span><span>File system</span><span>Swapper</span></div>
+<p><em>Slides: Chapter 1, pp. 37–43 and 73 (interrupt-driven I/O, kernel I/O structure, the I/O subsystem); Chapter 2, p. 113 (“APIs call device drivers”). Lab 001.</em></p>
+<p>A <strong>device driver</strong> is the part of the OS that knows the particulars of one device and presents a uniform interface to the rest of the kernel. The slides list “hiding of hardware dependencies” as the first job of device management (p. 20), and “general device-driver interface” plus “drivers for specific hardware devices” as parts of the I/O subsystem (p. 73). rObSen has two drivers: the keyboard, which this chapter reads in full, and the disk, which Chapter 15 reads.</p>
+<h2 id="the-base-class"><a class="header" href="#the-base-class">The base class</a></h2>
+<pre><code class="language-typescript">/* ------------------------------
+     DeviceDriver.ts
+
+     The "base class" for all Device Drivers.
+     ------------------------------ */
+
+module TSOS {
+    export class DeviceDriver {
+        public version = '0.07';
+        public status = 'unloaded';
+        public preemptable = false;
+
+        public driverEntry = null;
+        public isr = null;
+
+        // The constructor below is useless because child classes
+        // cannot pass "this" arguments when calling super().
+        //constructor(public driverEntry = null,
+        //            public isr = null) {
+        //}
+    }
+}
+</code></pre>
+<p>Every driver has:</p>
+<ul>
+<li>a <strong><code>driverEntry</code></strong> routine, called once when the kernel loads the driver, to initialize it (the name comes from Windows, where <code>DriverEntry</code> is literally what a driver’s initialization function is called);</li>
+<li>an <strong><code>isr</code></strong>, the interrupt service routine the kernel calls when the device interrupts;</li>
+<li>a <strong><code>status</code></strong> string (“unloaded” until <code>driverEntry</code> runs);</li>
+<li>a <code>version</code> and a <code>preemptable</code> flag, neither of which is used yet. “Preemptable” foreshadows a real question from slide p. 27: “Can you interrupt an interrupt? Some ISRs are preempt-able, others are not.”</li>
+</ul>
+<p><code>driverEntry</code> and <code>isr</code> are <em>fields holding functions</em>, set to <code>null</code> in the base class. Each subclass fills them in. This is a hand-rolled version of what object-oriented languages call virtual methods, and the commented-out constructor explains why it’s done this way. Chapter 7a unpacks that comment, because it’s a genuinely subtle point about JavaScript’s <code>this</code>.</p>
+<p>Loading a driver in <code>krnBootstrap</code> is two lines: construct it, then call its entry routine.</p>
+<pre><code class="language-typescript">_krnKeyboardDriver = new DeviceDriverKeyboard(); // Construct it.
+_krnKeyboardDriver.driverEntry();                // Call the driverEntry() initialization routine.
+</code></pre>
+<h2 id="the-keyboard-driver"><a class="header" href="#the-keyboard-driver">The keyboard driver</a></h2>
+<pre><code class="language-typescript">/* ----------------------------------
+   DeviceDriverKeyboard.ts
+
+   The Kernel Keyboard Device Driver.
+   ---------------------------------- */
+
+module TSOS {
+  // Extends DeviceDriver
+  export class DeviceDriverKeyboard extends DeviceDriver {
+    constructor() {
+      // Override the base method pointers.
+
+      // The code below cannot run because "this" can only be
+      // accessed after calling super.
+      // super(this.krnKbdDriverEntry, this.krnKbdDispatchKeyPress);
+      // So instead...
+      super();
+      this.driverEntry = this.krnKbdDriverEntry;
+      this.isr = this.krnKbdDispatchKeyPress;
+    }
+
+    public krnKbdDriverEntry() {
+      // Initialization routine for this, the kernel-mode Keyboard Device Driver.
+      this.status = "loaded";
+      // More?
+    }
+    //
+    public krnKbdDispatchKeyPress(params) {
+      const keyCode = params[0];
+      const isShifted = params[1];
+      const isCtrl = !!params[2];
+      _Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
+
+      switch (keyCode) {
+        case 8:
+          _KernelInputQueue.enqueue("[BS]");
+          return; // Backspace
+        case 9:
+          _KernelInputQueue.enqueue("[TAB]");
+          return; // Tab
+        case 13:
+          _KernelInputQueue.enqueue(String.fromCharCode(13));
+          return; // Enter
+        case 32:
+          _KernelInputQueue.enqueue(" ");
+          return; // Space
+        case 38:
+          _KernelInputQueue.enqueue("[UP]");
+          return; // Up
+        case 40:
+          _KernelInputQueue.enqueue("[DOWN]");
+          return; // Down
+      }
+
+      if (isCtrl &amp;&amp; keyCode === 67) {
+        _KernelInputQueue.enqueue("[CTRL_C]");
+        return;
+      }
+
+      if (keyCode &gt;= 65 &amp;&amp; keyCode &lt;= 90) {
+        const chr = String.fromCharCode(isShifted ? keyCode : keyCode + 32);
+        _KernelInputQueue.enqueue(chr);
+        return;
+      }
+
+      const shiftedDigits = ")!@#$%^&amp;*(";
+      if (keyCode &gt;= 48 &amp;&amp; keyCode &lt;= 57) {
+        const chr = isShifted
+          ? shiftedDigits[keyCode - 48]
+          : String.fromCharCode(keyCode);
+        _KernelInputQueue.enqueue(chr);
+        return;
+      }
+
+      const map = new Map&lt;number, [string, string]&gt;([
+        [186, [";", ":"]],
+        [187, ["=", "+"]],
+        [188, [",", "&lt;"]],
+        [189, ["-", "_"]],
+        [190, [".", "&gt;"]],
+        [191, ["/", "?"]],
+        [192, ["`", "~"]],
+        [219, ["[", "{"]],
+        [220, ["\\", "|"]],
+        [221, ["]", "}"]],
+        [222, ["'", '"']],
+      ]);
+      const pair = map.get(keyCode);
+      if (pair) {
+        _KernelInputQueue.enqueue(isShifted ? pair[1] : pair[0]);
+      }
+    }
+  }
+}
+</code></pre>
+<h3 id="what-the-hardware-hands-over"><a class="header" href="#what-the-hardware-hands-over">What the hardware hands over</a></h3>
+<p>Recall from Chapter 3 that the host’s keyboard “hardware” enqueues <code>Interrupt(KEYBOARD_IRQ, [keyCode, shiftKey, ctrlOrMeta])</code>. The key code is a number identifying a physical key, not a character. Key 65 is the A key whether or not Shift is held. Turning (65, shift) into <code>"A"</code> and (65, no shift) into <code>"a"</code> is the driver’s job.</p>
+<h3 id="the-translation-case-by-case"><a class="header" href="#the-translation-case-by-case">The translation, case by case</a></h3>
+<ol>
+<li><strong>Control keys</strong> are handled first and return early. Backspace (8), Tab (9), Up (38), and Down (40) become <em>tokens</em>: the strings <code>"[BS]"</code>, <code>"[TAB]"</code>, <code>"[UP]"</code>, <code>"[DOWN]"</code>. Enter (13) becomes the character with code 13, a carriage return. Space (32) becomes <code>" "</code>.</li>
+<li><strong>Ctrl-C</strong> (key 67 with Ctrl held, or ⌘ on a Mac, since <code>hostOnKeypress</code> passes <code>ctrlKey || metaKey</code>) becomes <code>"[CTRL_C]"</code>. The console turns that into “kill the running process” (Chapter 8).</li>
+<li><strong>Letters</strong> (65–90): the key codes happen to equal the ASCII codes of the <em>uppercase</em> letters, and lowercase letters are exactly 32 higher in ASCII. So unshifted is <code>keyCode + 32</code>, shifted is <code>keyCode</code> itself.</li>
+<li><strong>Digits</strong> (48–57): unshifted, the key code is the ASCII digit. Shifted, the driver indexes into the string <code>")!@#$%^&amp;*("</code>, which is the US keyboard’s shifted digit row starting from 0. <code>shiftedDigits[keyCode - 48]</code> picks the right symbol.</li>
+<li><strong>Punctuation</strong>: a <code>Map</code> from key code to a <code>[unshifted, shifted]</code> pair. Key 186 is <code>;</code>/<code>:</code>, 222 is <code>'</code>/<code>"</code>, and so on.</li>
+<li>Anything else (function keys, Escape, Left/Right arrows, Caps Lock) is silently ignored.</li>
+</ol>
+<p>The result goes onto <code>_KernelInputQueue</code>, and the kernel’s interrupt handler immediately calls <code>_StdIn.handleInput()</code> to consume it (Chapter 6).</p>
+<div class="callout"><span class="label">Note</span>
+The punctuation codes (186, 187, 188, …) are what Chrome and Safari report for a US layout. Firefox historically reported different codes for a few keys (59 for semicolon, 61 for equals, 173 for minus), so in Firefox those keys may do nothing. This is exactly the "peculiarities of hardware devices" (slide p. 73) a driver exists to absorb. Modern code would read <code>event.key</code>, which the browser has already translated using the user's actual layout.
+</div>
+<h3 id="in-band-signalling"><a class="header" href="#in-band-signalling">In-band signalling</a></h3>
+<p>Look at the input queue’s contents after typing <code>l</code>, <code>s</code>, Backspace, <code>s</code>, Enter: <code>"l"</code>, <code>"s"</code>, <code>"[BS]"</code>, <code>"s"</code>, <code>"\r"</code>. Characters and control tokens share one queue, distinguished only by their spelling. That’s <strong>in-band signalling</strong>: the control information travels in the same channel as the data. It works here because a single keystroke can never produce the five-character string <code>"[BS]"</code>. But it’s the same design that caused the original telephone network’s famous 2600 Hz vulnerability (control tones in the voice channel), and a more careful design would queue structured events, such as <code>{ kind: "char", ch: "s" }</code> or <code>{ kind: "backspace" }</code>.</p>
+<h3 id="carriage-return-and-the-tty"><a class="header" href="#carriage-return-and-the-tty">Carriage return, and the TTY</a></h3>
+<p>Enter is queued as <code>String.fromCharCode(13)</code>, the <strong>carriage return</strong> (CR), not the newline (LF, code 10). That’s a fossil from the teletype, a typewriter-like terminal whose Return key physically returned the print carriage to the left margin. Which brings us to the one question in Lab 001.</p>
+<div class="callout lab"><span class="label">Lab 001</span>
+"How is your console like the ancient TTY subsystem in Unix as described in https://www.linusakesson.net/programming/tty/ ?"
+<br><br>
+A sketch of an answer, from rObSen's actual code. The Unix TTY subsystem sits between a terminal device and a process, and contains a <strong>line discipline</strong> that buffers typed characters, handles editing keys (erase, kill-line), echoes input back to the screen, and only delivers a completed line to the process when Return is pressed. It also turns special characters into signals: Ctrl-C becomes SIGINT for the foreground process. rObSen's pipeline has the same shape. The keyboard driver plays the UART driver (raw key codes in, characters out). <code>Console.handleInput</code> is the line discipline: it echoes each character, handles Backspace by editing its buffer and the screen, handles Up/Down by recalling history, and hands the whole line to the shell only on CR. Ctrl-C is intercepted by the console and turned into "terminate the running process," which is SIGINT in all but name. The main difference is that a Unix TTY delivers lines to a separate user process through <code>read()</code>; rObSen's "line discipline" calls the shell directly, inside the interrupt handler, because the shell lives in the kernel.
+</div>
+<h2 id="why-drivers-matter-the-same-interface-different-devices"><a class="header" href="#why-drivers-matter-the-same-interface-different-devices">Why drivers matter: the same interface, different devices</a></h2>
+<p>Slide p. 113 (“APIs call device drivers”) and the Chapter 11 slides on virtual file systems (p. 764) make the same point from two directions: code above the driver shouldn’t care what’s below it. The console never sees key codes; it sees characters and tokens. The shell never sees blocks; it calls <code>createFile</code> and <code>readFile</code>. If you swapped the keyboard driver for one that read from a serial line, or the disk driver for one backed by IndexedDB, nothing above them would change.</p>
+<p>That’s the claim. Chapter 15 checks how well rObSen’s disk driver lives up to it.</p>
+<h2 id="check-yourself"><a class="header" href="#check-yourself">Check yourself</a></h2>
+<ol>
+<li>What does the driver enqueue for Shift+<code>/</code>? For Shift+<code>5</code>?</li>
+<li>Why does the letter case use <code>keyCode + 32</code> for lowercase rather than uppercase?</li>
+<li>Add Left and Right arrow support. What would the driver enqueue, and what would the console have to learn to do?</li>
+</ol>
+<details>
+<summary>Answers</summary>
+<ol>
+<li><code>"?"</code> (key 191 maps to <code>["/", "?"]</code>, shifted). <code>"%"</code> (key 53, <code>")!@#$%^&amp;*("[5]</code> is <code>%</code>).</li>
+<li>Because browser key codes for letters equal the ASCII codes of the <em>uppercase</em> letters (A = 65), and ASCII lowercase is uppercase + 32 (a = 97).</li>
+<li>Key codes 37 and 39, enqueued as <code>"[LEFT]"</code> and <code>"[RIGHT]"</code>. The console would need a cursor position <em>within</em> its line buffer (it only tracks the end today), and insertion and backspace would have to work at that position and redraw the rest of the line.</li>
+</ol>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch06a-ts-unions-null.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="ch07a-ts-inheritance-this.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch06a-ts-unions-null.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="ch07a-ts-inheritance-this.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

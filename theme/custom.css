@@ -1,0 +1,111 @@
+/* rObSen, Layer by Layer — small additions on top of the stock mdBook (Rust-book) look. */
+
+/* "Where are we in the stack?" banner at the top of each chapter */
+.stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0 0 1.4em;
+  font-family: var(--mono-font, monospace);
+  font-size: 0.78em;
+}
+.stack span {
+  padding: 2px 8px;
+  border: 1px solid var(--table-border-color);
+  border-radius: 3px;
+  opacity: 0.55;
+}
+.stack span.here {
+  opacity: 1;
+  border-color: var(--links);
+  color: var(--links);
+  font-weight: 600;
+}
+
+/* Callout boxes */
+.callout {
+  border-left: 4px solid var(--links);
+  background: var(--quote-bg);
+  padding: 0.7em 1em;
+  margin: 1.2em 0;
+  border-radius: 0 4px 4px 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label {
+  display: block;
+  font-size: 0.75em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 0.3em;
+  opacity: 0.8;
+}
+.callout.bug { border-left-color: #c0392b; }
+.callout.bug .label { color: #c0392b; }
+.callout.ts { border-left-color: #3178c6; }
+.callout.ts .label { color: #3178c6; }
+.callout.exam { border-left-color: #b9770e; }
+.callout.exam .label { color: #b9770e; }
+.callout.lab { border-left-color: #1e8449; }
+.callout.lab .label { color: #1e8449; }
+
+/* Slide figures */
+figure.slide {
+  margin: 1.4em auto;
+  text-align: center;
+  max-width: 640px;
+}
+figure.slide img {
+  width: 100%;
+  border: 1px solid var(--table-border-color);
+  border-radius: 4px;
+  background: #fff;
+}
+figure.slide figcaption,
+figure.diagram figcaption {
+  font-size: 0.82em;
+  opacity: 0.75;
+  margin-top: 0.4em;
+}
+.slide-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  margin: 1.4em 0;
+}
+.slide-pair figure.slide { margin: 0; }
+
+/* Hand-drawn SVG diagrams follow the theme */
+figure.diagram {
+  margin: 1.6em auto;
+  text-align: center;
+}
+figure.diagram svg {
+  max-width: 100%;
+  height: auto;
+  color: var(--fg);
+}
+figure.diagram svg text {
+  fill: currentColor;
+  font-family: "Open Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Keyboard-ish rendering for shell transcripts */
+pre.term, .term code {
+  background: #1d1f21 !important;
+  color: #e6e6e6 !important;
+}
+
+/* TS deep-dive chapters get a small badge under the title */
+.deep-dive-badge {
+  display: inline-block;
+  font-size: 0.75em;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #3178c6;
+  color: #fff;
+  margin-bottom: 1em;
+}
+
+table { font-size: 0.92em; }
